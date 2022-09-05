@@ -15,7 +15,7 @@ def eval(model, dataset, iou_thr):
     for idx in tqdm(range(len(dataset))):
         im = dataset[idx]['image']
         text = dataset[idx]['phrases'][0]
-        print("im, text:", im.shape, text)
+        print("im, text:", type(im), text)
         bbox_pred, _ = model(im, text)
         pred.append(bbox_pred[0])
     pred = np.stack(pred, 0)
