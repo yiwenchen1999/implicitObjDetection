@@ -28,6 +28,18 @@ parser_args = parser.parse_args()
 
 if parser_args.model == 'vit14':
     model = SLICViT
+    args = {
+        'model': 'vit14',
+        'alpha': 0.75,
+        'aggregation': 'mean',
+        'n_segments': list(range(100, 601, 50)),
+        'temperature': 0.02,
+        'upsample': 2,
+        'start_block': 0,
+        'compactness': 50,
+        'sigma': 0,
+    }
+
 elif parser_args.model == 'rn50':
     model = ResNetHighRes
 elif parser_args.model == 'ssbaseline':
