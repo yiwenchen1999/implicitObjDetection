@@ -128,13 +128,13 @@ class SLICViT(nn.Module):
         h, w = im.shape[:2]
         heatmap = self.get_heatmap(im, text)
         # print("heatmap is ", type(heatmap), heatmap.shape, heatmap)
-        heatimg = heatmap*800
-        # print(heatimg)
-        o_im = Image.fromarray(im).convert ('RGB')
-        h_im = Image.fromarray(heatimg).convert ('RGB')
-        o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output1/"+text+".png")
-        h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output1/"+text+"_heat.png")
-        print(text+" saved")
+        # heatimg = heatmap*800
+        # # print(heatimg)
+        # o_im = Image.fromarray(im).convert ('RGB')
+        # h_im = Image.fromarray(heatimg).convert ('RGB')
+        # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+text+".png")
+        # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+text+"_heat.png")
+        # print(text+" saved")
         bbox = self.box_from_heatmap(heatmap)
         bbox[:, ::2] = bbox[:, ::2] * w / w
         bbox[:, 1::2] = bbox[:, 1::2] * h / h

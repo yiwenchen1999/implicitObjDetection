@@ -175,4 +175,11 @@ if __name__=='__main__':
         if filename[0:4] == 'rgba':
             img_path = path + filename
             im = np.array(Image.open(img_path).convert("RGB"))
-            getHeatmap(model, im , "chair")
+            heatmap = getHeatmap(model, im , "chair")
+            heatimg = heatmap*800
+            # print(heatimg)
+            o_im = Image.fromarray(im).convert ('RGB')
+            h_im = Image.fromarray(heatimg).convert ('RGB')
+            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+filename+".png")
+            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+filename+"_heat.png")
+            print(filename+" saved")
