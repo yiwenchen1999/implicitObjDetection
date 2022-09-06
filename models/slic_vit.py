@@ -128,7 +128,7 @@ class SLICViT(nn.Module):
         h, w = im.shape[:2]
         heatmap = self.get_heatmap(im, text)
         print("heatmap is ", type(heatmap), heatmap.shape, heatmap)
-        heatimg = heatmap*255
+        heatimg = heatmap
         print(heatimg)
         o_im = Image.fromarray(im).convert ('RGB')
         h_im = Image.fromarray(heatimg , 'L')
