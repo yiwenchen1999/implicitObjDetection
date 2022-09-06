@@ -52,9 +52,11 @@ model = model(**args).cuda()
 
 if __name__=='__main__':
     path = '/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/toybox-13/0/'
+    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/NiceSlamTesting/Datasets/Demo/frames/color/'
     directories = os.listdir( path )
     for filename in directories:
-        if filename[0:4] == 'rgba':
+        # if filename[0:4] == 'rgba':
+        if True:
             img_path = path + filename
             im = np.array(Image.open(img_path).convert("RGB"))
             heatmap = getHeatmap(model, im , "chair")
@@ -62,6 +64,6 @@ if __name__=='__main__':
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
-            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+filename+".png")
-            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+filename+"_heat.png")
+            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/outputDemo/"+filename+".png")
+            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/outputDemo/"+filename+"_heat.png")
             print(filename+" saved")
