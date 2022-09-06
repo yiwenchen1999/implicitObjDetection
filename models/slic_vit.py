@@ -131,7 +131,7 @@ class SLICViT(nn.Module):
         heatimg = heatmap*500
         print(heatimg)
         o_im = Image.fromarray(im).convert ('RGB')
-        h_im = Image.fromarray(heatimg)
+        h_im = Image.fromarray(heatimg).convert ('RGB')
         o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output/"+text+".png")
         h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output/"+text+"_heat.png")
         print(text+" saved")
