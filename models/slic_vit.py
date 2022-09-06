@@ -55,7 +55,7 @@ class SLICViT(nn.Module):
             # im is uint8 numpy
             h, w = im.shape[:2]
             im = Image.fromarray(im).convert('RGB')
-            im = im.resize((224, 224))
+            # im = im.resize((224, 224))
             masks = self.get_masks(np.array(im))
             masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             im = self.model.preprocess(im).unsqueeze(0).cuda()
@@ -136,8 +136,8 @@ class SLICViT(nn.Module):
         h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output/"+text+"_heat.png")
         print(text+" saved")
         bbox = self.box_from_heatmap(heatmap)
-        bbox[:, ::2] = bbox[:, ::2] * w / 224.
-        bbox[:, 1::2] = bbox[:, 1::2] * h / 224.
+        bbox[:, ::2] = bbox[:, ::2] * w / w
+        bbox[:, 1::2] = bbox[:, 1::2] * h / h
         # restore paramters
         for key in args:
             setattr(self, key, _args[key])
