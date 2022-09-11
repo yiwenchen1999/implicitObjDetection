@@ -245,6 +245,9 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
 
     poses, bds, imgs = _load_data(basedir, factor=factor) # factor=8 downsamples original imgs by 8x
     print('Loaded', basedir, bds.min(), bds.max())
+    print("poses: ", type(poses), poses.shape)
+    print("bds: ", type(bds), bds)
+    print("imgs: ", type(imgs), imgs.shape)
     
     # Correct rotation matrix ordering and move variable dim to axis 0
     poses = np.concatenate([poses[:, 1:2, :], -poses[:, 0:1, :], poses[:, 2:, :]], 1)
@@ -315,5 +318,9 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
 
     return images, poses, bds, render_poses, i_test
 
+if __name__=='__main__':
+    load_llff_data("./data/nerf_synthetic/lego", 8,
+               recenter=True, bd_factor=.75,
+               spherify=True)
 
 
