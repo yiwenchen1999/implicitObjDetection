@@ -48,7 +48,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         meta = metas[s]
         print("meta: ")
         print("camera_angle_x", type(meta["camera_angle_x"]), meta["camera_angle_x"])
-        print("frames", len(meta["frames"]),type(meta["frames"][0]))
+        print("trans matrix", type(frame['transform_matrix']))
         imgs = []
         poses = []
         if s=='train' or testskip==0:
@@ -63,6 +63,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
         print("imgs: ", imgs.shape)
         poses = np.array(poses).astype(np.float32)
+        print("poese: ", poses.shape)
         counts.append(counts[-1] + imgs.shape[0])
         all_imgs.append(imgs)
         all_poses.append(poses)
