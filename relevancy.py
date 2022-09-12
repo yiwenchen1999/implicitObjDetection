@@ -51,20 +51,21 @@ else:
 model = model(**args).cuda()
 
 if __name__=='__main__':
-    # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/toybox-13/0/'
+    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/toybox-13/0/'
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/NiceSlamTesting/Datasets/Demo/frames/color/'
-    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/lego/train/'
+    # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/lego/train/'
     directories = os.listdir( path )
     for filename in directories:
         # if filename[0:4] == 'rgba':
         if True:
             img_path = path + filename
             im = np.array(Image.open(img_path).convert("RGB"))
-            heatmap = getHeatmap(model, im , "tractor")
+            heatmap = getHeatmap(model, im , "chair")
             heatimg = heatmap*200
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
             o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputLego/"+filename)
             h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputLego/"+filename[:-4]+"_heat.png")
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputLego/"+filename[:-4]+"_heat.pny", heatmap)
             print(filename+" saved")
