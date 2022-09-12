@@ -47,7 +47,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
     for s in splits:
         meta = metas[s]
         print("meta: ")
-        print("camera_angle_x", type(meta["camera_angle_x"]), meta["camera_angle_x"].shape)
+        print("camera_angle_x", type(meta["camera_angle_x"]), meta["camera_angle_x"])
         print("frames", type(meta["frames"]))
         imgs = []
         poses = []
