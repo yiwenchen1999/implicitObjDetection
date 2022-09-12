@@ -51,8 +51,9 @@ else:
 model = model(**args).cuda()
 
 if __name__=='__main__':
-    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/toybox-13/0/'
-    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/NiceSlamTesting/Datasets/Demo/frames/color/'
+    # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/toybox-13/0/'
+    # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/NiceSlamTesting/Datasets/Demo/frames/color/'
+    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/lego/train/'
     directories = os.listdir( path )
     for filename in directories:
         # if filename[0:4] == 'rgba':
@@ -65,5 +66,5 @@ if __name__=='__main__':
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
             o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/outputDemo/"+filename+".png")
-            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/outputDemo/"+filename+"_heat.png")
+            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/outputDemo/"+filename[:,-4]+"_heat.png")
             print(filename+" saved")
