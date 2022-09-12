@@ -66,5 +66,5 @@ if __name__=='__main__':
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
             o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/outputDemo/"+filename+".png")
-            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/outputDemo/"+filename[:,-4]+"_heat.png")
+            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/outputDemo/"+filename[-4:]+"_heat.png")
             print(filename+" saved")
