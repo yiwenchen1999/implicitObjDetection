@@ -60,7 +60,7 @@ if __name__=='__main__':
         if True:
             img_path = path + filename
             im = np.array(Image.open(img_path).convert("RGB"))
-            heatmap = getHeatmap(model, im , "chair")
+            heatmap = getHeatmap(model, im , "tractor")
             heatimg = heatmap*200
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
