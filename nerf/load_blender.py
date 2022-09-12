@@ -47,7 +47,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
     for s in splits:
         meta = metas[s]
         print("meta: ")
-        print(type(meta))
+        print(meta.keys())
         imgs = []
         poses = []
         if s=='train' or testskip==0:
