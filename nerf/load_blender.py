@@ -91,9 +91,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
     return imgs, poses, render_poses, [H, W, focal], i_split
 
 if __name__=='__main__':
-    load_blender_data("./data/nerf_synthetic/lego", 8,
-               recenter=True, bd_factor=.75,
-               spherify=True)
+    load_blender_data("./data/nerf_synthetic/lego")
 
 
 
