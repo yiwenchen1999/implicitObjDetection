@@ -65,6 +65,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         poses = np.array(poses).astype(np.float32)
         print("poese: ", poses.shape)
         counts.append(counts[-1] + imgs.shape[0])
+        print("counts: ", counts[0])
         all_imgs.append(imgs)
         all_poses.append(poses)
     
@@ -72,6 +73,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
     
     imgs = np.concatenate(all_imgs, 0)
     poses = np.concatenate(all_poses, 0)
+    print("imgs, poses, i_split: ", imgs.shape, poses.shape, i_split.shape)
     
     H, W = imgs[0].shape[:2]
     camera_angle_x = float(meta['camera_angle_x'])
