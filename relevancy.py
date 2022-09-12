@@ -67,5 +67,5 @@ if __name__=='__main__':
             h_im = Image.fromarray(heatimg).convert ('RGB')
             o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputLego/"+filename)
             h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputLego/"+filename[:-4]+"_heat.png")
-            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputLego/"+filename[:-4]+"_heat.pny", heatmap)
+            # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputLego/"+filename[:-4]+"_heat.pny", heatmap)
             print(filename+" saved")
