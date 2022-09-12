@@ -46,6 +46,8 @@ def load_blender_data(basedir, half_res=False, testskip=1):
     counts = [0]
     for s in splits:
         meta = metas[s]
+        print("meta: ")
+        print(type(meta))
         imgs = []
         poses = []
         if s=='train' or testskip==0:
@@ -87,5 +89,11 @@ def load_blender_data(basedir, half_res=False, testskip=1):
 
         
     return imgs, poses, render_poses, [H, W, focal], i_split
+
+if __name__=='__main__':
+    load_blender_data("./data/nerf_synthetic/lego", 8,
+               recenter=True, bd_factor=.75,
+               spherify=True)
+
 
 
