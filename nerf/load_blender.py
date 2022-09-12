@@ -48,7 +48,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         meta = metas[s]
         print("meta: ")
         print("camera_angle_x", type(meta["camera_angle_x"]), meta["camera_angle_x"])
-        print("trans matrix", type(meta["frames"]['transform_matrix']))
+        print("trans matrix", type(meta["frames"][0]['transform_matrix']))
         imgs = []
         poses = []
         if s=='train' or testskip==0:
