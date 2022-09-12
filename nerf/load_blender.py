@@ -73,7 +73,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
     
     imgs = np.concatenate(all_imgs, 0)
     poses = np.concatenate(all_poses, 0)
-    print("imgs, poses, i_split: ", imgs.shape, poses.shape, i_split.shape)
+    print("imgs, poses, i_split: ", imgs.shape, poses.shape, len(i_split))
     
     H, W = imgs[0].shape[:2]
     camera_angle_x = float(meta['camera_angle_x'])
