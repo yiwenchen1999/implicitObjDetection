@@ -178,12 +178,12 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 def create_nerf(args):
     """Instantiate NeRF's MLP model.
     """
+    #------------------positional encoding stuff-------------------------
     embed_fn, input_ch = get_embedder(args.multires, args.i_embed)
-    print("creating nerf")
-    # print("embed_fn: ", embed_fn.shape)
-    print("input_ch ", input_ch)
-    print("use viewdirs: ",args.use_viewdirs)
-    print("N importance: ", args.N_importance)
+    # print("creating nerf")
+    # print("input_ch ", input_ch)
+    # print("use viewdirs: ",args.use_viewdirs)
+    # print("N importance: ", args.N_importance)
 
     input_ch_views = 0
     embeddirs_fn = None
@@ -194,7 +194,10 @@ def create_nerf(args):
     model = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
-    print("D:", args.netdepth)
+    print("nerf created:")
+    print("D, w, input_ch, ouput_ch:", args.netdepth, args.netwidth, input_ch, output_ch)
+    print("skips, input_ch_views, use_viewdirs", skips, input_ch_views, args.use_viewdirs)
+    print("--------------------------------------")
     grad_vars = list(model.parameters())
 
     model_fine = None
