@@ -180,7 +180,7 @@ def create_nerf(args):
     """
     embed_fn, input_ch = get_embedder(args.multires, args.i_embed)
     print("creating nerf")
-    print("embed_fn: ", embed_fn.shape)
+    # print("embed_fn: ", embed_fn.shape)
     print("input_ch ", input_ch)
     print("use viewdirs: ",args.use_viewdirs)
     print("N importance: ", args.N_importance)
