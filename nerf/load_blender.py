@@ -98,7 +98,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
 def load_Nesf_data(basedir, half_res=False, testskip=1):
     with open(os.path.join(basedir,"metadata.json"), 'r') as fp:
             file = json.load(fp)
-    print(file.leys())
+    print(file.keys())
 
 
 if __name__=='__main__':
