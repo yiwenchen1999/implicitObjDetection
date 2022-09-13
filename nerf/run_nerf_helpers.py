@@ -46,8 +46,8 @@ class Embedder:
 
 
 def get_embedder(multires, i=0):
-    print("doing get_embedder: multires, i,", multires, i)
-    print("-----------------------------------------")
+    # print("doing get_embedder: multires, i,", multires, i)
+    # print("-----------------------------------------")
     if i == -1:
         return nn.Identity(), 3
     

@@ -95,8 +95,16 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         
     return imgs, poses, render_poses, [H, W, focal], i_split
 
+def load_Nesf_data(basedir, half_res=False, testskip=1):
+    with open(os.path.join(basedir,"metadata.json"), 'r') as fp:
+            file = json.load(fp)
+    print(file.leys())
+
+
 if __name__=='__main__':
-    load_blender_data("./data/nerf_synthetic/lego")
+    # load_blender_data("./data/nerf_synthetic/lego")
+    load_Nesf_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0")
+    
 
 
 
