@@ -58,6 +58,24 @@ def blender_quat2rot(quaternion):
   rotation[..., 2, 2] = 1.0 - qaa - qbb
   return rotation
 
+def make_transform_matrix(positions,rotations):
+  """Create the 4x4 transformation matrix.
+
+  Note: This function uses numpy.
+
+  Args:
+    positions: Translation applied after the rotation.
+      Last column of the transformation matrix
+    rotations: Rotation. Top-left 3x3 matrix of the transformation matrix.
+
+  Returns:
+    transformation_matrix:
+  """
+  # Create the 4x4 transformation matrix
+  rot_pos = np.broadcast_to(np.eye(4), (*positions.shape[:-1], 4, 4)).copy()
+  rot_pos[..., :3, :3] = rotations
+  rot_pos[..., :3, 3] = positions
+  return rot_pos
 
 trans_t = lambda t : torch.Tensor([
     [1,0,0,0],
@@ -168,8 +186,11 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         pos = file["camera"]["positions"][i]
         quat = file["camera"]["quaternions"][i]
         quat = np.asarray(quat)
-        rotations = blender_quat2rot(quat)
-        print("rot figured")
+        rotation = blender_quat2rot(quat)
+        pose = make_transform_matrix(pos, rotation)
+        poses.append(pose)
+        print("pose appended")
+        # print("rot figured")
         # poses.append(np.array(frame['transform_matrix']))
 
         # imgs.append(imageio.imread(fname))
