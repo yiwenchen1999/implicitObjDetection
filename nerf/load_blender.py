@@ -6,6 +6,58 @@ import json
 import torch.nn.functional as F
 import cv2
 
+def blender_quat2rot(quaternion: f32['... 4']) -> f32['... 3 3']:
+  """Convert quaternion to rotation matrix.
+
+
+  Equivalent to, but support batched case:
+
+  ```python
+  rot3x3 = mathutils.Quaternion(quaternion).to_matrix()
+  ```
+
+  Args:
+    quaternion:
+
+  Returns:
+    rotation matrix
+  """
+
+  # Note: Blender first cast to double values for numerical precision while
+  # we're using float32.
+  q = np.sqrt(2) * quaternion
+
+  q0 = q[..., 0]
+  q1 = q[..., 1]
+  q2 = q[..., 2]
+  q3 = q[..., 3]
+
+  qda = q0 * q1
+  qdb = q0 * q2
+  qdc = q0 * q3
+  qaa = q1 * q1
+  qab = q1 * q2
+  qac = q1 * q3
+  qbb = q2 * q2
+  qbc = q2 * q3
+  qcc = q3 * q3
+
+  # Note: idx are inverted as blender and numpy convensions do not
+  # match (x, y) -> (y, x)
+  rotation = np.empty((*quaternion.shape[:-1], 3, 3), dtype=np.float32)
+  rotation[..., 0, 0] = 1.0 - qbb - qcc
+  rotation[..., 1, 0] = qdc + qab
+  rotation[..., 2, 0] = -qdb + qac
+
+  rotation[..., 0, 1] = -qdc + qab
+  rotation[..., 1, 1] = 1.0 - qaa - qcc
+  rotation[..., 2, 1] = qda + qbc
+
+  rotation[..., 0, 2] = qdb + qac
+  rotation[..., 1, 2] = -qda + qbc
+  rotation[..., 2, 2] = 1.0 - qaa - qbb
+  return rotation
+
 
 trans_t = lambda t : torch.Tensor([
     [1,0,0,0],
@@ -111,7 +163,14 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     poses = []
     for i in train_id:
         fname = os.path.join(basedir, "rgba_"+"%05d" % i+".png")
-        print(fname)
+        # print(fname)
+        imgs.append(imageio.imread(fname))
+        pos = file["positions"][i]
+        quat = file["quaternions"][i]
+        rotations = blender_quat2rot(quat)
+        print("rot figured")
+        # poses.append(np.array(frame['transform_matrix']))
+
         # imgs.append(imageio.imread(fname))
         # poses.append(np.array(frame['transform_matrix']))
     for s in splits:
