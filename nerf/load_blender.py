@@ -165,8 +165,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         fname = os.path.join(basedir, "rgba_"+"%05d" % i+".png")
         # print(fname)
         imgs.append(imageio.imread(fname))
-        pos = file["positions"][i]
-        quat = file["quaternions"][i]
+        pos = file["camera"]["positions"][i]
+        quat = file["camera"]["quaternions"][i]
         rotations = blender_quat2rot(quat)
         print("rot figured")
         # poses.append(np.array(frame['transform_matrix']))
@@ -180,8 +180,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
 
 
 if __name__=='__main__':
-    print("-------------------------load blender data---------------------------------------")
-    load_blender_data("./data/nerf_synthetic/lego")
+    # print("-------------------------load blender data---------------------------------------")
+    # load_blender_data("./data/nerf_synthetic/lego")
     print("-----------------------load nesf data--------------------------------------------")
     load_Nesf_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0")
     
