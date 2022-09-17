@@ -1,7 +1,7 @@
 import os
 import torch
 import numpy as np
-import imageio 
+import imageio.v2 as imageio
 import json
 import torch.nn.functional as F
 import cv2
@@ -167,6 +167,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         imgs.append(imageio.imread(fname))
         pos = file["camera"]["positions"][i]
         quat = file["camera"]["quaternions"][i]
+        quat = np.asarray(quat)
         rotations = blender_quat2rot(quat)
         print("rot figured")
         # poses.append(np.array(frame['transform_matrix']))
