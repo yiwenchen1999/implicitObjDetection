@@ -6,7 +6,7 @@ import json
 import torch.nn.functional as F
 import cv2
 
-def blender_quat2rot(quaternion: f32['... 4']) -> f32['... 3 3']:
+def blender_quat2rot(quaternion):
   """Convert quaternion to rotation matrix.
 
 
