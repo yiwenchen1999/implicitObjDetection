@@ -104,7 +104,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     H = file["metadata"]['height']
     W = file["metadata"]['width']
     focal = file["camera"]['focal_length']
-    n_frames = file["camera"]['num_frames']
+    n_frames = file["metadata"]['num_frames']
     train_id = file["split_ids"]["train"]
     test_id = file["split_ids"]["test"]
     imgs = []
