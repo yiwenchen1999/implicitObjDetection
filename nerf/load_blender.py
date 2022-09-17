@@ -186,6 +186,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         pos = file["camera"]["positions"][i]
         quat = file["camera"]["quaternions"][i]
         quat = np.asarray(quat)
+        pos = np.asarray(pos)
         rotation = blender_quat2rot(quat)
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
