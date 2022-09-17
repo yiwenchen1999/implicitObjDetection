@@ -91,6 +91,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
             imgs_half_res[i] = cv2.resize(img, (W, H), interpolation=cv2.INTER_AREA)
         imgs = imgs_half_res
         # imgs = tf.image.resize_area(imgs, [400, 400]).numpy()
+    print("i_splits:", i_split)
 
         
     return imgs, poses, render_poses, [H, W, focal], i_split
@@ -98,11 +99,31 @@ def load_blender_data(basedir, half_res=False, testskip=1):
 def load_Nesf_data(basedir, half_res=False, testskip=1):
     with open(os.path.join(basedir,"metadata.json"), 'r') as fp:
             file = json.load(fp)
+    splits = ['train', 'val', 'test']
+    metas = {}
+    H = file["metadata"]['height']
+    W = file["metadata"]['width']
+    focal = file["camera"]['focal_length']
+    n_frames = file["camera"]['num_frames']
+    train_id = file["split_ids"]["train"]
+    test_id = file["split_ids"]["test"]
+    imgs = []
+    poses = []
+    for i in train_id:
+        fname = os.path.join(basedir, "rgba_"+"%05d" % i+".png")
+        print(fname)
+        # imgs.append(imageio.imread(fname))
+        # poses.append(np.array(frame['transform_matrix']))
+    for s in splits:
+        pass
+
     print(file.keys())
 
 
 if __name__=='__main__':
-    # load_blender_data("./data/nerf_synthetic/lego")
+    print("-------------------------load blender data---------------------------------------")
+    load_blender_data("./data/nerf_synthetic/lego")
+    print("-----------------------load nesf data--------------------------------------------")
     load_Nesf_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0")
     
 
