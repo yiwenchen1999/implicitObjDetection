@@ -177,6 +177,10 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     n_frames = file["metadata"]['num_frames']
     train_id = file["split_ids"]["train"]
     test_id = file["split_ids"]["test"]
+    all_imgs = []
+    all_poses = []
+    counts = [0]
+
     imgs = []
     poses = []
     for i in train_id:
@@ -190,16 +194,65 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         rotation = blender_quat2rot(quat)
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
-        print("pose appended")
-        # print("rot figured")
-        # poses.append(np.array(frame['transform_matrix']))
+    imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
+    print("imgs: ", imgs.shape)
+    poses = np.array(poses).astype(np.float32)
+    print("poese: ", poses.shape)
+    counts.append(counts[-1] + imgs.shape[0])
+    all_imgs.append(imgs)
+    all_poses.append(poses)
 
-        # imgs.append(imageio.imread(fname))
-        # poses.append(np.array(frame['transform_matrix']))
-    for s in splits:
-        pass
+    imgs = []
+    poses = []
+    for i in test_id:
+        fname = os.path.join(basedir, "rgba_"+"%05d" % i+".png")
+        # print(fname)
+        imgs.append(imageio.imread(fname))
+        pos = file["camera"]["positions"][i]
+        quat = file["camera"]["quaternions"][i]
+        quat = np.asarray(quat)
+        pos = np.asarray(pos)
+        rotation = blender_quat2rot(quat)
+        pose = make_transform_matrix(pos, rotation)
+        poses.append(pose)
+    imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
+    print("imgs: ", imgs.shape)
+    poses = np.array(poses).astype(np.float32)
+    print("poese: ", poses.shape)
+    counts.append(counts[-1] + imgs.shape[0])
+    all_imgs.append(imgs)
+    all_poses.append(poses)
 
-    print(file.keys())
+    imgs = []
+    poses = []
+    for i in test_id:
+        fname = os.path.join(basedir, "rgba_"+"%05d" % i+".png")
+        # print(fname)
+        imgs.append(imageio.imread(fname))
+        pos = file["camera"]["positions"][i]
+        quat = file["camera"]["quaternions"][i]
+        quat = np.asarray(quat)
+        pos = np.asarray(pos)
+        rotation = blender_quat2rot(quat)
+        pose = make_transform_matrix(pos, rotation)
+        poses.append(pose)
+    imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
+    print("imgs: ", imgs.shape)
+    poses = np.array(poses).astype(np.float32)
+    print("poese: ", poses.shape)
+    counts.append(counts[-1] + imgs.shape[0])
+    all_imgs.append(imgs)
+    all_poses.append(poses)
+    #-------------------------------loaded all 3 sets of data--------------------------------------
+    i_split = [np.arange(counts[i], counts[i+1]) for i in range(3)]
+    
+    imgs = np.concatenate(all_imgs, 0)
+    poses = np.concatenate(all_poses, 0)
+    print("imgs, poses, i_split: ", imgs.shape, poses.shape, len(i_split))
+    render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
+
+    return imgs, poses, render_poses, [H, W, focal], i_split
+
 
 
 if __name__=='__main__':
