@@ -288,8 +288,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
 
 
 if __name__=='__main__':
-    # print("-------------------------load blender data---------------------------------------")
-    # load_blender_data("./data/nerf_synthetic/lego")
+    print("-------------------------load blender data---------------------------------------")
+    load_blender_data("./data/nerf_synthetic/lego")
     print("-----------------------load nesf data--------------------------------------------")
     load_Nesf_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0")
     
