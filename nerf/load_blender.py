@@ -5,6 +5,7 @@ import imageio.v2 as imageio
 import json
 import torch.nn.functional as F
 import cv2
+import math
 
 def blender_quat2rot(quaternion):
   """Convert quaternion to rotation matrix.
@@ -180,6 +181,10 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     all_imgs = []
     all_poses = []
     counts = [0]
+    near = 10000
+    far = 0
+    minBounds = file["scene_boundaries"]["min"]
+    maxBounds = file["scene_boundaries"]["max"]
 
     imgs = []
     poses = []
@@ -189,11 +194,20 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         imgs.append(imageio.imread(fname))
         pos = file["camera"]["positions"][i]
         quat = file["camera"]["quaternions"][i]
+        dis1 = math.sqrt(pow((minBounds[0]-pos[0]),2)+pow((minBounds[1]-pos[1]),2)+pow((minBounds[1]-pos[1]),2))
+        dis2 = math.sqrt(pow((maxBounds[0]-pos[0]),2)+pow((maxBounds[1]-pos[1]),2)+pow((maxBounds[1]-pos[1]),2))
+
         quat = np.asarray(quat)
         pos = np.asarray(pos)
         rotation = blender_quat2rot(quat)
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
+
+        minDis = min(dis1, dis2)
+        maxDis = max(dis1, dis2)
+        near = min(near,minDis)
+        far = max(far, maxDis)
+
     imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
     print("imgs: ", imgs.shape)
     poses = np.array(poses).astype(np.float32)
@@ -210,11 +224,19 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         imgs.append(imageio.imread(fname))
         pos = file["camera"]["positions"][i]
         quat = file["camera"]["quaternions"][i]
+        dis1 = math.sqrt(pow((minBounds[0]-pos[0]),2)+pow((minBounds[1]-pos[1]),2)+pow((minBounds[1]-pos[1]),2))
+        dis2 = math.sqrt(pow((maxBounds[0]-pos[0]),2)+pow((maxBounds[1]-pos[1]),2)+pow((maxBounds[1]-pos[1]),2))
         quat = np.asarray(quat)
         pos = np.asarray(pos)
         rotation = blender_quat2rot(quat)
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
+
+        minDis = min(dis1, dis2)
+        maxDis = max(dis1, dis2)
+        near = min(near,minDis)
+        far = max(far, maxDis)
+
     imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
     print("imgs: ", imgs.shape)
     poses = np.array(poses).astype(np.float32)
@@ -231,11 +253,19 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         imgs.append(imageio.imread(fname))
         pos = file["camera"]["positions"][i]
         quat = file["camera"]["quaternions"][i]
+        dis1 = math.sqrt(pow((minBounds[0]-pos[0]),2)+pow((minBounds[1]-pos[1]),2)+pow((minBounds[1]-pos[1]),2))
+        dis2 = math.sqrt(pow((maxBounds[0]-pos[0]),2)+pow((maxBounds[1]-pos[1]),2)+pow((maxBounds[1]-pos[1]),2))
+
         quat = np.asarray(quat)
         pos = np.asarray(pos)
         rotation = blender_quat2rot(quat)
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
+        minDis = min(dis1, dis2)
+        maxDis = max(dis1, dis2)
+        near = min(near,minDis)
+        far = max(far, maxDis)
+
     imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
     print("imgs: ", imgs.shape)
     poses = np.array(poses).astype(np.float32)
@@ -251,7 +281,9 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     print("imgs, poses, i_split: ", imgs.shape, poses.shape, len(i_split))
     render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
 
-    return imgs, poses, render_poses, [H, W, focal], i_split
+    print("near, far: ", near, far)
+
+    return imgs, poses, render_poses, [H, W, focal], i_split, near, far
 
 
 

@@ -15,7 +15,7 @@ from run_nerf_helpers import *
 
 from load_llff import load_llff_data
 from load_deepvoxels import load_dv_data
-from load_blender import load_blender_data
+from load_blender import load_blender_data, load_Nesf_data
 from load_LINEMOD import load_LINEMOD_data
 
 
@@ -574,6 +574,13 @@ def train():
             near = 0.
             far = 1.
         print('NEAR FAR', near, far)
+
+    elif args.dataset_type == 'nesf':
+        images, poses, render_poses, hwf, i_split, near, far = load_Nesf_data(args.datadir, args.half_res, args.testskip)
+        print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
+        i_train, i_val, i_test = i_split
+        images = images[...,:3]
+
 
     elif args.dataset_type == 'blender':
         images, poses, render_poses, hwf, i_split = load_blender_data(args.datadir, args.half_res, args.testskip)
