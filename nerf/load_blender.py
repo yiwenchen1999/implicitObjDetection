@@ -202,7 +202,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         quat = np.asarray(quat)
         pos = np.asarray(pos)
         # rotation = blender_quat2rot(quat)
-        rotations = transform.Rotation.from_quat(quat).as_matrix()
+        rotation = transform.Rotation.from_quat(quat).as_matrix()
 
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
@@ -232,7 +232,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         dis2 = math.sqrt(pow((maxBounds[0]-pos[0]),2)+pow((maxBounds[1]-pos[1]),2)+pow((maxBounds[1]-pos[1]),2))
         quat = np.asarray(quat)
         pos = np.asarray(pos)
-        rotations = transform.Rotation.from_quat(quat).as_matrix()
+        rotation = transform.Rotation.from_quat(quat).as_matrix()
         # rotation = blender_quat2rot(quat)
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
@@ -264,7 +264,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         quat = np.asarray(quat)
         pos = np.asarray(pos)
         # rotation = blender_quat2rot(quat)
-        rotations = transform.Rotation.from_quat(quat).as_matrix()
+        rotation = transform.Rotation.from_quat(quat).as_matrix()
 
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
