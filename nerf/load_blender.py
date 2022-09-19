@@ -5,6 +5,7 @@ import imageio.v2 as imageio
 import json
 import torch.nn.functional as F
 import cv2
+from scipy.spatial import transform
 import math
 
 def blender_quat2rot(quaternion):
@@ -197,10 +198,12 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         quat = file["camera"]["quaternions"][i]
         dis1 = math.sqrt(pow((minBounds[0]-pos[0]),2)+pow((minBounds[1]-pos[1]),2)+pow((minBounds[1]-pos[1]),2))
         dis2 = math.sqrt(pow((maxBounds[0]-pos[0]),2)+pow((maxBounds[1]-pos[1]),2)+pow((maxBounds[1]-pos[1]),2))
-
+        # rotations = transform.Rotation.from_quat(quat).as_matrix()
         quat = np.asarray(quat)
         pos = np.asarray(pos)
-        rotation = blender_quat2rot(quat)
+        # rotation = blender_quat2rot(quat)
+        rotations = transform.Rotation.from_quat(quat).as_matrix()
+
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
 
@@ -229,7 +232,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         dis2 = math.sqrt(pow((maxBounds[0]-pos[0]),2)+pow((maxBounds[1]-pos[1]),2)+pow((maxBounds[1]-pos[1]),2))
         quat = np.asarray(quat)
         pos = np.asarray(pos)
-        rotation = blender_quat2rot(quat)
+        rotations = transform.Rotation.from_quat(quat).as_matrix()
+        # rotation = blender_quat2rot(quat)
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
 
@@ -259,7 +263,9 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
 
         quat = np.asarray(quat)
         pos = np.asarray(pos)
-        rotation = blender_quat2rot(quat)
+        # rotation = blender_quat2rot(quat)
+        rotations = transform.Rotation.from_quat(quat).as_matrix()
+
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
         minDis = min(dis1, dis2)
