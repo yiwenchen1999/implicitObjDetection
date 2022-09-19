@@ -163,6 +163,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         imgs = imgs_half_res
         # imgs = tf.image.resize_area(imgs, [400, 400]).numpy()
     print("i_splits:", i_split)
+    print(poses[0])
 
         
     return imgs, poses, render_poses, [H, W, focal], i_split
