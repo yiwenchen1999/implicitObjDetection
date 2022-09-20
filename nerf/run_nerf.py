@@ -758,6 +758,7 @@ def train():
             pose = poses[img_i, :3,:4]
             if args.with_saliency:
                 saliency = saliencies[img_i]
+                saliency = torch.Tensor(saliency).to(device)
 
             if N_rand is not None:
                 rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))  # (H, W, 3), (H, W, 3)
@@ -789,6 +790,7 @@ def train():
                     select_coords[:, 1] = select_coords[:, 1]*(saliency.shape[1]/target.shape[1])
                     # print("salient_0:", salient_0.shape)
                     # print("salient_1:", salient_1.shape)
+                    print("saliency")
                     saliency_s = saliency[select_coords[:, 0], select_coords[:, 1]]                    
 
 
