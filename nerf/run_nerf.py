@@ -782,9 +782,10 @@ def train():
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 batch_rays = torch.stack([rays_o, rays_d], 0)
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
+                print("with salienct:", args.with_saliency)
                 if args.with_saliency:
-                    salient_0 = select_coords[:, 0]*saliency.shape[0]/target.shape[0]
-                    salient_1 = select_coords[:, 1]*saliency.shape[1]/target.shape[1]
+                    salient_0 = select_coords[:, 0]*(saliency.shape[0]/target.shape[0])
+                    salient_1 = select_coords[:, 1]*(saliency.shape[1]/target.shape[1])
                     saliency_s = saliency[salient_0, salient_1]
 
         #####  Core optimization loop  #####
