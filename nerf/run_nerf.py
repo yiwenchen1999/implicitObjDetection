@@ -787,9 +787,9 @@ def train():
                     print("select coord:", select_coords.shape)
                     salient_0 = select_coords[:, 0]*(saliency.shape[0]/target.shape[0])
                     salient_1 = select_coords[:, 1]*(saliency.shape[1]/target.shape[1])
-                    saliency_s = saliency[salient_0, salient_1]                    
                     print("salient_0:", salient_0.shape)
                     print("salient_1:", salient_1.shape)
+                    saliency_s = saliency[salient_0, salient_1]                    
 
 
         #####  Core optimization loop  #####
