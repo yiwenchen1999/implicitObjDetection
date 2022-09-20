@@ -106,7 +106,7 @@ def pose_spherical(theta, phi, radius):
     return c2w
 
 
-def load_blender_data(basedir, half_res=False, testskip=1):
+def load_blender_data(basedir, half_res=False, testskip=1, use_saliency = False):
     splits = ['train', 'val', 'test']
     metas = {}
     for s in splits:
@@ -171,9 +171,10 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         # imgs = tf.image.resize_area(imgs, [400, 400]).numpy()
     print("i_splits:", i_split)
     print(poses[0])
-
-        
-    return imgs, poses, render_poses, [H, W, focal], i_split, saliency
+    if use_saliency:
+        return imgs, poses, render_poses, [H, W, focal], i_split, saliency
+    else:
+        return imgs, poses, render_poses, [H, W, focal], i_split
 
 def load_Nesf_data(basedir, half_res=False, testskip=1):
     with open(os.path.join(basedir,"metadata.json"), 'r') as fp:

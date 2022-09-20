@@ -507,6 +507,9 @@ def config_parser():
     parser.add_argument("--shape", type=str, default='greek', 
                         help='options : armchair / cube / greek / vase')
 
+    parser.add_argument("--with_saliency", type=bool, default=False, 
+                        help='train with or without saliency')
+
     ## blender flags
     parser.add_argument("--white_bkgd", action='store_true', 
                         help='set to render synthetic data on a white bkgd (always use for dvoxels)')
@@ -583,8 +586,11 @@ def train():
 
 
     elif args.dataset_type == 'blender':
-        images, poses, render_poses, hwf, i_split = load_blender_data(args.datadir, args.half_res, args.testskip)
-        print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
+        if  args.with_saliency:
+            images, poses, render_poses, hwf, i_split, saliency = load_blender_data(args.datadir, args.half_res, args.testskip, args.with_saliency)
+        else:
+            images, poses, render_poses, hwf, i_split = load_blender_data(args.datadir, args.half_res, args.testskip, args.with_saliency)
+        print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir, args.with_saliency)
         i_train, i_val, i_test = i_split
 
         near = 2.
