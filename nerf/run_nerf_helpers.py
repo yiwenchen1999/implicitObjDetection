@@ -67,7 +67,7 @@ def get_embedder(multires, i=0):
 
 # Model
 class NeRF(nn.Module):
-    def __init__(self, D=8, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[4], use_viewdirs=False):
+    def __init__(self, D=8, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[4], use_viewdirs=False, with_saliency=False):
         """ 
         """
         super(NeRF, self).__init__()
@@ -87,6 +87,7 @@ class NeRF(nn.Module):
         ### Implementation according to the paper
         # self.views_linears = nn.ModuleList(
         #     [nn.Linear(input_ch_views + W, W//2)] + [nn.Linear(W//2, W//2) for i in range(D//2)])
+        print("using_viewdirs：",use_viewdirs )
         
         if use_viewdirs:
             self.feature_linear = nn.Linear(W, W)
@@ -94,6 +95,10 @@ class NeRF(nn.Module):
             self.rgb_linear = nn.Linear(W//2, 3)
         else:
             self.output_linear = nn.Linear(W, output_ch)
+        if with_saliency:
+            self.featureS_linear = nn.Linear(W, W)
+            self.alphaS_linear = nn.Linear(W, 1)
+            self.saliency_linear = nn.Linear(W//2, 3)
 
     def forward(self, x):
         input_pts, input_views = torch.split(x, [self.input_ch, self.input_ch_views], dim=-1)
