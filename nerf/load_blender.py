@@ -115,6 +115,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
 
     all_imgs = []
     all_poses = []
+    all_saliency = []
     counts = [0]
     for s in splits:
         meta = metas[s]
@@ -123,6 +124,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         print("trans matrix", type(meta["frames"][0]['transform_matrix']))
         imgs = []
         poses = []
+        saliency = []
         if s=='train' or testskip==0:
             skip = 1
         else:
@@ -132,19 +134,23 @@ def load_blender_data(basedir, half_res=False, testskip=1):
             fname = os.path.join(basedir, frame['file_path'] + '.png')
             imgs.append(imageio.imread(fname))
             poses.append(np.array(frame['transform_matrix']))
+            saliency.append(np.load(os.path.join(basedir, frame['file_path'] + '_heat.npy.npy')))
         imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
         print("imgs: ", imgs.shape)
         poses = np.array(poses).astype(np.float32)
         print("poese: ", poses.shape)
+        saliency = np.array(saliency).astype(np.float32)        
         counts.append(counts[-1] + imgs.shape[0])
         print("counts: ", counts[0])
         all_imgs.append(imgs)
         all_poses.append(poses)
+        all_saliency.append(saliency)
     
     i_split = [np.arange(counts[i], counts[i+1]) for i in range(3)]
     
     imgs = np.concatenate(all_imgs, 0)
     poses = np.concatenate(all_poses, 0)
+    saliency = np.concatenate(all_saliency, 0)
     print("imgs, poses, i_split: ", imgs.shape, poses.shape, len(i_split))
     
     H, W = imgs[0].shape[:2]
@@ -167,7 +173,7 @@ def load_blender_data(basedir, half_res=False, testskip=1):
     print(poses[0])
 
         
-    return imgs, poses, render_poses, [H, W, focal], i_split
+    return imgs, poses, render_poses, [H, W, focal], i_split, saliency
 
 def load_Nesf_data(basedir, half_res=False, testskip=1):
     with open(os.path.join(basedir,"metadata.json"), 'r') as fp:
