@@ -193,7 +193,7 @@ def create_nerf(args):
     skips = [4]
     model = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
-                 input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_salienct).to(device)
+                 input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency).to(device)
     print("nerf created:")
     print("D, w, input_ch, ouput_ch:", args.netdepth, args.netwidth, input_ch, output_ch)
     print("skips, input_ch_views, use_viewdirs", skips, input_ch_views, args.use_viewdirs)
