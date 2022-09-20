@@ -193,7 +193,7 @@ def create_nerf(args):
     skips = [4]
     model = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
-                 input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
+                 input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_salienct).to(device)
     print("nerf created:")
     print("D, w, input_ch, ouput_ch:", args.netdepth, args.netwidth, input_ch, output_ch)
     print("skips, input_ch_views, use_viewdirs", skips, input_ch_views, args.use_viewdirs)
@@ -204,7 +204,7 @@ def create_nerf(args):
     if args.N_importance > 0:
         model_fine = NeRF(D=args.netdepth_fine, W=args.netwidth_fine,
                           input_ch=input_ch, output_ch=output_ch, skips=skips,
-                          input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
+                          input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency).to(device)
         grad_vars += list(model_fine.parameters())
 
     network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
@@ -587,7 +587,7 @@ def train():
 
     elif args.dataset_type == 'blender':
         if  args.with_saliency:
-            images, poses, render_poses, hwf, i_split, saliency = load_blender_data(args.datadir, args.half_res, args.testskip, args.with_saliency)
+            images, poses, render_poses, hwf, i_split, saliencies = load_blender_data(args.datadir, args.half_res, args.testskip, args.with_saliency)
         else:
             images, poses, render_poses, hwf, i_split = load_blender_data(args.datadir, args.half_res, args.testskip, args.with_saliency)
         print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir, args.with_saliency)
@@ -733,7 +733,7 @@ def train():
     start = start + 1
     for i in trange(start, N_iters):
         time0 = time.time()
-        print("using batch:", use_batching)
+        # print("using batch:", use_batching)
 
         # Sample random ray batch
         if use_batching:
@@ -755,6 +755,8 @@ def train():
             target = images[img_i]
             target = torch.Tensor(target).to(device)
             pose = poses[img_i, :3,:4]
+            if args.with_saliency:
+                saliency = saliencies[img_i]
 
             if N_rand is not None:
                 rays_o, rays_d = get_rays(H, W, K, torch.Tensor(pose))  # (H, W, 3), (H, W, 3)
@@ -779,6 +781,10 @@ def train():
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 batch_rays = torch.stack([rays_o, rays_d], 0)
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
+                if args.with_saliency:
+                    salient_0 = select_coords[:, 0]*saliency[0]/target[0]
+                    salient_1 = select_coords[:, 1]*saliency[1]/target[1]
+                    saliency_s = saliency[salient_0, salient_1]
 
         #####  Core optimization loop  #####
         rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,

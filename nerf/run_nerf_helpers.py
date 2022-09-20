@@ -77,6 +77,7 @@ class NeRF(nn.Module):
         self.input_ch_views = input_ch_views
         self.skips = skips
         self.use_viewdirs = use_viewdirs
+        self.with_saliency = with_saliency
         
         self.pts_linears = nn.ModuleList(
             [nn.Linear(input_ch, W)] + [nn.Linear(W, W) if i not in self.skips else nn.Linear(W + input_ch, W) for i in range(D-1)])
@@ -87,7 +88,7 @@ class NeRF(nn.Module):
         ### Implementation according to the paper
         # self.views_linears = nn.ModuleList(
         #     [nn.Linear(input_ch_views + W, W//2)] + [nn.Linear(W//2, W//2) for i in range(D//2)])
-        print("using_viewdirs：",use_viewdirs )
+        # print("using_viewdirs:",use_viewdirs )
         
         if use_viewdirs:
             self.feature_linear = nn.Linear(W, W)
@@ -109,6 +110,18 @@ class NeRF(nn.Module):
             if i in self.skips:
                 h = torch.cat([input_pts, h], -1)
 
+        if self.with_saliency:
+            alphaS = self.alphaS_linear(h)
+            featureS = self.featureS_linear(h)
+            hs = torch.cat([featureS, input_views], -1)
+        
+            for i, l in enumerate(self.views_linears):
+                hs = self.views_linears[i](hs)
+                hs = F.relu(hs)
+
+            saliency = self.saliency_linear(hs)
+            outputsS = torch.cat([saliency, alphaS], -1)
+
         if self.use_viewdirs:
             alpha = self.alpha_linear(h)
             feature = self.feature_linear(h)
@@ -123,7 +136,10 @@ class NeRF(nn.Module):
         else:
             outputs = self.output_linear(h)
 
-        return outputs    
+        if self.with_saliency:
+            return outputs, outputsS
+        else:
+            return outputs    
 
     def load_weights_from_keras(self, weights):
         assert self.use_viewdirs, "Not implemented if use_viewdirs=False"
