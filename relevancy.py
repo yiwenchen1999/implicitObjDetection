@@ -56,7 +56,7 @@ if __name__=='__main__':
     path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/train/'
     directories = os.listdir( path )
     for filename in directories:
-        if filename[3] == ".":
+        if filename[5] == ".":
         # if filename[0:4] == 'rgba':
         # if True:
             img_path = path + filename
