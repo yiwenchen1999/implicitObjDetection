@@ -27,6 +27,7 @@ DEBUG = False
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
     """
+    print("chunck: ", chunck)
     if chunk is None:
         return fn
     def ret(inputs):
@@ -47,7 +48,9 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
         embedded = torch.cat([embedded, embedded_dirs], -1)
 
     outputs_flat = batchify(fn, netchunk)(embedded)
+    print("outputs_flat:", outputs_flat.shape)
     outputs = torch.reshape(outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]])
+    print("outputs," ,outputs.shape)
     return outputs
 
 
