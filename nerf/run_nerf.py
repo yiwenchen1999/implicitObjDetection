@@ -591,7 +591,7 @@ def train():
             images, poses, render_poses, hwf, i_split, saliencies = load_blender_data(args.datadir, args.half_res, args.testskip, args.with_saliency)
         else:
             images, poses, render_poses, hwf, i_split = load_blender_data(args.datadir, args.half_res, args.testskip, args.with_saliency)
-        print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir, args.with_saliency)
+        # print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir, args.with_saliency)
         i_train, i_val, i_test = i_split
 
         near = 2.
