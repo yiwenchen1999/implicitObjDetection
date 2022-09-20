@@ -99,7 +99,7 @@ class NeRF(nn.Module):
         if with_saliency:
             self.featureS_linear = nn.Linear(W, W)
             self.alphaS_linear = nn.Linear(W, 1)
-            self.saliency_linear = nn.Linear(W//2, 3)
+            self.saliency_linear = nn.Linear(W//2, 1)
 
     def forward(self, x):
         input_pts, input_views = torch.split(x, [self.input_ch, self.input_ch_views], dim=-1)
@@ -132,14 +132,17 @@ class NeRF(nn.Module):
                 h = F.relu(h)
 
             rgb = self.rgb_linear(h)
-            outputs = torch.cat([rgb, alpha], -1)
+            if self.with_saliency:
+                outputs = torch.cat([rgb, alpha,saliency, alphaS], -1)
+            else: 
+                outputs = torch.cat([rgb, alpha], -1)
         else:
             outputs = self.output_linear(h)
+            if self.with_saliency:
+                outputs = torch.cat([outputs,saliency, alphaS], -1)
+            
 
-        if self.with_saliency:
-            return outputs, outputsS
-        else:
-            return outputs    
+        return outputs    
 
     def load_weights_from_keras(self, weights):
         assert self.use_viewdirs, "Not implemented if use_viewdirs=False"
