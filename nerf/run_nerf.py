@@ -27,7 +27,7 @@ DEBUG = False
 def batchify(fn, chunk):
     """Constructs a version of 'fn' that applies to smaller batches.
     """
-    print("chunck: ", chunck)
+    print("chunck: ", chunk)
     if chunk is None:
         return fn
     def ret(inputs):
