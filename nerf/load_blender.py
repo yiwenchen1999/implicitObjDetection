@@ -134,23 +134,27 @@ def load_blender_data(basedir, half_res=False, testskip=1, use_saliency = False)
             fname = os.path.join(basedir, frame['file_path'] + '.png')
             imgs.append(imageio.imread(fname))
             poses.append(np.array(frame['transform_matrix']))
-            saliency.append(np.load(fname[0:-4] + '_heat.npy'))
+            if use_saliency:
+                saliency.append(np.load(fname[0:-4] + '_heat.npy'))
         imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
         print("imgs: ", imgs.shape)
         poses = np.array(poses).astype(np.float32)
         print("poese: ", poses.shape)
-        saliency = np.array(saliency).astype(np.float32)        
+        if use_saliency:
+            saliency = np.array(saliency).astype(np.float32)        
         counts.append(counts[-1] + imgs.shape[0])
         print("counts: ", counts[0])
         all_imgs.append(imgs)
         all_poses.append(poses)
-        all_saliency.append(saliency)
+        if use_saliency:
+            all_saliency.append(saliency)
     
     i_split = [np.arange(counts[i], counts[i+1]) for i in range(3)]
     
     imgs = np.concatenate(all_imgs, 0)
     poses = np.concatenate(all_poses, 0)
-    saliency = np.concatenate(all_saliency, 0)
+    if use_saliency:
+        saliency = np.concatenate(all_saliency, 0)
     print("imgs, poses, i_split: ", imgs.shape, poses.shape, len(i_split))
     
     H, W = imgs[0].shape[:2]
