@@ -727,6 +727,7 @@ def train():
     start = start + 1
     for i in trange(start, N_iters):
         time0 = time.time()
+        print("using batch:", use_batching)
 
         # Sample random ray batch
         if use_batching:
