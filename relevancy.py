@@ -53,7 +53,7 @@ model = model(**args).cuda()
 if __name__=='__main__':
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0/'
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/NiceSlamTesting/Datasets/Demo/frames/color/'
-    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/train/'
+    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/test/'
     directories = os.listdir( path )
     for filename in directories:
         if filename[5] == ".":
@@ -67,6 +67,6 @@ if __name__=='__main__':
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
             # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename)
-            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/train/"+filename[:-4]+"_heat.png")
-            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/train/"+filename[:-4]+"_heat", heatmap)
+            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/test/"+filename[:-4]+"_heat.png")
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/test/"+filename[:-4]+"_heat", heatmap)
             print(filename+" saved")
