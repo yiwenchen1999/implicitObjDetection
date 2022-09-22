@@ -48,9 +48,9 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
         embedded = torch.cat([embedded, embedded_dirs], -1)
 
     outputs_flat = batchify(fn, netchunk)(embedded)
-    print("outputs_flat:", outputs_flat.shape)
+    # print("outputs_flat:", outputs_flat.shape)
     outputs = torch.reshape(outputs_flat, list(inputs.shape[:-1]) + [outputs_flat.shape[-1]])
-    print("outputs," ,outputs.shape)
+    # print("outputs," ,outputs.shape)
     return outputs
 
 
@@ -311,10 +311,19 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
     acc_map = torch.sum(weights, -1)
 
+    saliency = torch.sigmoid(raw[...,4])
+    alphaS = raw2alpha(raw[...,5] + noise, dists)
+    weightsS = alphaS * torch.cumprod(torch.cat([torch.ones((alpha.alphaS[0], 1)), 1.-alphaS + 1e-10], -1), -1)[:, :-1]
+    saliency_map = torch.sum(weightsS[...,None] * saliency, -2)  # [N_rays, 3]
+
+
     if white_bkgd:
         rgb_map = rgb_map + (1.-acc_map[...,None])
 
-    return rgb_map, disp_map, acc_map, weights, depth_map
+    if saliency:
+        return rgb_map, disp_map, acc_map, weights, depth_map, saliency_map
+    else:
+        return rgb_map, disp_map, acc_map, weights, depth_map
 
 
 def render_rays(ray_batch,
@@ -329,7 +338,8 @@ def render_rays(ray_batch,
                 white_bkgd=False,
                 raw_noise_std=0.,
                 verbose=False,
-                pytest=False):
+                pytest=False,
+                saliency = False):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -397,6 +407,8 @@ def render_rays(ray_batch,
     raw = network_query_fn(pts, viewdirs, network_fn)
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
+    if saliency:
+        rgb_map, disp_map, acc_map, weights, depth_map, salient_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = True)
     if N_importance > 0:
 
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
@@ -411,7 +423,7 @@ def render_rays(ray_batch,
         run_fn = network_fn if network_fine is None else network_fine
 #         raw = run_network(pts, fn=run_fn)
         raw = network_query_fn(pts, viewdirs, run_fn)
-        print("raw output be like:", raw.shape)
+        # print("raw output be like:", raw.shape)
 
         rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
@@ -786,14 +798,14 @@ def train():
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 batch_rays = torch.stack([rays_o, rays_d], 0)
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
-                print("with salienct:", args.with_saliency)
+                # print("with salienct:", args.with_saliency)
                 if args.with_saliency:
-                    print("select coord:", select_coords.shape)
+                    # print("select coord:", select_coords.shape)
                     select_coords[:, 0] = select_coords[:, 0]*(saliency.shape[0]/target.shape[0])
                     select_coords[:, 1] = select_coords[:, 1]*(saliency.shape[1]/target.shape[1])
                     # print("salient_0:", salient_0.shape)
                     # print("salient_1:", salient_1.shape)
-                    print("saliency")
+                    # print("saliency")
                     saliency_s = saliency[select_coords[:, 0], select_coords[:, 1]]                    
 
 
