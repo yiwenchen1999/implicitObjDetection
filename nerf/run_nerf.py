@@ -311,7 +311,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
     acc_map = torch.sum(weights, -1)
 
-    saliency = torch.sigmoid(raw[...,4])
+    # saliency = torch.sigmoid(raw[...,4]) #TODO: enable this later
     alphaS = raw2alpha(raw[...,5] + noise, dists)
     weightsS = alphaS * torch.cumprod(torch.cat([torch.ones((alpha.alphaS[0], 1)), 1.-alphaS + 1e-10], -1), -1)[:, :-1]
     saliency_map = torch.sum(weightsS[...,None] * saliency, -2)  # [N_rays, 3]
