@@ -174,7 +174,8 @@ def load_blender_data(basedir, half_res=False, testskip=1, use_saliency = False)
         imgs = imgs_half_res
         # imgs = tf.image.resize_area(imgs, [400, 400]).numpy()
     print("i_splits:", i_split)
-    print(poses[0])
+    for i in range(10):
+        print (poses[i])
     if use_saliency:
         return imgs, poses, render_poses, [H, W, focal], i_split, saliency
     else:
@@ -301,9 +302,9 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
 
     print("near, far: ", near, far)
     # print(poses[0])
-    print(quat)
-    print(pos)
-    print(pose)
+    # print(quat)
+    # print(pos)
+    # print(pose)
 
     return imgs, poses, render_poses, [H, W, focal], i_split, near, far
 
