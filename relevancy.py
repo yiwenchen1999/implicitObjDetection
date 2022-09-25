@@ -49,6 +49,7 @@ else:
     assert False
 
 model = model(**args).cuda()
+print("model initialized")
 
 if __name__=='__main__':
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0/'
