@@ -301,6 +301,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
 
     print("near, far: ", near, far)
     # print(poses[0])
+    print(quat)
     print(pos)
     print(pose)
 
