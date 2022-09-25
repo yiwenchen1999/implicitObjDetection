@@ -199,6 +199,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     far = 0
     minBounds = file["scene_boundaries"]["min"]
     maxBounds = file["scene_boundaries"]["max"]
+    K = file["camera"]["K"]
 
     imgs = []
     poses = []
@@ -213,8 +214,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         # rotations = transform.Rotation.from_quat(quat).as_matrix()
         quat = np.asarray(quat)
         pos = np.asarray(pos)
-        # rotation = blender_quat2rot(quat)
-        rotation = transform.Rotation.from_quat(quat).as_matrix()
+        rotation = blender_quat2rot(quat)
+        # rotation = transform.Rotation.from_quat(quat).as_matrix()
 
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
@@ -244,8 +245,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         dis2 = math.sqrt(pow((maxBounds[0]-pos[0]),2)+pow((maxBounds[1]-pos[1]),2)+pow((maxBounds[1]-pos[1]),2))
         quat = np.asarray(quat)
         pos = np.asarray(pos)
-        rotation = transform.Rotation.from_quat(quat).as_matrix()
-        # rotation = blender_quat2rot(quat)
+        # rotation = transform.Rotation.from_quat(quat).as_matrix()
+        rotation = blender_quat2rot(quat)
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
 
@@ -275,8 +276,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
 
         quat = np.asarray(quat)
         pos = np.asarray(pos)
-        # rotation = blender_quat2rot(quat)
-        rotation = transform.Rotation.from_quat(quat).as_matrix()
+        rotation = blender_quat2rot(quat)
+        # rotation = transform.Rotation.from_quat(quat).as_matrix()
 
         pose = make_transform_matrix(pos, rotation)
         poses.append(pose)
@@ -308,7 +309,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     for i in range(10):
         print (poses[i])
 
-    return imgs, poses, render_poses, [H, W, focal], i_split, near, far
+    return imgs, poses, render_poses, [H, W, focal], i_split, near, far, K
 
 
 
