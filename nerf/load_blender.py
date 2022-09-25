@@ -300,7 +300,9 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
 
     print("near, far: ", near, far)
-    print(poses[0])
+    # print(poses[0])
+    print(pos)
+    print(pose)
 
     return imgs, poses, render_poses, [H, W, focal], i_split, near, far
 
