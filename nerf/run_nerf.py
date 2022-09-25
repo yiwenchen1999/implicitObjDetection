@@ -596,10 +596,12 @@ def train():
         print('NEAR FAR', near, far)
 
     elif args.dataset_type == 'nesf':
-        images, poses, render_poses, hwf, i_split, near, far = load_Nesf_data(args.datadir)
+        images, poses, render_poses, hwf, i_split, near, far, K = load_Nesf_data(args.datadir)
         print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
         i_train, i_val, i_test = i_split
         images = images[...,:3]
+        near = 0.
+        far = 50.
 
 
     elif args.dataset_type == 'blender':
