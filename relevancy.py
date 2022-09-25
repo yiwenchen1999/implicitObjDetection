@@ -49,9 +49,9 @@ else:
     assert False
 
 model = model(**args).cuda()
-print("model initialized")
 
 if __name__=='__main__':
+    print("runnning main fuction")
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0/'
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/NiceSlamTesting/Datasets/Demo/frames/color/'
     path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/val/'
