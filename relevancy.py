@@ -32,7 +32,7 @@ if parser_args.model == 'vit14':
         'model': 'vit14',
         'alpha': 0.75,
         'aggregation': 'mean',
-        'n_segments': list(range(200, 100, 50)),
+        'n_segments': list(range(100, 200, 50)),
         'temperature': 0.02,
         'upsample': 2,
         'start_block': 0,
