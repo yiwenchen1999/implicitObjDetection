@@ -51,13 +51,13 @@ else:
 model = model(**args).cuda()
 
 if __name__=='__main__':
-    print("runnning main fuction")
+    # print("runnning main fuction")
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0/'
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/NiceSlamTesting/Datasets/Demo/frames/color/'
-    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/val/'
+    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/train/'
     directories = os.listdir( path )
     for filename in directories:
-        if filename[5] == ".":
+        if filename[5] == "." or filename[4] == "4":
         # if filename[0:4] == 'rgba':
         # if True:
             img_path = path + filename
