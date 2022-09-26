@@ -7,7 +7,7 @@ import cv2
 from PIL import Image
 from torchvision import transforms as T
 from typing import Optional
-from .rays import *
+# from .rays import *
 from torch.utils.data import Dataset, DataLoader
 import random
 import pandas as pd
@@ -82,22 +82,22 @@ class Nesf_Dataset():
         n_next_pose = self.metadata.cameras.px2world_transform[index+1]
         sample["next_pose"] = torch.from_numpy(n_next_pose)
 
-        # Reading rays
-        rays_o = torch.from_numpy(self.imgs.rays.origin[index]).view(-1, 3)
-        rays_d = torch.from_numpy(self.imgs.rays.direction[index]).view(-1, 3)
-        near, far = self.near * torch.ones_like(rays_d[..., :1]), self.far * torch.ones_like(rays_d[..., :1])
-        n_rays = torch.cat([rays_o, rays_d, near, far], -1)
-        sample["rays"] = n_rays
+        # # Reading rays
+        # rays_o = torch.from_numpy(self.imgs.rays.origin[index]).view(-1, 3)
+        # rays_d = torch.from_numpy(self.imgs.rays.direction[index]).view(-1, 3)
+        # near, far = self.near * torch.ones_like(rays_d[..., :1]), self.far * torch.ones_like(rays_d[..., :1])
+        # n_rays = torch.cat([rays_o, rays_d, near, far], -1)
+        # sample["rays"] = n_rays
 
-        rays_o_prev = torch.from_numpy(self.imgs.rays.origin[index]).view(-1, 3)
-        rays_d_prev = torch.from_numpy(self.imgs.rays.direction[index]).view(-1, 3)
-        n_prev_rays = torch.cat([rays_o_prev, rays_d_prev, near, far], -1)
-        sample["prev_rays"] = n_prev_rays
+        # rays_o_prev = torch.from_numpy(self.imgs.rays.origin[index]).view(-1, 3)
+        # rays_d_prev = torch.from_numpy(self.imgs.rays.direction[index]).view(-1, 3)
+        # n_prev_rays = torch.cat([rays_o_prev, rays_d_prev, near, far], -1)
+        # sample["prev_rays"] = n_prev_rays
 
-        rays_o_next = torch.from_numpy(self.imgs.rays.origin[index]).view(-1, 3)
-        rays_d_next = torch.from_numpy(self.imgs.rays.direction[index]).view(-1, 3)
-        n_next_rays = torch.cat([rays_o_next, rays_d_next, near, far], -1)
-        sample["next_rays"] = n_next_rays
+        # rays_o_next = torch.from_numpy(self.imgs.rays.origin[index]).view(-1, 3)
+        # rays_d_next = torch.from_numpy(self.imgs.rays.direction[index]).view(-1, 3)
+        # n_next_rays = torch.cat([rays_o_next, rays_d_next, near, far], -1)
+        # sample["next_rays"] = n_next_rays
 
         # packing intrinsics
         self.intrinsic_mat = np.array([[self.metadata.cameras.focal_px_length, 0, self.metadata.cameras.resolution[1] / 2],
