@@ -34,8 +34,8 @@ class Nesf_Dataset():
         split = "train"
         # if self.split == "val":
         #     split = "test"
-        # data, self.metadata = klevr.make_unreal_examples(data_dir=self.root_dir, split=split, image_idxs=self.indices, scale=self.scale, enable_sqrt2_buffer=False)
-        data, self.metadata = klevr.make_unreal_examples(data_dir=self.root_dir, split=split)
+        data, self.metadata = klevr.make_examples(data_dir=self.root_dir, split=split, image_idxs=self.indices, scale=self.scale, enable_sqrt2_buffer=False)
+        # data, self.metadata = klevr.make_unreal_examples(data_dir=self.root_dir, split=split)
         self.imgs = data.target_view
 
     def __len__(self):
