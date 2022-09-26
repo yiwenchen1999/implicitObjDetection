@@ -75,7 +75,7 @@ class Nesf_Dataset():
         sample["next_mask"] = torch.from_numpy(n_next_mask)'''
 
         # Reading Depth       
-        sample["depth"] = torch.from_numpy(self.imgs.depth[index][:, :, 0])
+        # sample["depth"] = torch.from_numpy(self.imgs.depth[index][:, :, 0])
 
         # Reading poses
         n_pose = self.metadata.cameras.px2world_transform[index]
