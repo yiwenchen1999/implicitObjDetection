@@ -1,6 +1,6 @@
-expname = Nesf
+expname = klevr0
 basedir = ./logs
-datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0
+datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/klevr/0
 dataset_type = nesf
 
 no_batching = True
