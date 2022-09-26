@@ -136,8 +136,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
-    print("imgs: ", imgs.shape)
-    print("poese: ", poses.shape)
+    imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
+    poses = np.array(poses).astype(np.float32)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
@@ -150,8 +150,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
-    print("imgs: ", imgs.shape)
-    print("poese: ", poses.shape)
+    imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
+    poses = np.array(poses).astype(np.float32)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
@@ -164,8 +164,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
-    print("imgs: ", imgs.shape)
-    print("poese: ", poses.shape)
+    imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
+    poses = np.array(poses).astype(np.float32)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
