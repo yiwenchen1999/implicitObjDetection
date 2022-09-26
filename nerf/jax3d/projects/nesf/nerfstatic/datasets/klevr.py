@@ -69,7 +69,7 @@ class MetadataHandler(object):
   def __init__(self, data_dir: j3d.Path):
     self._data_dir = data_dir
     print(data_dir)
-    self._metadata = json.loads((data_dir + '/metadata.json').read_text())
+    self._metadata = json.loads((data_dir + '/metadata.json'))
     self._scene_id = os.path.basename(data_dir)
 
   @property
