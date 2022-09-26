@@ -232,7 +232,7 @@ def _make_examples_impl(
   """
   del kwargs
 
-  # data_dir = jax.Path(data_dir)
+  data_dir = j3d.Path(data_dir)
   metadata = metadata_cls(data_dir)
 
   # Only load a subset of the ids
