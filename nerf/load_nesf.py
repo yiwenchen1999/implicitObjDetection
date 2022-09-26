@@ -113,7 +113,7 @@ if __name__== "__main__":
 
     dataset_dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0"
 
-    dataloader = dataset(dataset_dir)
+    dataloader = Nesf_Dataset(dataset_dir)
 
     print(dataloader[0]["pose"])
 
