@@ -600,8 +600,8 @@ def train():
         print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
         i_train, i_val, i_test = i_split
         images = images[...,:3]
-        near = 0.
-        far = 50.
+        # near = 0.
+        # far = 50.
 
 
     elif args.dataset_type == 'blender':

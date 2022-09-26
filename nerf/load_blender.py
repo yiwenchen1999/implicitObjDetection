@@ -309,7 +309,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     for i in range(10):
         print (poses[i])
 
-    return imgs, poses, render_poses, [H, W, focal], i_split, near, far, K
+    return imgs, poses, render_poses, [H, W, focal], i_split, near, far
 
 
 
