@@ -121,7 +121,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     H = file["metadata"]['height']
     W = file["metadata"]['width']
     focal = file["camera"]['focal_length']
-    
+
     dataloader = Nesf_Dataset(basedir)
     near = dataloader.near
     far = dataloader.far
@@ -136,9 +136,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
-    imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
     print("imgs: ", imgs.shape)
-    poses = np.array(poses).astype(np.float32)
     print("poese: ", poses.shape)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
@@ -152,9 +150,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
-    imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
     print("imgs: ", imgs.shape)
-    poses = np.array(poses).astype(np.float32)
     print("poese: ", poses.shape)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
@@ -168,9 +164,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
-    imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
     print("imgs: ", imgs.shape)
-    poses = np.array(poses).astype(np.float32)
     print("poese: ", poses.shape)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
@@ -186,7 +180,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
 
     for i in range(10):
         print (poses[i])
-
+    print(imgs[0])
     return imgs, poses, render_poses, [H, W, focal], i_split, near, far, K
 
 if __name__== "__main__":
