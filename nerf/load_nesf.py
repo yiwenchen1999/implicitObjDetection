@@ -19,7 +19,7 @@ from load_blender import pose_spherical
 
 
 class Nesf_Dataset():
-    def __init__(self, dataset_dir, split="train", indices=None, scale=1, near=0, far=10):
+    def __init__(self, dataset_dir, split="train", indices=None, scale=1, near=0, far=30):
         self.root_dir = dataset_dir
         self.near = near
         self.far = far
