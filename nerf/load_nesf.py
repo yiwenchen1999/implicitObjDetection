@@ -59,14 +59,14 @@ class Nesf_Dataset():
         sample = {}
         
         # Reading Images                     
-        sample["image"] = torch.from_numpy(self.imgs.rgb[index])
-        sample["prev_image"] = torch.from_numpy(self.imgs.rgb[index-1])
-        sample["next_image"] = torch.from_numpy(self.imgs.rgb[index+1])
+        sample["image"] = self.imgs.rgb[index]
+        # sample["prev_image"] = torch.from_numpy(self.imgs.rgb[index-1])
+        # sample["next_image"] = torch.from_numpy(self.imgs.rgb[index+1])
 
         # Reading Masks
-        sample["mask"] = torch.from_numpy(self.imgs.semantics[index][:, :, 0])
-        sample["prev_mask"] = torch.from_numpy(self.imgs.semantics[index-1][:, :, 0])
-        sample["next_mask"] = torch.from_numpy(self.imgs.semantics[index+1][:, :, 0])
+        # sample["mask"] = self.imgs.semantics[index][:, :, 0]
+        # sample["prev_mask"] = torch.from_numpy(self.imgs.semantics[index-1][:, :, 0])
+        # sample["next_mask"] = torch.from_numpy(self.imgs.semantics[index+1][:, :, 0])
         '''
         n_prev_mask = cv2.imread(self.imgs[index-1]["mask_path"],0) /255.0
         n_prev_mask = cv2.resize(n_prev_mask, (resized_w, resized_h), interpolation=cv2.INTER_AREA)
@@ -80,11 +80,11 @@ class Nesf_Dataset():
 
         # Reading poses
         n_pose = self.metadata.cameras.px2world_transform[index]
-        sample["pose"] = torch.from_numpy(n_pose)
-        n_prev_pose = self.metadata.cameras.px2world_transform[index-1]
-        sample["prev_pose"] = torch.from_numpy(n_prev_pose)
-        n_next_pose = self.metadata.cameras.px2world_transform[index+1]
-        sample["next_pose"] = torch.from_numpy(n_next_pose)
+        sample["pose"] = n_pose
+        # n_prev_pose = self.metadata.cameras.px2world_transform[index-1]
+        # sample["prev_pose"] = torch.from_numpy(n_prev_pose)
+        # n_next_pose = self.metadata.cameras.px2world_transform[index+1]
+        # sample["next_pose"] = torch.from_numpy(n_next_pose)
 
         # # Reading rays
         # rays_o = torch.from_numpy(self.imgs.rays.origin[index]).view(-1, 3)
