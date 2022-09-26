@@ -15,7 +15,8 @@ from run_nerf_helpers import *
 
 from load_llff import load_llff_data
 from load_deepvoxels import load_dv_data
-from load_blender import load_blender_data, load_Nesf_data
+from load_blender import load_blender_data
+from load_nesf import load_Nesf_data
 from load_LINEMOD import load_LINEMOD_data
 
 
