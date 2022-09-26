@@ -111,9 +111,9 @@ class Nesf_Dataset():
 
 if __name__== "__main__":
 
-    dataset_dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0/"
+    dataset_dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0"
 
-    dataloader = Nesf_Dataset(dataset_dir)
+    dataloader = dataset(dataset_dir)
 
     print(dataloader[0]["pose"])
 
