@@ -34,7 +34,7 @@ class Nesf_Dataset():
         split = "train"
         # if self.split == "val":
         #     split = "test"
-        data, self.metadata = klevr.make_examples(data_dir=self.root_dir, split=split, image_idxs=self.indices, scale=self.scale, enable_sqrt2_buffer=False)
+        data, self.metadata = klevr.make_unreal_examples(data_dir=self.root_dir, split=split, image_idxs=self.indices, scale=self.scale, enable_sqrt2_buffer=False)
         self.imgs = data.target_view
 
     def __len__(self):
@@ -106,8 +106,6 @@ class Nesf_Dataset():
                                       [0, self.metadata.cameras.focal_px_length, self.metadata.cameras.resolution[0] / 2],
                                       [0, 0, 1]])
         sample["Intrinsics"] = torch.from_numpy(self.intrinsic_mat)
-
-
 
         return sample
 
