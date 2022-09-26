@@ -138,6 +138,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         poses.append(pose)
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
     poses = np.array(poses).astype(np.float32)
+    print("imgs: ", imgs.shape)
+    print("poses: ", poses.shape)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
@@ -152,6 +154,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         poses.append(pose)
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
     poses = np.array(poses).astype(np.float32)
+    print("imgs: ", imgs.shape)
+    print("poses: ", poses.shape)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
@@ -166,6 +170,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
         poses.append(pose)
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
     poses = np.array(poses).astype(np.float32)
+    print("imgs: ", imgs.shape)
+    print("poses: ", poses.shape)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
@@ -178,9 +184,9 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     print("imgs, poses, i_split: ", imgs.shape, poses.shape, len(i_split))
     render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
 
-    for i in range(10):
-        print (poses[i])
-    print(imgs[0])
+    # for i in range(10):
+    #     print (poses[i])
+    # print(imgs[0])
     return imgs, poses, render_poses, [H, W, focal], i_split, near, far, K
 
 if __name__== "__main__":
