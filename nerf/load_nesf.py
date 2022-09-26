@@ -13,6 +13,8 @@ import random
 import pandas as pd
 from jax3d.projects.nesf.nerfstatic.datasets import klevr
 import json
+from epath import Path
+
 
 
 class Nesf_Dataset():
@@ -110,10 +112,11 @@ class Nesf_Dataset():
         return sample
 
 if __name__== "__main__":
+    pt = Path()
 
     dataset_dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0"
-
-    dataloader = Nesf_Dataset(dataset_dir)
+    p = pt.get(dataset_dir)
+    dataloader = Nesf_Dataset(p)
 
     print(dataloader[0]["pose"])
 
