@@ -14,6 +14,7 @@ import pandas as pd
 from jax3d.projects.nesf.nerfstatic.datasets import klevr
 import json
 from epath import Path
+from load_blender import pose_spherical
 
 
 
@@ -110,14 +111,93 @@ class Nesf_Dataset():
 
         return sample
 
+
+
+def load_Nesf_data(basedir, half_res=False, testskip=1):
+    with open(os.path.join(basedir,"metadata.json"), 'r') as fp:
+            file = json.load(fp)
+    splits = ['train', 'val', 'test']
+    metas = {}
+    H = file["metadata"]['height']
+    W = file["metadata"]['width']
+    focal = file["camera"]['focal_length']
+    
+    dataloader = Nesf_Dataset(basedir)
+    near = dataloader.near
+    far = dataloader.far
+    K = dataloader[0]["Intrinsics"]
+    all_imgs = []
+    all_poses = []
+    counts = [0]
+    imgs = []
+    poses = []
+    for i in range(len(dataloader)):
+        img = dataloader[i]["image"]
+        pose = dataloader[i]["pose"]
+        imgs.append(img)
+        poses.append(pose)
+    imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
+    print("imgs: ", imgs.shape)
+    poses = np.array(poses).astype(np.float32)
+    print("poese: ", poses.shape)
+    counts.append(counts[-1] + imgs.shape[0])
+    all_imgs.append(imgs)
+    all_poses.append(poses)
+
+    dataloader = Nesf_Dataset(basedir, split="test")
+    imgs = []
+    poses = []
+    for i in range(len(dataloader)):
+        img = dataloader[i]["image"]
+        pose = dataloader[i]["pose"]
+        imgs.append(img)
+        poses.append(pose)
+    imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
+    print("imgs: ", imgs.shape)
+    poses = np.array(poses).astype(np.float32)
+    print("poese: ", poses.shape)
+    counts.append(counts[-1] + imgs.shape[0])
+    all_imgs.append(imgs)
+    all_poses.append(poses)
+
+    dataloader = Nesf_Dataset(basedir, split="test")
+    imgs = []
+    poses = []
+    for i in range(len(dataloader)):
+        img = dataloader[i]["image"]
+        pose = dataloader[i]["pose"]
+        imgs.append(img)
+        poses.append(pose)
+    imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
+    print("imgs: ", imgs.shape)
+    poses = np.array(poses).astype(np.float32)
+    print("poese: ", poses.shape)
+    counts.append(counts[-1] + imgs.shape[0])
+    all_imgs.append(imgs)
+    all_poses.append(poses)
+
+    #-------------------------------loaded all 3 sets of data--------------------------------------
+    i_split = [np.arange(counts[i], counts[i+1]) for i in range(3)]
+    
+    imgs = np.concatenate(all_imgs, 0)
+    poses = np.concatenate(all_poses, 0)
+    print("imgs, poses, i_split: ", imgs.shape, poses.shape, len(i_split))
+    render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
+
+    for i in range(10):
+        print (poses[i])
+
+    return imgs, poses, render_poses, [H, W, focal], i_split, near, far, K
+
 if __name__== "__main__":
-    pt = Path()
+    load_Nesf_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0")
+    # pt = Path()
 
-    dataset_dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0"
-    # p = pt.get(dataset_dir)
-    dataloader = Nesf_Dataset(dataset_dir)
+    # dataset_dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0"
+    # # p = pt.get(dataset_dir)
+    # dataloader = Nesf_Dataset(dataset_dir)
 
-    print(dataloader[0]["pose"])
+    # print(dataloader[0]["pose"])
 
 
     # dset = DataLoader(dataloader, batch_size = 4, shuffle = True)
