@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from tqdm import tqdm, trange
+option = parser.parse_args()
 
 import matplotlib.pyplot as plt
 
