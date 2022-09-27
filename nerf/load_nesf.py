@@ -175,7 +175,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
             fname = os.path.join(dir, fname)
             saliencies.append(imageio.imread(fname))
     if use_saliency:
-        saliencies = (np.array(saliencies)).astype(np.float32)
+        saliencies = (4* np.array(saliencies) / 255.).astype(np.float32)
         all_saliencies.append(saliencies)
         # # print(real_img.shape)
         # heatmap = getHeatmap(model, real_img , "chair")
@@ -214,7 +214,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
             fname = os.path.join(dir, fname)
             saliencies.append(imageio.imread(fname))
     if use_saliency:
-        saliencies = (np.array(saliencies)).astype(np.float32)
+        saliencies = (4* np.array(saliencies) / 255.).astype(np.float32)
         all_saliencies.append(saliencies)
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
     poses = np.array(poses).astype(np.float32)
@@ -245,7 +245,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
             fname = os.path.join(dir, fname)
             saliencies.append(imageio.imread(fname))
     if use_saliency:
-        saliencies = (np.array(saliencies)).astype(np.float32)
+        saliencies = (4* np.array(saliencies) / 255.).astype(np.float32)
         all_saliencies.append(saliencies)
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
     poses = np.array(poses).astype(np.float32)
