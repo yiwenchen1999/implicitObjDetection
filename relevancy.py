@@ -62,6 +62,8 @@ if __name__=='__main__':
         # if True:
             img_path = path + filename
             im = np.array(Image.open(img_path).convert("RGB"))
+            print("image shae inspection: ")
+            print(im.shape, im)
             heatmap = getHeatmap(model, im , "chair")
             heatimg = heatmap*200
             # print(heatimg)
