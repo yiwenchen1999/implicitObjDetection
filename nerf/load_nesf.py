@@ -172,14 +172,15 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
         imgs.append(img)
         poses.append(pose)
         real_img = np.uint8((img)*255)
-        print(dataloader[i]["img_ids"])
+        index = (dataloader[i]["img_ids"])
+        print(index[-5:])
         # # print(real_img.shape)
         # heatmap = getHeatmap(model, real_img , "chair")
         # saliency = heatmap*200
         # print(saliency.shape)
         o_im = Image.fromarray(real_img)
         # h_im = Image.fromarray(saliency).convert ('RGB')
-        o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(i)+".png")
+        o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(index)+".png")
         # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(i)+"_heat.png")
 
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
