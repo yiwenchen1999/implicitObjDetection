@@ -132,7 +132,7 @@ class Nesf_Dataset():
 
 
 
-def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
+def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
 
     model = SLICViT
     model_args = {
