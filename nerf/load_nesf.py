@@ -77,7 +77,7 @@ class Nesf_Dataset():
         
         # Reading Images                     
         sample["image"] = self.imgs.rgb[index]
-        sample["img_ids"] = self.img.image_ids[index]
+        sample["img_ids"] = self.imgs.image_ids[index]
         # sample["prev_image"] = torch.from_numpy(self.imgs.rgb[index-1])
         # sample["next_image"] = torch.from_numpy(self.imgs.rgb[index+1])
 

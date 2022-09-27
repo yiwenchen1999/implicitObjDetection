@@ -69,9 +69,9 @@ if __name__=='__main__':
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
-            # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename)
-            # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/val/"+filename[:-4]+"_heat.png")
-            # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/val/"+filename[:-4]+"_heat", heatmap)
+            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"+filename)
+            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"+filename[:-4]+"_heat.png")
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"+filename[:-4]+"_heat", heatmap)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat.png")
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat", heatmap)
 
