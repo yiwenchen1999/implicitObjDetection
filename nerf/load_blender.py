@@ -299,7 +299,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     imgs = np.concatenate(all_imgs, 0)
     poses = np.concatenate(all_poses, 0)
     print("imgs, poses, i_split: ", imgs.shape, poses.shape, len(i_split))
-    render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
+    render_poses = torch.stack([pose_spherical(angle, -30.0, 10.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
 
     print("near, far: ", near, far)
     # print(poses[0])
