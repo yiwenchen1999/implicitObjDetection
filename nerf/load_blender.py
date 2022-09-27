@@ -7,6 +7,8 @@ import torch.nn.functional as F
 import cv2
 from scipy.spatial import transform
 import math
+from PIL import Image
+
 
 def blender_quat2rot(quaternion):
   """Convert quaternion to rotation matrix.
@@ -141,7 +143,7 @@ def load_blender_data(basedir, half_res=False, testskip=1, use_saliency = False)
         poses = np.array(poses).astype(np.float32)
         print("poese: ", poses.shape)
         if use_saliency:
-            saliency = np.array(saliency).astype(np.float32)        
+            saliency = np.array(saliency / 255.).astype(np.float32)        
         counts.append(counts[-1] + imgs.shape[0])
         print("counts: ", counts[0])
         all_imgs.append(imgs)

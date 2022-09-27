@@ -1,3 +1,4 @@
+from operator import gt
 import os, sys
 import numpy as np
 import imageio
@@ -173,6 +174,11 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             filename = os.path.join(savedir, '{:03d}.png'.format(i))
             imageio.imwrite(filename, rgb8)
             np.save(savedir, '{:03d}.png'.format(i), rgb8)
+        if gt_imgs is not None:
+            imgs = to8b(gt_imgs[-1])
+            filename = os.path.join(savedir, '{:03d}_gt.png'.format(i))
+            imageio.imwrite(filename, imgs)
+
 
 
     rgbs = np.stack(rgbs, 0)
