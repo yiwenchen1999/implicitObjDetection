@@ -172,7 +172,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
         #     saliencies.append(np.load(fname))
             fname = "rgba_" + index[-5:] + '_heat.png'
             dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"
-            fname = os.path.join(basedir, fname)
+            fname = os.path.join(dir, fname)
             saliencies.append(imageio.imread(fname))
     if use_saliency:
         saliencies = (np.array(saliencies) / 255.).astype(np.float32)
