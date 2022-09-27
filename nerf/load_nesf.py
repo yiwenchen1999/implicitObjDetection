@@ -1,5 +1,7 @@
 import torch
 from torch.utils.data import Dataset
+import sys
+sys.path.append('../')
 import glob
 import numpy as np
 import os
@@ -169,6 +171,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
         real_img = img*255
         heatmap = getHeatmap(model, real_img , "chair")
         saliency = heatmap*200
+        print(saliency.shape)
         o_im = Image.fromarray(real_img).convert ('RGB')
         h_im = Image.fromarray(saliency).convert ('RGB')
         o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(i)+".png")
