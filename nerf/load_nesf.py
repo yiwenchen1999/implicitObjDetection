@@ -29,6 +29,7 @@ from utils.grounding_evaluator import GroundingEvaluator
 from PIL import Image
 import argparse
 import os.path as osp
+import imageio.v2 as imageio
 
 
 
@@ -171,16 +172,26 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
-        real_img = np.uint8((img)*255)
+        # real_img = np.uint8((img)*255)
         index = (dataloader[i]["img_ids"])
         print(index[-5:])
+        if use_saliency:
+            # fname = "rgba_" + index[-5:] + '_heat.npy'
+        #     saliencies.append(np.load(fname))
+            fname = "rgba_" + index[-5:] + '_heat.png'
+            dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"
+            fname = os.path.join(basedir, fname)
+            saliencies.append(imageio.imread(fname))
+    if use_saliency:
+        saliencies = (np.array(saliencies) / 255.).astype(np.float32)
+        all_saliencies.append(saliencies)
         # # print(real_img.shape)
         # heatmap = getHeatmap(model, real_img , "chair")
         # saliency = heatmap*200
         # print(saliency.shape)
-        o_im = Image.fromarray(real_img)
+        # o_im = Image.fromarray(real_img)
         # h_im = Image.fromarray(saliency).convert ('RGB')
-        o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(index)+".png")
+        # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(index)+".png")
         # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(i)+"_heat.png")
 
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
@@ -199,6 +210,18 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
+        index = (dataloader[i]["img_ids"])
+        print(index[-5:])
+        if use_saliency:
+            # fname = "rgba_" + index[-5:] + '_heat.npy'
+        #     saliencies.append(np.load(fname))
+            fname = "rgba_" + index[-5:] + '_heat.png'
+            dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"
+            fname = os.path.join(basedir, fname)
+            saliencies.append(imageio.imread(fname))
+    if use_saliency:
+        saliencies = (np.array(saliencies) / 255.).astype(np.float32)
+        all_saliencies.append(saliencies)
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
     poses = np.array(poses).astype(np.float32)
     print("imgs: ", imgs.shape)
@@ -215,6 +238,18 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
+        index = (dataloader[i]["img_ids"])
+        print(index[-5:])
+        if use_saliency:
+            # fname = "rgba_" + index[-5:] + '_heat.npy'
+        #     saliencies.append(np.load(fname))
+            fname = "rgba_" + index[-5:] + '_heat.png'
+            dir = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"
+            fname = os.path.join(basedir, fname)
+            saliencies.append(imageio.imread(fname))
+    if use_saliency:
+        saliencies = (np.array(saliencies) / 255.).astype(np.float32)
+        all_saliencies.append(saliencies)
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
     poses = np.array(poses).astype(np.float32)
     print("imgs: ", imgs.shape)
@@ -228,13 +263,18 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
     
     imgs = np.concatenate(all_imgs, 0)
     poses = np.concatenate(all_poses, 0)
+    if use_saliency:
+        saliencies = np.concatenate(all_saliencies, 0)
     print("imgs, poses, i_split: ", imgs.shape, poses.shape, len(i_split))
     render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
 
     # for i in range(10):
     #     print (poses[i])
     # print(imgs[0])
-    return imgs, poses, render_poses, [H, W, focal], i_split, near, far, K
+    if use_saliency:
+        return saliencies, poses, render_poses, [H, W, focal], i_split, near, far, K
+    else:
+        return imgs, poses, render_poses, [H, W, focal], i_split, near, far, K
 
 if __name__== "__main__":
     load_Nesf_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox-13/0")
