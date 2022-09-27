@@ -15,6 +15,18 @@ from jax3d.projects.nesf.nerfstatic.datasets import klevr
 import json
 from epath import Path
 from load_blender import pose_spherical
+from relevancy import getHeatmap
+import torch
+from models.slic_vit import SLICViT
+from models.ss_baseline import SSBaseline
+from models.resnet_high_res import ResNetHighRes
+from utils.zsg_data import FlickrDataset, VGDataset
+from utils.grounding_evaluator import GroundingEvaluator
+from PIL import Image
+import argparse
+import os.path as osp
+
+
 
 
 
@@ -29,6 +41,7 @@ class Nesf_Dataset():
         self.scale = scale
         self.white_back = False
         self.indices = indices
+
         self.main()
 
     def main(self):
@@ -113,7 +126,22 @@ class Nesf_Dataset():
 
 
 
-def load_Nesf_data(basedir, half_res=False, testskip=1):
+def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
+
+    model = SLICViT
+    model_args = {
+        'model': 'vit14',
+        'alpha': 0.75,
+        'aggregation': 'mean',
+        'n_segments': list(range(100, 200, 50)),
+        'temperature': 0.02,
+        'upsample': 2,
+        'start_block': 0,
+        'compactness': 50,
+        'sigma': 0,
+    }
+    model = model(**model_args).cuda()
+
     with open(os.path.join(basedir,"metadata.json"), 'r') as fp:
             file = json.load(fp)
     splits = ['train', 'val', 'test']
@@ -128,14 +156,24 @@ def load_Nesf_data(basedir, half_res=False, testskip=1):
     K = dataloader[0]["Intrinsics"]
     all_imgs = []
     all_poses = []
+    all_saliencies = [all]
     counts = [0]
     imgs = []
     poses = []
+    saliencies = []
     for i in range(len(dataloader)):
         img = dataloader[i]["image"]
         pose = dataloader[i]["pose"]
         imgs.append(img)
         poses.append(pose)
+        real_img = img*255
+        heatmap = getHeatmap(model, real_img , "chair")
+        saliency = heatmap*200
+        o_im = Image.fromarray(real_img).convert ('RGB')
+        h_im = Image.fromarray(saliency).convert ('RGB')
+        o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(i)+".png")
+        h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(i)+"_heat.png")
+
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
     poses = np.array(poses).astype(np.float32)
     print("imgs: ", imgs.shape)
