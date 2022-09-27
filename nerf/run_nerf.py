@@ -172,6 +172,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             rgb8 = to8b(rgbs[-1])
             filename = os.path.join(savedir, '{:03d}.png'.format(i))
             imageio.imwrite(filename, rgb8)
+            np.save(savedir, '{:03d}.png'.format(i), rgb8)
 
 
     rgbs = np.stack(rgbs, 0)
