@@ -6,9 +6,7 @@ import glob
 import numpy as np
 import os
 import cv2
-from PIL import Image
 from torchvision import transforms as T
-from matplotlib import cm
 
 from typing import Optional
 # from .rays import *
@@ -19,15 +17,9 @@ from jax3d.projects.nesf.nerfstatic.datasets import klevr
 import json
 from epath import Path
 from load_blender import pose_spherical
-from relevancy import getHeatmap
 import torch
 from models.slic_vit import SLICViT
-from models.ss_baseline import SSBaseline
-from models.resnet_high_res import ResNetHighRes
-from utils.zsg_data import FlickrDataset, VGDataset
-from utils.grounding_evaluator import GroundingEvaluator
 from PIL import Image
-import argparse
 import os.path as osp
 import imageio.v2 as imageio
 
