@@ -154,7 +154,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
     K = dataloader[0]["Intrinsics"]
     all_imgs = []
     all_poses = []
-    all_saliencies = [all]
+    all_saliencies = []
     counts = [0]
     imgs = []
     poses = []
@@ -166,7 +166,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
         poses.append(pose)
         # real_img = np.uint8((img)*255)
         index = (dataloader[i]["img_ids"])
-        print(index[-5:])
+        # print(index[-5:])
         if use_saliency:
             # fname = "rgba_" + index[-5:] + '_heat.npy'
         #     saliencies.append(np.load(fname))
@@ -190,6 +190,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
     poses = np.array(poses).astype(np.float32)
     print("imgs: ", imgs.shape)
     print("poses: ", poses.shape)
+    print("saliencies: ", saliencies.shape)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
@@ -204,7 +205,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
         imgs.append(img)
         poses.append(pose)
         index = (dataloader[i]["img_ids"])
-        print(index[-5:])
+        # print(index[-5:])
         if use_saliency:
             # fname = "rgba_" + index[-5:] + '_heat.npy'
         #     saliencies.append(np.load(fname))
@@ -219,6 +220,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
     poses = np.array(poses).astype(np.float32)
     print("imgs: ", imgs.shape)
     print("poses: ", poses.shape)
+    print("saliencies: ", saliencies.shape)
+
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
@@ -233,7 +236,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
         imgs.append(img)
         poses.append(pose)
         index = (dataloader[i]["img_ids"])
-        print(index[-5:])
+        # print(index[-5:])
         if use_saliency:
             # fname = "rgba_" + index[-5:] + '_heat.npy'
         #     saliencies.append(np.load(fname))
@@ -248,6 +251,8 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
     poses = np.array(poses).astype(np.float32)
     print("imgs: ", imgs.shape)
     print("poses: ", poses.shape)
+    print("saliencies: ", saliencies.shape)
+
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
