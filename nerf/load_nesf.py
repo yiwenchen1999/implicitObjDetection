@@ -77,6 +77,7 @@ class Nesf_Dataset():
         
         # Reading Images                     
         sample["image"] = self.imgs.rgb[index]
+        sample["img_ids"] = self.img.image_ids[index]
         # sample["prev_image"] = torch.from_numpy(self.imgs.rgb[index-1])
         # sample["next_image"] = torch.from_numpy(self.imgs.rgb[index+1])
 
@@ -171,14 +172,15 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
         imgs.append(img)
         poses.append(pose)
         real_img = np.uint8((img)*255)
-        # print(real_img.shape)
-        heatmap = getHeatmap(model, real_img , "chair")
-        saliency = heatmap*200
-        print(saliency.shape)
+        print(dataloader[i]["img_ids"])
+        # # print(real_img.shape)
+        # heatmap = getHeatmap(model, real_img , "chair")
+        # saliency = heatmap*200
+        # print(saliency.shape)
         o_im = Image.fromarray(real_img)
-        h_im = Image.fromarray(saliency).convert ('RGB')
+        # h_im = Image.fromarray(saliency).convert ('RGB')
         o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(i)+".png")
-        h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(i)+"_heat.png")
+        # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/dataDemo/"+str(i)+"_heat.png")
 
     imgs = (np.array(imgs)).astype(np.float32) # keep all 4 channels (RGBA)
     poses = np.array(poses).astype(np.float32)
