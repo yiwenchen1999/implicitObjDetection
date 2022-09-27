@@ -169,6 +169,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
         imgs.append(img)
         poses.append(pose)
         real_img = img*255
+        print(real_img.shape)
         heatmap = getHeatmap(model, real_img , "chair")
         saliency = heatmap*200
         print(saliency.shape)
