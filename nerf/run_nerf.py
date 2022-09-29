@@ -360,7 +360,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     # else:
     #     return rgb_map, disp_map, acc_map, weights, depth_map
     if saliency:
-        saliency_map, disp_map, acc_map, weightsS, depth_map
+        return saliency_map, disp_map, acc_map, weightsS, depth_map
     else:
         return rgb_map, disp_map, acc_map, weights, depth_map
 
