@@ -859,7 +859,10 @@ def train():
                                                 **render_kwargs_train)
 
         optimizer.zero_grad()
-        img_loss = img2mse(rgb, target_s)
+        if args.with_saliency:
+            img_loss = img2mse(saliency, saliency_s)
+        else:
+            img_loss = img2mse(rgb, target_s)
         trans = extras['raw'][...,-1]
         loss = img_loss
         psnr = mse2psnr(img_loss)
