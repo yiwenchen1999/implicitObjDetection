@@ -324,8 +324,8 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         print("weight shape:", weights.shape)
 
     if saliency:
-        saliency = torch.sigmoid(raw[...,0]) 
-        print("saliency shape:", saliency.shape)
+        saliency_s = torch.sigmoid(raw[...,0]) 
+        print("saliency shape:", saliency_s.shape)
         noise = 0.
         if raw_noise_std > 0.:
             noise = torch.randn(raw[...,1].shape) * raw_noise_std
@@ -339,8 +339,8 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         alphaS = raw2alpha(raw[...,1] + noise, dists)
         weightsS = alphaS * torch.cumprod(torch.cat([torch.ones((alphaS.shape[0], 1)), 1.-alphaS + 1e-10], -1), -1)[:, :-1]
         print("weight shape:", weightsS.shape)
-        saliency = torch.reshape(saliency,(saliency.shape[0],saliency.shape[1],1))
-        saliency_map = torch.sum(weightsS[...,None] * saliency, -2)  # [N_rays, 1]
+        saliency_s = torch.reshape(saliency_s,(saliency_s.shape[0],saliency_s.shape[1],1))
+        saliency_map = torch.sum(weightsS[...,None] * saliency_s, -2)  # [N_rays, 1]
 
         depth_map = torch.sum(weightsS * z_vals, -1)
         disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weightsS, -1))
