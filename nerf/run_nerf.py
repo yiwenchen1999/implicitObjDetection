@@ -1,5 +1,6 @@
 from operator import gt
 import os, sys
+from pickle import TRUE
 import numpy as np
 import imageio
 import json
@@ -57,12 +58,12 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     return outputs
 
 
-def batchify_rays(rays_flat, chunk=1024*32, **kwargs):
+def batchify_rays(rays_flat, chunk=1024*32, use_saliency = False, **kwargs):
     """Render rays in smaller minibatches to avoid OOM.
     """
     all_ret = {}
     for i in range(0, rays_flat.shape[0], chunk):
-        ret = render_rays(rays_flat[i:i+chunk], **kwargs)
+        ret = render_rays(rays_flat[i:i+chunk],use_saliency = use_saliency, **kwargs)
         for k in ret:
             if k not in all_ret:
                 all_ret[k] = []
@@ -74,7 +75,7 @@ def batchify_rays(rays_flat, chunk=1024*32, **kwargs):
 
 def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
                   near=0., far=1.,
-                  use_viewdirs=False, c2w_staticcam=None,
+                  use_viewdirs=False, c2w_staticcam=None,use_saliency = False,
                   **kwargs):
     """Render rays
     Args:
@@ -129,7 +130,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
         rays = torch.cat([rays, viewdirs], -1)
 
     # Render and reshape
-    all_ret = batchify_rays(rays, chunk, **kwargs)
+    all_ret = batchify_rays(rays, chunk, **kwargs, use_saliency = use_saliency)
     for k in all_ret:
         k_sh = list(sh[:-1]) + list(all_ret[k].shape[1:])
         all_ret[k] = torch.reshape(all_ret[k], k_sh)
@@ -280,7 +281,7 @@ def create_nerf(args):
     return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer
 
 
-def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False):
+def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False, saliency = False):
     """Transforms model's predictions to semantically meaningful values.
     Args:
         raw: [num_rays, num_samples along ray, 4]. Prediction from model.
@@ -299,41 +300,64 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
 
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
+    if not saliency:
+        rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
+        noise = 0.
+        if raw_noise_std > 0.:
+            noise = torch.randn(raw[...,3].shape) * raw_noise_std
 
-    rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
-    noise = 0.
-    if raw_noise_std > 0.:
-        noise = torch.randn(raw[...,3].shape) * raw_noise_std
+            # Overwrite randomly sampled data if pytest
+            if pytest:
+                np.random.seed(0)
+                noise = np.random.rand(*list(raw[...,3].shape)) * raw_noise_std
+                noise = torch.Tensor(noise)
 
-        # Overwrite randomly sampled data if pytest
-        if pytest:
-            np.random.seed(0)
-            noise = np.random.rand(*list(raw[...,3].shape)) * raw_noise_std
-            noise = torch.Tensor(noise)
+        alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
+        # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
+        weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
+        rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
-    alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
-    # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
-    weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
-    rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
+        depth_map = torch.sum(weights * z_vals, -1)
+        disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
+        acc_map = torch.sum(weights, -1)
 
-    depth_map = torch.sum(weights * z_vals, -1)
-    disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
-    acc_map = torch.sum(weights, -1)
+    if saliency:
+        saliency = torch.sigmoid(raw[...,0]) 
+        noise = 0.
+        if raw_noise_std > 0.:
+            noise = torch.randn(raw[...,1].shape) * raw_noise_std
 
-    # saliency = torch.sigmoid(raw[...,4]) #TODO: enable this later
-    # alphaS = raw2alpha(raw[...,5] + noise, dists)
-    # weightsS = alphaS * torch.cumprod(torch.cat([torch.ones((alpha.alphaS[0], 1)), 1.-alphaS + 1e-10], -1), -1)[:, :-1]
-    # saliency_map = torch.sum(weightsS[...,None] * saliency, -2)  # [N_rays, 3]
+            # Overwrite randomly sampled data if pytest
+            if pytest:
+                np.random.seed(0)
+                noise = np.random.rand(*list(raw[...,1].shape)) * raw_noise_std
+                noise = torch.Tensor(noise)
+        
+        alphaS = raw2alpha(raw[...,1] + noise, dists)
+        weightsS = alphaS * torch.cumprod(torch.cat([torch.ones((alpha.alphaS[0], 1)), 1.-alphaS + 1e-10], -1), -1)[:, :-1]
+        saliency_map = torch.sum(weightsS[...,None] * saliency, -2)  # [N_rays, 1]
+
+        depth_map = torch.sum(weightsS * z_vals, -1)
+        disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
+        acc_map = torch.sum(weightsS, -1)
+
 
 
     if white_bkgd:
-        rgb_map = rgb_map + (1.-acc_map[...,None])
+        if saliency:
+            saliency_map = saliency_map + (1.-acc_map[...,None])
+        else:
+            rgb_map = rgb_map + (1.-acc_map[...,None])
+
 
     # if saliency: #TODO: add saliency later
         # return rgb_map, disp_map, acc_map, weights, depth_map, saliency_map
     # else:
     #     return rgb_map, disp_map, acc_map, weights, depth_map
-    return rgb_map, disp_map, acc_map, weights, depth_map
+    if saliency:
+        saliency_map, disp_map, acc_map, weights, depth_map
+    else:
+        return rgb_map, disp_map, acc_map, weights, depth_map
 
 
 def render_rays(ray_batch,
@@ -349,7 +373,7 @@ def render_rays(ray_batch,
                 raw_noise_std=0.,
                 verbose=False,
                 pytest=False,
-                saliency = False):
+                use_saliency = False):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -417,7 +441,7 @@ def render_rays(ray_batch,
     raw = network_query_fn(pts, viewdirs, network_fn)
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
-    if saliency:
+    if use_saliency:
         rgb_map, disp_map, acc_map, weights, depth_map, salient_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = True)
     if N_importance > 0:
 
@@ -605,7 +629,10 @@ def train():
         print('NEAR FAR', near, far)
 
     elif args.dataset_type == 'nesf':
-        images, poses, render_poses, hwf, i_split, near, far, K = load_Nesf_data(args.datadir)
+        if  args.with_saliency:
+            images, saliencies, poses, render_poses, hwf, i_split, near, far, K = load_Nesf_data(args.datadir)
+        else:
+            images, poses, render_poses, hwf, i_split, near, far, K = load_Nesf_data(args.datadir)
         print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
         i_train, i_val, i_test = i_split
         images = images[...,:3]
@@ -818,11 +845,16 @@ def train():
                     # print("salient_0:", salient_0.shape)
                     # print("salient_1:", salient_1.shape)
                     # print("saliency")
-                    saliency_s = saliency[select_coords[:, 0], select_coords[:, 1]]                    
+                    saliency_s = saliency[select_coords[:, 0, 0], select_coords[:, 1, 0]]                    
 
 
         #####  Core optimization loop  #####
-        rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
+        if args.with_saliency:
+            saliency, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
+                                                verbose=i < 10, retraw=True,
+                                                **render_kwargs_train, use_saliency= TRUE)
+        else:
+            rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                                 verbose=i < 10, retraw=True,
                                                 **render_kwargs_train)
 

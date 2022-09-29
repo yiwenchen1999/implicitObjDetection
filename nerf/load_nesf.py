@@ -271,7 +271,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = True):
     #     print (poses[i])
     # print(imgs[0])
     if use_saliency:
-        return saliencies, poses, render_poses, [H, W, focal], i_split, near, far, K
+        return imgs, saliencies, poses, render_poses, [H, W, focal], i_split, near, far, K
     else:
         return imgs, poses, render_poses, [H, W, focal], i_split, near, far, K
 

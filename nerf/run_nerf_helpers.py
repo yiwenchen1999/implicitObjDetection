@@ -133,13 +133,13 @@ class NeRF(nn.Module):
 
             rgb = self.rgb_linear(h)
             if self.with_saliency:
-                outputs = torch.cat([rgb, alpha,saliency, alphaS], -1)
+                outputs = torch.cat([saliency, alphaS], -1)
             else: 
                 outputs = torch.cat([rgb, alpha], -1)
         else:
             outputs = self.output_linear(h)
             if self.with_saliency:
-                outputs = torch.cat([outputs,saliency, alphaS], -1)
+                outputs = torch.cat([saliency, alphaS], -1)
             
 
         return outputs    
