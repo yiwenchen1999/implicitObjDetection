@@ -313,15 +313,15 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
                 noise = np.random.rand(*list(raw[...,3].shape)) * raw_noise_std
                 noise = torch.Tensor(noise)
 
-            alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
-            # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
-            weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
-            rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
+        alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
+        # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
+        weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
+        rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
-            depth_map = torch.sum(weights * z_vals, -1)
-            disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
-            acc_map = torch.sum(weights, -1)
-            print("weight shape:", weights.shape)
+        depth_map = torch.sum(weights * z_vals, -1)
+        disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
+        acc_map = torch.sum(weights, -1)
+        print("weight shape:", weights.shape)
 
     if saliency:
         saliency = torch.sigmoid(raw[...,0]) 
@@ -444,7 +444,7 @@ def render_rays(ray_batch,
 #     raw = run_network(pts)
     raw = network_query_fn(pts, viewdirs, network_fn)
     if not use_saliency:
-        rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+        rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False)
 
     if use_saliency:
         rgb_map, disp_map, acc_map, weights, depth_map, salient_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = True)
