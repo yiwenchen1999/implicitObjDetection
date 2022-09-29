@@ -637,7 +637,7 @@ def train():
         if  args.with_saliency:
             images, saliencies, poses, render_poses, hwf, i_split, near, far, K = load_Nesf_data(args.datadir)
         else:
-            images, poses, render_poses, hwf, i_split, near, far, K = load_Nesf_data(args.datadir)
+            images, poses, render_poses, hwf, i_split, near, far, K = load_Nesf_data(args.datadir, use_saliency = True)
         print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
         i_train, i_val, i_test = i_split
         images = images[...,:3]
