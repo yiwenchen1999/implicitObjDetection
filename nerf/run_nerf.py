@@ -846,6 +846,7 @@ def train():
                     # print("salient_1:", salient_1.shape)
                     # print("saliency")
                     saliency_s = saliency[select_coords[:, 0], select_coords[:, 1]]
+                    saliency_s = saliency_s[:,0]
                     print(saliency_s.shape)                 
 
 
