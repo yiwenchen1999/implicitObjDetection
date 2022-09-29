@@ -343,7 +343,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         saliency_map = torch.sum(weightsS[...,None] * saliency, -2)  # [N_rays, 1]
 
         depth_map = torch.sum(weightsS * z_vals, -1)
-        disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
+        disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weightsS, -1))
         acc_map = torch.sum(weightsS, -1)
 
 
