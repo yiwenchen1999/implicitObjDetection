@@ -190,7 +190,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
     poses = np.array(poses).astype(np.float32)
     print("imgs: ", imgs.shape)
     print("poses: ", poses.shape)
-    print("saliencies: ", saliencies.shape)
+    # print("saliencies: ", saliencies.shape)
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
     all_poses.append(poses)
@@ -220,7 +220,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
     poses = np.array(poses).astype(np.float32)
     print("imgs: ", imgs.shape)
     print("poses: ", poses.shape)
-    print("saliencies: ", saliencies.shape)
+    # print("saliencies: ", saliencies.shape)
 
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
@@ -251,7 +251,7 @@ def load_Nesf_data(basedir, half_res=False, testskip=1, use_saliency = False):
     poses = np.array(poses).astype(np.float32)
     print("imgs: ", imgs.shape)
     print("poses: ", poses.shape)
-    print("saliencies: ", saliencies.shape)
+    # print("saliencies: ", saliencies.shape)
 
     counts.append(counts[-1] + imgs.shape[0])
     all_imgs.append(imgs)
