@@ -334,7 +334,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
                 noise = torch.Tensor(noise)
         
         alphaS = raw2alpha(raw[...,1] + noise, dists)
-        weightsS = alphaS * torch.cumprod(torch.cat([torch.ones((alpha.alphaS[0], 1)), 1.-alphaS + 1e-10], -1), -1)[:, :-1]
+        weightsS = alphaS * torch.cumprod(torch.cat([torch.ones((alphaS.shape[0], 1)), 1.-alphaS + 1e-10], -1), -1)[:, :-1]
         saliency_map = torch.sum(weightsS[...,None] * saliency, -2)  # [N_rays, 1]
 
         depth_map = torch.sum(weightsS * z_vals, -1)
