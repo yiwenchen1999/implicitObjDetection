@@ -132,6 +132,7 @@ class NeRF(nn.Module):
                 h = F.relu(h)
 
             rgb = self.rgb_linear(h)
+            print("rgb, saliency", rgb.shape, saliency.shape)
             if self.with_saliency:
                 outputs = torch.cat([saliency, alphaS], -1)
             else: 
