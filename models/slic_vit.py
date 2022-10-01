@@ -55,7 +55,7 @@ class SLICViT(nn.Module):
             # im is uint8 numpy
             h, w = im.shape[:2]
             im = Image.fromarray(im).convert('RGB')
-            # im = im.resize((224, 224))
+            im = im.resize((224, 224))
             masks = self.get_masks(np.array(im))
             masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             im = self.model.preprocess(im).unsqueeze(0).cuda()
@@ -128,7 +128,7 @@ class SLICViT(nn.Module):
             print("keys:", key)
         # forward
         h, w = im.shape[:2]
-        im.resize(224,224)
+        # im.resize(224,224)
         print("image: ", im.shape)
         heatmap = self.get_heatmap(im, text)
         # print("heatmap is ", type(heatmap), heatmap.shape, heatmap)
