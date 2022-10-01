@@ -124,8 +124,10 @@ class SLICViT(nn.Module):
         _args = {key: getattr(self, key) for key in args}
         for key in args:
             setattr(self, key, args[key])
+            print("keys:", key)
         # forward
         h, w = im.shape[:2]
+        print("image: ", im.shape)
         heatmap = self.get_heatmap(im, text)
         # print("heatmap is ", type(heatmap), heatmap.shape, heatmap)
         # heatimg = heatmap*800
