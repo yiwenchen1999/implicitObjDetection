@@ -79,6 +79,7 @@ class SLICViT(nn.Module):
 
     def get_heatmap(self, im, text):
         masks, logits = self.get_mask_scores(im, text)
+        print("masks and logits:", masks.shape, logits.shape)
         heatmap = list(np.nan + np.zeros(masks.shape, dtype=np.float32))
         for i in range(len(masks)):
             mask = masks[i]
@@ -127,6 +128,7 @@ class SLICViT(nn.Module):
             print("keys:", key)
         # forward
         h, w = im.shape[:2]
+        im.resize(224,224)
         print("image: ", im.shape)
         heatmap = self.get_heatmap(im, text)
         # print("heatmap is ", type(heatmap), heatmap.shape, heatmap)
@@ -138,10 +140,10 @@ class SLICViT(nn.Module):
         # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+text+"_heat.png")
         # print(text+" saved")
         bbox = self.box_from_heatmap(heatmap)
-        # bbox[:, ::2] = bbox[:, ::2] * w / 224
-        # bbox[:, 1::2] = bbox[:, 1::2] * h / 224
-        bbox[:, ::2] = bbox[:, ::2] * w / w
-        bbox[:, 1::2] = bbox[:, 1::2] * h / h
+        bbox[:, ::2] = bbox[:, ::2] * w / 224
+        bbox[:, 1::2] = bbox[:, 1::2] * h / 224
+        # bbox[:, ::2] = bbox[:, ::2] * w / w
+        # bbox[:, 1::2] = bbox[:, 1::2] * h / h
         # restore paramters
         for key in args:
             setattr(self, key, _args[key])
