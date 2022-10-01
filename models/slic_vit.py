@@ -83,10 +83,11 @@ class SLICViT(nn.Module):
         heatmap = list(np.nan + np.zeros(masks.shape, dtype=np.float32))
         for i in range(len(masks)):
             mask = masks[i]
-            print("mask:",mask.shape)
+            # print("mask:",mask.shape)
             score = logits[i]
             heatmap[i][mask] = score
         heatmap = np.stack(heatmap, 0)
+        print("heatmap:", heatmap.shape)
 
         heatmap = np.exp(heatmap / self.temperature)
 
