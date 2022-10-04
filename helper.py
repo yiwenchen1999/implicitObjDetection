@@ -11,4 +11,4 @@ def seg(image, n_segments):
     h = int(image.shape[1]/seg)
     print("w,h:",w,h)
     mask = np.ones((w,h))
-    image = np.zeros(seg.shape)
+    plate = np.zeros(image.shape)
