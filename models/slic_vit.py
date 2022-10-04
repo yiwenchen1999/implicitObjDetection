@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 from skimage.segmentation import slic
-from utils import oct_seg
+from helper import oct_seg
 from utils.box_search import BruteForceBoxSearch, FractionAreaObjective
 import clip
 from spatial_clip import CLIPMaskedSpatialViT
