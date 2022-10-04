@@ -47,7 +47,7 @@ class SLICViT(nn.Module):
             #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
             # print("n:", n)
             # print("segments:",type(segments_slic))
-            oct_seg = seg(im.astype(np.float32)/255., n_segments=1)
+            oct_seg = seg(im.astype(np.float32)/255., n_segments=n)
             for i in np.unique(oct_seg):
                 mask = oct_seg == i
                 masks.append(mask)
