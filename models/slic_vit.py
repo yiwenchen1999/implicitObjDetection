@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 from skimage.segmentation import slic
-from helper import oct_seg
+from helper import seg
 from utils.box_search import BruteForceBoxSearch, FractionAreaObjective
 import clip
 from spatial_clip import CLIPMaskedSpatialViT
@@ -47,7 +47,7 @@ class SLICViT(nn.Module):
                 np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
             # print("n:", n)
             # print("segments:",type(segments_slic))
-            oct_seg = oct_seg(im.astype(np.float32)/255., n_segments=n)
+            oct_seg = seg(im.astype(np.float32)/255., n_segments=n)
             for i in np.unique(segments_slic):
                 mask = segments_slic == i
                 masks.append(mask)
