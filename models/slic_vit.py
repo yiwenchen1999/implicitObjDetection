@@ -43,13 +43,13 @@ class SLICViT(nn.Module):
         # Do SLIC with different number of segments so that it has a hierarchical scale structure
         # This can average out spurious activations that happens sometimes when the segments are too small
         for n in self.n_segments:
-            segments_slic = slic(im.astype(
-                np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
+            # segments_slic = slic(im.astype(
+            #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
             # print("n:", n)
             # print("segments:",type(segments_slic))
             oct_seg = seg(im.astype(np.float32)/255., n_segments=1)
-            for i in np.unique(segments_slic):
-                mask = segments_slic == i
+            for i in np.unique(oct_seg):
+                mask = oct_seg == i
                 masks.append(mask)
         masks = np.stack(masks, 0)
         return masks

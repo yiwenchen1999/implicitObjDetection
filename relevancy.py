@@ -32,7 +32,8 @@ if parser_args.model == 'vit14':
         'model': 'vit14',
         'alpha': 0.75,
         'aggregation': 'mean',
-        'n_segments': list(range(100, 601, 50)),
+        # 'n_segments': list(range(100, 601, 50)),
+        'n_segments': [1],
         'temperature': 0.02,
         'upsample': 2,
         'start_block': 0,
@@ -69,9 +70,9 @@ if __name__=='__main__':
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
-            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"+filename)
-            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"+filename[:-4]+"_heat.png")
-            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0/"+filename[:-4]+"_heat", heatmap)
+            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/octseg1/"+filename)
+            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/octseg1/"+filename[:-4]+"_heat.png")
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/octseg1/"+filename[:-4]+"_heat", heatmap)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat.png")
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat", heatmap)
 
