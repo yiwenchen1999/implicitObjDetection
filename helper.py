@@ -23,3 +23,4 @@ def seg(image, n_segments):
                 plate[i*w:(i+1)*w, j*h:(j+1)*h] = mask
                 print("plate:")
                 print(plate)
+            n = n + 1
