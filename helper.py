@@ -7,7 +7,8 @@ from PIL import Image
 def seg(image, n_segments):
     seg = pow(2,n_segments)
     print("shape:", image.shape, type(image))
-    w = image.shape[0]/seg
-    h = image.shape[1]/seg
+    w = int(image.shape[0]/seg)
+    h = int(image.shape[1]/seg)
+    print("w,h:",w,h)
     mask = np.ones((w,h))
     image = np.zeros(seg.shape)
