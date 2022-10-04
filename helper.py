@@ -12,7 +12,7 @@ def seg(image, n_segments):
     h = int(image.shape[1]/seg)
     print("w,h:",w,h)
     
-    plate = np.zeros(image.shape)
+    plate = np.zeros((image.shape[0],image.shape[1]))
     n = 0
     for i in range(seg):
         for j in range(seg):
