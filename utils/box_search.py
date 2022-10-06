@@ -14,7 +14,8 @@ class BruteForceBoxSearch():
 
     def __call__(self, matrix, objective_cls):
         h, w = matrix.shape[:2]
-        matrix = torch.from_numpy(matrix).cuda()
+        # matrix = torch.from_numpy(matrix).cuda()
+        matrix = torch.from_numpy(matrix)
         # get new size
         self.h = h // self.downsample
         self.w = w // self.downsample
@@ -51,10 +52,14 @@ class BruteForceBoxSearch():
 
     def search(self, intervals):
         # intervals is like [[x1_min, x1_max], [y1_min, y1_max], ...]
-        x1 = torch.arange(intervals[0][0], intervals[0][1]+1).cuda()
-        y1 = torch.arange(intervals[1][0], intervals[1][1]+1).cuda()
-        x2 = torch.arange(intervals[2][0], intervals[2][1]+1).cuda()
-        y2 = torch.arange(intervals[3][0], intervals[3][1]+1).cuda()
+        # x1 = torch.arange(intervals[0][0], intervals[0][1]+1).cuda()
+        # y1 = torch.arange(intervals[1][0], intervals[1][1]+1).cuda()
+        # x2 = torch.arange(intervals[2][0], intervals[2][1]+1).cuda()
+        # y2 = torch.arange(intervals[3][0], intervals[3][1]+1).cuda()
+        x1 = torch.arange(intervals[0][0], intervals[0][1]+1)
+        y1 = torch.arange(intervals[1][0], intervals[1][1]+1)
+        x2 = torch.arange(intervals[2][0], intervals[2][1]+1)
+        y2 = torch.arange(intervals[3][0], intervals[3][1]+1)
         boxes = torch.cartesian_prod(x1, y1, x2, y2)
         x1, y1, x2, y2 = boxes.transpose(0, 1)
         boxes = boxes[(x1 >= 0) & (y1 >= 0) & (x2 < self.w) &
@@ -163,7 +168,7 @@ if __name__ == '__main__':
     heatmap = np.zeros((h, w))
     heatmap[y1:y2+1, x1:x2+1] = 1.
 
-    torch.cuda.synchronize()  # avoid counting cuda intialization time
+    # torch.cuda.synchronize()  # avoid counting cuda intialization time
     bf = BruteForceBoxSearch()
     objective = FractionAreaObjective(alpha=1.)
     start = time.time()
