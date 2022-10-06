@@ -48,13 +48,16 @@ class SLICViT(nn.Module):
             #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
             # print("n:", n)
             # print("segments:",type(segments_slic))
-            oct_seg = seg(im.astype(np.float32)/255., n_segments=n)
+            oct_seg, areas = seg(im.astype(np.float32)/255., n_segments=n)
             for i in np.unique(oct_seg):
                 mask = oct_seg == i
+                b_mask = areas[i] == i
                 # print(mask)
                 masks.append(mask)
+                detection_areas.append(b_mask)
         masks = np.stack(masks, 0)
-        return masks
+        detection_areas = np.stack(detection_areas, 0)
+        return masks, detection_areas
 
     def get_mask_scores(self, im, text):
         with torch.no_grad():
@@ -62,12 +65,13 @@ class SLICViT(nn.Module):
             h, w = im.shape[:2]
             im = Image.fromarray(im).convert('RGB')
             im = im.resize((224, 224))
-            masks = self.get_masks(np.array(im))
+            masks, detection_areas = self.get_masks(np.array(im))
             masks = torch.from_numpy(masks.astype(np.bool)).cuda()
+            detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
             im = self.model.preprocess(im).unsqueeze(0).cuda()
             # print("preprocessed image:", im.shape)
 
-            image_features = self.model(im, masks)
+            image_features = self.model(im, detection_areas)
             image_features = image_features.permute(0, 2, 1)
 
             text = clip.tokenize([text]).cuda()

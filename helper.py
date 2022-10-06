@@ -25,11 +25,11 @@ def seg(image, n_segments):
                 for x in range(window_size):
                     for y in range (window_size):
                         canvas[max(0,(i-r+x)*w):min(image.shape[0],(i+1-r+x)*w), max(0,(j-r+y)*h):min(image.shape[1],(j+1-r+y)*h)] = n
-                print("plate:")
-                print(plate)
-                print("canvas:")
-                print(canvas)
+                # print("plate:")
+                # print(plate)
+                # print("canvas:")
+                # print(canvas)
                 areas.append(canvas)
             n = n + 1
 
-    return plate
+    return plate, areas
