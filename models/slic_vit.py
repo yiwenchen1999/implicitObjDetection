@@ -66,15 +66,20 @@ class SLICViT(nn.Module):
             im = Image.fromarray(im).convert('RGB')
             im = im.resize((224, 224))
             masks, detection_areas = self.get_masks(np.array(im))
-            masks = torch.from_numpy(masks.astype(np.bool)).cuda()
-            detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
-            im = self.model.preprocess(im).unsqueeze(0).cuda()
+            # masks = torch.from_numpy(masks.astype(np.bool)).cuda()
+            masks = torch.from_numpy(masks.astype(np.bool))
+
+            # detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
+            detection_areas = torch.from_numpy(detection_areas.astype(np.bool))
+            # im = self.model.preprocess(im).unsqueeze(0).cuda()
+            im = self.model.preprocess(im).unsqueeze(0)
             # print("preprocessed image:", im.shape)
 
             image_features = self.model(im, detection_areas)
             image_features = image_features.permute(0, 2, 1)
 
-            text = clip.tokenize([text]).cuda()
+            # text = clip.tokenize([text]).cuda()
+            text = clip.tokenize([text])
             text_features = self.model.encode_text(text)
 
             image_features = image_features / \

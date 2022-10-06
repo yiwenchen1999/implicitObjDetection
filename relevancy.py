@@ -49,7 +49,8 @@ elif parser_args.model == 'ssbaseline':
 else:
     assert False
 
-model = model(**args).cuda()
+# model = model(**args).cuda()
+model = model(**args)
 
 if __name__=='__main__':
     # print("runnning main fuction")
