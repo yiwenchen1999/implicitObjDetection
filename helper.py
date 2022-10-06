@@ -24,7 +24,7 @@ def seg(image, n_segments):
                 canvas = np.zeros((image.shape[0],image.shape[1]))
                 for x in range(r):
                     for y in range (r):
-                        canvas[max(0,(i-r+x)*w):max(image.shape[0],(i+1-r+x)*w), max(0,(j-r+y)*h):min(image.shape[1],(j+1-r+y)*h)] = mask
+                        canvas[max(0,(i-r+x)*w):min(image.shape[0],(i+1-r+x)*w), max(0,(j-r+y)*h):min(image.shape[1],(j+1-r+y)*h)] = n
                 print("plate:")
                 print(plate)
                 print("canvas:")
