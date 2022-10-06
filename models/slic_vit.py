@@ -40,6 +40,7 @@ class SLICViT(nn.Module):
 
     def get_masks(self, im):
         masks = []
+        detection_areas = []
         # Do SLIC with different number of segments so that it has a hierarchical scale structure
         # This can average out spurious activations that happens sometimes when the segments are too small
         for n in self.n_segments:
@@ -50,6 +51,7 @@ class SLICViT(nn.Module):
             oct_seg = seg(im.astype(np.float32)/255., n_segments=n)
             for i in np.unique(oct_seg):
                 mask = oct_seg == i
+                print(mask)
                 masks.append(mask)
         masks = np.stack(masks, 0)
         return masks
@@ -63,7 +65,7 @@ class SLICViT(nn.Module):
             masks = self.get_masks(np.array(im))
             masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             im = self.model.preprocess(im).unsqueeze(0).cuda()
-            print("preprocessed image:", type(im))
+            # print("preprocessed image:", im.shape)
 
             image_features = self.model(im, masks)
             image_features = image_features.permute(0, 2, 1)

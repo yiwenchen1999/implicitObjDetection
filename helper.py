@@ -18,11 +18,7 @@ def seg(image, n_segments):
         for j in range(seg):
             if n != 0:
                 mask = n*np.ones((w,h))
-                # print("mask")
-                # print(mask)
                 plate[i*w:(i+1)*w, j*h:(j+1)*h] = mask
-                # print("plate:")
-                # print(plate)
             n = n + 1
 
     return plate
