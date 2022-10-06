@@ -63,6 +63,7 @@ class SLICViT(nn.Module):
             masks = self.get_masks(np.array(im))
             masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             im = self.model.preprocess(im).unsqueeze(0).cuda()
+            print("preprocessed image:", type(im))
 
             image_features = self.model(im, masks)
             image_features = image_features.permute(0, 2, 1)
