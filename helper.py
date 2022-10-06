@@ -11,7 +11,7 @@ def seg(image, n_segments):
     w = int(image.shape[0]/seg)
     h = int(image.shape[1]/seg)
     # print("w,h:",w,h)
-    window_size = 3
+    window_size = 5
     r  = int((window_size-1)/2)
     plate = np.zeros((image.shape[0],image.shape[1]))
     areas = []
