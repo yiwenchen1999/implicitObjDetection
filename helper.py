@@ -22,14 +22,14 @@ def seg(image, n_segments):
                 mask = n*np.ones((w,h))
                 plate[i*w:(i+1)*w, j*h:(j+1)*h] = mask
                 canvas = np.zeros((image.shape[0],image.shape[1]))
-                for x in range(window_size):
-                    for y in range (window_size):
-                        canvas[max(0,(i-r+x)*w):min(image.shape[0],(i+1-r+x)*w), max(0,(j-r+y)*h):min(image.shape[1],(j+1-r+y)*h)] = n
-                # print("plate:")
-                # print(plate)
-                # print("canvas:")
-                # print(canvas)
-                areas.append(canvas)
+            for x in range(window_size):
+                for y in range (window_size):
+                    canvas[max(0,(i-r+x)*w):min(image.shape[0],(i+1-r+x)*w), max(0,(j-r+y)*h):min(image.shape[1],(j+1-r+y)*h)] = n
+            # print("plate:")
+            # print(plate)
+            # print("canvas:")
+            # print(canvas)
+            areas.append(canvas)
             n = n + 1
 
     return plate, areas
