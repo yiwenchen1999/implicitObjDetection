@@ -73,7 +73,7 @@ class SLICViT(nn.Module):
             image_features = self.model(im, detection_areas)
             image_features = image_features.permute(0, 2, 1)
 
-            image_features = image_features.cpu().float().numpy()[0]
+            image_features = image_features.cpu().float().numpy()
 
             return masks.cpu().numpy(), image_features
 
@@ -106,6 +106,7 @@ class SLICViT(nn.Module):
                 text_features.norm(dim=1, keepdim=True)
 
             logits = (image_features * text_features.unsqueeze(-1)).sum(1)
+            print("logits shape", logits.shape)
             assert logits.size(0) == 1
             logits = logits.cpu().float().numpy()[0]
 
@@ -150,8 +151,8 @@ class SLICViT(nn.Module):
             setattr(self, key, args[key])
             print("keys:", key)
         masks, clip_features = self.get_mask_features(im)
-        print("mask shape, feature shape:" , masks.shape, len(clip_features))
-        featuremap = list(np.nan + np.zeros((masks.shape[0], masks.shape[1], clip_features.shape[1]), dtype=np.float32))
+        print("mask shape, feature shape:" , masks.shape, clip_features.shape)
+        featuremap = list(np.nan + np.zeros((masks.shape[0], masks.shape[1],clip_features.shape[1] ), dtype=np.float32))
         print("featuremap shape", featuremap.shape)
         for i in range(len(masks)):
             mask = masks[i]
