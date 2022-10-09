@@ -71,7 +71,7 @@ class SLICViT(nn.Module):
             im = self.model.preprocess(im).unsqueeze(0).cuda()
 
             image_features = self.model(im, detection_areas)
-            image_features = image_features.permute(0, 2, 1)
+            image_features = image_features.permute(image_features,(0, 2, 1))
             print("image_features in clipmap:" , image_features.shape)
 
             image_features = image_features.cpu().float().numpy()
@@ -98,7 +98,7 @@ class SLICViT(nn.Module):
             image_features = self.model(im, detection_areas)
             
             image_features = image_features.permute(0, 2, 1)
-            # print("features in get heatmap:", image_features.shape)
+            print("features in get heatmap:", image_features.shape)
 
             text = clip.tokenize([text]).cuda()
             # text = clip.tokenize([text])
@@ -161,7 +161,7 @@ class SLICViT(nn.Module):
         for i in range(len(masks)):
             mask = masks[i]
             # print("mask:",mask.shape)
-            features = clip_features[i]
+            features = clip_features[0][i]
             featuremap[i][mask] = features
         featuremap = np.stack(featuremap, 0)
         print("heatmap:", featuremap.shape)
