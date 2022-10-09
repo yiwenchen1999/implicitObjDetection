@@ -160,10 +160,12 @@ class SLICViT(nn.Module):
         print("mask shape, feature shape:" , masks.shape, clip_features.shape)
         featuremap = list(np.nan + np.zeros((masks.shape[0], masks.shape[1],clip_features.shape[1] ), dtype=np.float32))
         # print("featuremap shape", featuremap.shape)
+        print("i goes up to:", len(masks))
         for i in range(len(masks)):
             mask = masks[i]
             # print("mask:",mask.shape)
-            features = clip_features[0][i]
+            features = clip_features[i]
+            print("clip features: ", features.shape)
             featuremap[i][mask] = features
         featuremap = np.stack(featuremap, 0)
         print("heatmap:", featuremap.shape)
