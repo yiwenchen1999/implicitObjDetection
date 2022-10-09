@@ -167,7 +167,7 @@ class SLICViT(nn.Module):
             features = clip_features[i]
             print("clip features: ", features.shape)
             print(featuremap.shape)
-            featuremap[i][mask] = features
+            featuremap[mask] = features
         featuremap = np.stack(featuremap, 0)
         print("heatmap:", featuremap.shape)
         return featuremap
