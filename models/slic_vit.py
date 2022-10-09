@@ -150,7 +150,7 @@ class SLICViT(nn.Module):
             setattr(self, key, args[key])
             print("keys:", key)
         masks, clip_features = self.get_mask_features(im)
-        print("mask shape, feature shape:" , masks.shape, clip_features.shape)
+        print("mask shape, feature shape:" , masks.shape, len(clip_features))
         featuremap = list(np.nan + np.zeros((masks.shape[0], masks.shape[1], clip_features.shape[1]), dtype=np.float32))
         print("featuremap shape", featuremap.shape)
         for i in range(len(masks)):
