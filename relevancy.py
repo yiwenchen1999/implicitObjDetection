@@ -18,6 +18,10 @@ def getHeatmap(model, im, text):
     _, heatmap  = model(im, text)
     return heatmap
 
+def getclipmap(model, im):
+    clipmap = model.get_clipmap(im)
+    return clipmap
+
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--model', type=str, default='vit14')
@@ -49,8 +53,8 @@ elif parser_args.model == 'ssbaseline':
 else:
     assert False
 
-# model = model(**args).cuda()
-model = model(**args)
+model = model(**args).cuda()
+# model = model(**args)
 
 if __name__=='__main__':
     # print("runnning main fuction")
@@ -66,6 +70,7 @@ if __name__=='__main__':
             im = np.array(Image.open(img_path).convert("RGB"))
             # print("image shae inspection: ")
             # print(im.shape, im)
+
             heatmap = getHeatmap(model, im , "chair")
             heatimg = heatmap*200
             # print(heatimg)
@@ -76,5 +81,7 @@ if __name__=='__main__':
             np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/octseg1/"+filename[:-4]+"_heat_55", heatmap)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat.png")
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat", heatmap)
-
+            
+            clipmap = getclipmap(model, im)
+            print(filename+" clipmap has shape: ", clipmap.shape)
             print(filename+" saved")

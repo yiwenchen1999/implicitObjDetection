@@ -59,6 +59,24 @@ class SLICViT(nn.Module):
         detection_areas = np.stack(detection_areas, 0)
         return masks, detection_areas
 
+    def get_mask_features(self,im):
+        with torch.no_grad():
+            # im is uint8 numpy
+            h, w = im.shape[:2]
+            im = Image.fromarray(im).convert('RGB')
+            # im = im.resize((224, 224))
+            masks, detection_areas = self.get_masks(np.array(im))
+            masks = torch.from_numpy(masks.astype(np.bool)).cuda()
+            detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
+            im = self.model.preprocess(im).unsqueeze(0).cuda()
+
+            image_features = self.model(im, detection_areas)
+            image_features = image_features.permute(0, 2, 1)
+
+            image_features = image_features.cpu().float().numpy()[0]
+
+            return masks.cpu().numpy(), image_features
+
     def get_mask_scores(self, im, text):
         with torch.no_grad():
             # im is uint8 numpy
@@ -66,20 +84,20 @@ class SLICViT(nn.Module):
             im = Image.fromarray(im).convert('RGB')
             im = im.resize((224, 224))
             masks, detection_areas = self.get_masks(np.array(im))
-            # masks = torch.from_numpy(masks.astype(np.bool)).cuda()
-            masks = torch.from_numpy(masks.astype(np.bool))
+            masks = torch.from_numpy(masks.astype(np.bool)).cuda()
+            # masks = torch.from_numpy(masks.astype(np.bool))
 
-            # detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
-            detection_areas = torch.from_numpy(detection_areas.astype(np.bool))
-            # im = self.model.preprocess(im).unsqueeze(0).cuda()
-            im = self.model.preprocess(im).unsqueeze(0)
+            detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
+            # detection_areas = torch.from_numpy(detection_areas.astype(np.bool))
+            im = self.model.preprocess(im).unsqueeze(0).cuda()
+            # im = self.model.preprocess(im).unsqueeze(0)
             # print("preprocessed image:", im.shape)
 
             image_features = self.model(im, detection_areas)
             image_features = image_features.permute(0, 2, 1)
 
-            # text = clip.tokenize([text]).cuda()
-            text = clip.tokenize([text])
+            text = clip.tokenize([text]).cuda()
+            # text = clip.tokenize([text])
             text_features = self.model.encode_text(text)
 
             image_features = image_features / \
@@ -125,6 +143,23 @@ class SLICViT(nn.Module):
                                _min) / (_max - _min + 1e-8)
         heatmap[np.logical_not(mask_valid)] = 0.
         return heatmap
+
+    def get_clipmap(self, im, **args):
+        _args = {key: getattr(self, key) for key in args}
+        for key in args:
+            setattr(self, key, args[key])
+            print("keys:", key)
+        masks, clip_features = self.get_mask_features(im)
+        featuremap = list(np.nan + np.zeros((masks.shape[0], masks.shape[1], clip_features.shape[1]), dtype=np.float32))
+        
+        for i in range(len(masks)):
+            mask = masks[i]
+            # print("mask:",mask.shape)
+            features = clip_features[i]
+            featuremap[i][mask] = features
+        featuremap = np.stack(featuremap, 0)
+        print("heatmap:", featuremap.shape)
+        return featuremap
 
     def box_from_heatmap(self, heatmap):
         alpha = self.alpha
