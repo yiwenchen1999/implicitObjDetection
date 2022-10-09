@@ -94,6 +94,7 @@ class SLICViT(nn.Module):
             # print("preprocessed image:", im.shape)
 
             image_features = self.model(im, detection_areas)
+            print("features in get heatmap:", image_features.shape)
             image_features = image_features.permute(0, 2, 1)
 
             text = clip.tokenize([text]).cuda()
