@@ -72,8 +72,9 @@ class SLICViT(nn.Module):
 
             image_features = self.model(im, detection_areas)
             torch.reshape(image_features, (image_features.shape[1], image_features.shape[2]))
-            image_features = torch.permute(image_features,(1, 0))
+            
             print("image_features in clipmap:" , image_features.shape)
+            image_features = torch.permute(image_features,(1, 0))
 
             image_features = image_features.cpu().float().numpy()
             print("image feature converted to numpy" , image_features.shape)
