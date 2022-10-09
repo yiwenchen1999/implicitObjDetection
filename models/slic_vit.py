@@ -37,6 +37,7 @@ class SLICViT(nn.Module):
         self.temperature = temperature
         self.compactness = compactness
         self.sigma = sigma
+        self.window_size = 5
 
     def get_masks(self, im):
         masks = []
@@ -48,7 +49,7 @@ class SLICViT(nn.Module):
             #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
             # print("n:", n)
             # print("segments:",type(segments_slic))
-            oct_seg, areas = seg(im.astype(np.float32)/255., n_segments=n)
+            oct_seg, areas = seg(im.astype(np.float32)/255., n_segments=n, window_size= self.window_size)
             for i in np.unique(oct_seg):
                 mask = oct_seg == i
                 b_mask = areas[int(i)] == i
@@ -165,11 +166,11 @@ class SLICViT(nn.Module):
             mask = masks[i]
             # print("mask:",mask.shape)
             features = clip_features[i]
-            print("clip features: ", features.shape)
-            print(featuremap.shape)
+            # print("clip features: ", features.shape)
+            # print(featuremap.shape)
             featuremap[mask] = features
         featuremap = np.stack(featuremap, 0)
-        print("heatmap:", featuremap.shape)
+        # print("heatmap:", featuremap.shape)
         return featuremap
 
     def box_from_heatmap(self, heatmap):

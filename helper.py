@@ -5,13 +5,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 
-def seg(image, n_segments):
+def seg(image, n_segments, window_size = 5):
     seg = pow(2,n_segments)
     # print("shape:", image.shape, type(image))
     w = int(image.shape[0]/seg)
     h = int(image.shape[1]/seg)
     # print("w,h:",w,h)
-    window_size = 5
+    window_size = window_size
     r  = int((window_size-1)/2)
     plate = np.zeros((image.shape[0],image.shape[1]))
     areas = []
