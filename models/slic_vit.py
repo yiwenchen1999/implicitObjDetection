@@ -71,7 +71,7 @@ class SLICViT(nn.Module):
             im = self.model.preprocess(im).unsqueeze(0).cuda()
 
             image_features = self.model(im, detection_areas)
-            # image_features = image_features.permute(0, 2, 1)
+            image_features = image_features.permute(0, 2, 1)
             print("image_features in clipmap:" , image_features.shape)
 
             image_features = image_features.cpu().float().numpy()
@@ -156,8 +156,8 @@ class SLICViT(nn.Module):
             print("keys:", key)
         masks, clip_features = self.get_mask_features(im)
         print("mask shape, feature shape:" , masks.shape, clip_features.shape)
-        featuremap = list(np.nan + np.zeros((masks.shape[0], masks.shape[1],clip_features.shape[1] ), dtype=np.float32))
-        print("featuremap shape", featuremap.shape)
+        featuremap = list(np.nan + np.zeros((masks.shape[0], masks.shape[1],clip_features.shape[2] ), dtype=np.float32))
+        # print("featuremap shape", featuremap.shape)
         for i in range(len(masks)):
             mask = masks[i]
             # print("mask:",mask.shape)
