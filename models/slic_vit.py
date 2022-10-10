@@ -37,7 +37,7 @@ class SLICViT(nn.Module):
         self.temperature = temperature
         self.compactness = compactness
         self.sigma = sigma
-        self.window_size = 1
+        self.window_size = 50
         self.batch_size = 1024
 
     def get_masks(self, im, perpixel = False):
@@ -207,7 +207,16 @@ class SLICViT(nn.Module):
         #     score = logits[i]
         #     heatmap[i][mask] = score
         # heatmap = np.stack(heatmap, 0)
-        print("heatmap:", type(heatmap), heatmap.shape)
+        # print("heatmap:", type(heatmap), heatmap.shape)
+        heatmap = np.exp(heatmap / self.temperature)
+        #post processing
+        mask_valid = np.logical_not(np.isnan(heatmap))
+        _min = heatmap[mask_valid].min()
+        _max = heatmap[mask_valid].max()
+        heatmap[mask_valid] = (heatmap[mask_valid] -
+                               _min) / (_max - _min + 1e-8)
+        heatmap[np.logical_not(mask_valid)] = 0.
+
         return heatmap
 
         # heatmap = np.exp(heatmap / self.temperature)
