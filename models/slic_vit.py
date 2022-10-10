@@ -62,7 +62,7 @@ class SLICViT(nn.Module):
                     # print(mask)
                     masks.append(mask)
                     detection_areas.append(b_mask)
-        masks = np.stack(masks, 0)
+            masks = np.stack(masks, 0)
         detection_areas = np.stack(detection_areas, 0)
         return masks, detection_areas
 
