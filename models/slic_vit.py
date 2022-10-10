@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 from skimage.segmentation import slic
-from helper import seg
+from helper import seg, segPerPixel
 from utils.box_search import BruteForceBoxSearch, FractionAreaObjective
 import clip
 from spatial_clip import CLIPMaskedSpatialViT
@@ -39,23 +39,28 @@ class SLICViT(nn.Module):
         self.sigma = sigma
         self.window_size = 5
 
-    def get_masks(self, im):
+    def get_masks(self, im, perpixel = False):
         masks = []
         detection_areas = []
         # Do SLIC with different number of segments so that it has a hierarchical scale structure
         # This can average out spurious activations that happens sometimes when the segments are too small
-        for n in self.n_segments:
-            # segments_slic = slic(im.astype(
-            #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
-            # print("n:", n)
-            # print("segments:",type(segments_slic))
-            oct_seg, areas = seg(im.astype(np.float32)/255., n_segments=n, window_size= self.window_size)
-            for i in np.unique(oct_seg):
-                mask = oct_seg == i
+        if perpixel:
+            for i in range(im.shape[0]* im.shape[1]):
                 b_mask = areas[int(i)] == i
-                # print(mask)
-                masks.append(mask)
                 detection_areas.append(b_mask)
+        else:
+            for n in self.n_segments:
+                # segments_slic = slic(im.astype(
+                #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
+                # print("n:", n)
+                # print("segments:",type(segments_slic))
+                oct_seg, areas = seg(im.astype(np.float32)/255., n_segments=n, window_size= self.window_size)
+                for i in np.unique(oct_seg):
+                    mask = oct_seg == i
+                    b_mask = areas[int(i)] == i
+                    # print(mask)
+                    masks.append(mask)
+                    detection_areas.append(b_mask)
         masks = np.stack(masks, 0)
         detection_areas = np.stack(detection_areas, 0)
         return masks, detection_areas
@@ -82,7 +87,7 @@ class SLICViT(nn.Module):
 
             return masks.cpu().numpy(), image_features
 
-    def get_mask_scores(self, im, text):
+    def get_mask_scores(self, im, text, perpixel = False):
         with torch.no_grad():
             # im is uint8 numpy
             h, w = im.shape[:2]
@@ -154,6 +159,42 @@ class SLICViT(nn.Module):
         heatmap[np.logical_not(mask_valid)] = 0.
         return heatmap
 
+    def get_heatmap_perpixel(self, im, text):
+        masks, logits = self.get_mask_scores(im, text)
+        print("masks and logits:", masks.shape, logits.shape)
+        heatmap = (np.nan + np.zeros((im.shape[0], im.shape[1]), dtype=np.float32))
+        print("heatmap:", type(heatmap),len(heatmap), heatmap[0].shape)
+        # for i in range(len(masks)):
+        #     mask = masks[i]
+        #     # print("mask:",mask.shape)
+        #     score = logits[i]
+        #     heatmap[i][mask] = score
+        # heatmap = np.stack(heatmap, 0)
+        # print("heatmap:", type(heatmap), heatmap.shape)
+
+        # heatmap = np.exp(heatmap / self.temperature)
+        # print("self.aggregation:", self.aggregation)
+
+        # if self.aggregation == 'mean':
+        #     heatmap = np.nanmean(heatmap, 0)
+        # elif self.aggregation == 'median':
+        #     heatmap = np.nanmedian(heatmap, 0)
+        # elif self.aggregation == 'max':
+        #     heatmap = np.nanmax(heatmap, 0)
+        # elif self.aggregation == 'min':
+        #     heatmap = -np.nanmin(heatmap, 0)
+        # else:
+        #     assert False
+
+        # mask_valid = np.logical_not(np.isnan(heatmap))
+        # _min = heatmap[mask_valid].min()
+        # _max = heatmap[mask_valid].max()
+        # heatmap[mask_valid] = (heatmap[mask_valid] -
+        #                        _min) / (_max - _min + 1e-8)
+        # heatmap[np.logical_not(mask_valid)] = 0.
+        # return heatmap
+
+
     def get_clipmap(self, im, **args):
         _args = {key: getattr(self, key) for key in args}
         for key in args:
@@ -198,14 +239,6 @@ class SLICViT(nn.Module):
         # im.resize(224,224)
         print("image: ", im.shape)
         heatmap = self.get_heatmap(im, text)
-        # print("heatmap is ", type(heatmap), heatmap.shape, heatmap)
-        # heatimg = heatmap*800
-        # # print(heatimg)
-        # o_im = Image.fromarray(im).convert ('RGB')
-        # h_im = Image.fromarray(heatimg).convert ('RGB')
-        # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+text+".png")
-        # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+text+"_heat.png")
-        # print(text+" saved")
         bbox = self.box_from_heatmap(heatmap)
         bbox[:, ::2] = bbox[:, ::2] * w / 224
         bbox[:, 1::2] = bbox[:, 1::2] * h / 224

@@ -42,4 +42,7 @@ def segPerPixel(image, n_segments, window_size = 5):
     areas = []
     for i in range(w):
         for j in range(h):
-            pass
+            canvas = np.zeros((image.shape[0],image.shape[1]))
+            canvas[max(0,i-window_size):min(w, i+window_size), max(0, j - window_size): min(h, j + window_size)] = 1
+            areas.append(canvas)
+    return areas
