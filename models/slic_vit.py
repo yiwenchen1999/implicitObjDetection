@@ -48,7 +48,7 @@ class SLICViT(nn.Module):
         if perpixel:
             areas = segPerPixel(im.astype(np.float32)/255., window_size= self.window_size)
             for i in range(im.shape[0]* im.shape[1]):
-                b_mask = areas[int(i)] == i
+                b_mask = areas[int(i)] == 1
                 detection_areas.append(b_mask)
         else:
             for n in self.n_segments:
