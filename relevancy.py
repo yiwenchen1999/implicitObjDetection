@@ -15,7 +15,8 @@ import os
 
 
 def getHeatmap(model, im, text):
-    _, heatmap  = model(im, text)
+    # _, heatmap  = model(im, text)
+    heatmap = model.get_heatmap_perpixel(im, text)
     return heatmap
 
 def getclipmap(model, im):
