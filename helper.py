@@ -34,7 +34,7 @@ def seg(image, n_segments, window_size = 5):
 
     return plate, areas
 
-def segPerPixel(image, n_segments, window_size = 5):
+def segPerPixel(image, window_size = 5):
     w = image.shape[0]
     h = image.shape[1]
     window_size = window_size
