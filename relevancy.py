@@ -15,8 +15,8 @@ import os
 
 
 def getHeatmap(model, im, text):
-    # _, heatmap  = model(im, text)
-    heatmap = model.get_heatmap_perpixel(im, text)
+    _, heatmap  = model(im, text)
+    # heatmap = model.get_heatmap_perpixel(im, text)
     return heatmap
 
 def getclipmap(model, im):
@@ -38,7 +38,7 @@ if parser_args.model == 'vit14':
         'alpha': 0.75,
         'aggregation': 'mean',
         # 'n_segments': list(range(100, 601, 50)),
-        'n_segments': [5],
+        'n_segments': [8],
         'temperature': 0.02,
         'upsample': 2,
         'start_block': 0,
