@@ -95,7 +95,8 @@ class SLICViT(nn.Module):
             im = Image.fromarray(im).convert('RGB')
             im = im.resize((224, 224))
             masks, detection_areas = self.get_masks(np.array(im), perpixel=perpixel)
-            masks = torch.from_numpy(masks.astype(np.bool)).cuda()
+            if not perpixel:
+                masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             # masks = torch.from_numpy(masks.astype(np.bool))
 
             detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
@@ -123,7 +124,10 @@ class SLICViT(nn.Module):
             assert logits.size(0) == 1
             logits = logits.cpu().float().numpy()[0]
 
-        return masks.cpu().numpy(), logits
+        if perpixel:
+            return None, logits
+        else:
+            return masks.cpu().numpy(), logits
 
     def get_heatmap(self, im, text):
         masks, logits = self.get_mask_scores(im, text)
@@ -162,7 +166,7 @@ class SLICViT(nn.Module):
 
     def get_heatmap_perpixel(self, im, text):
         masks, logits = self.get_mask_scores(im, text, perpixel= True)
-        print("masks and logits:", masks.shape, logits.shape)
+        print("masks and logits:", type(masks), logits.shape)
         heatmap = (np.nan + np.zeros((im.shape[0], im.shape[1]), dtype=np.float32))
         print("heatmap:", type(heatmap), heatmap.shape)
         # for i in range(len(masks)):
