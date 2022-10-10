@@ -33,3 +33,13 @@ def seg(image, n_segments, window_size = 5):
             n = n + 1
 
     return plate, areas
+
+def segPerPixel(image, n_segments, window_size = 5):
+    w = image.shape[0]
+    h = image.shape[1]
+    window_size = window_size
+    r  = int((window_size-1)/2)
+    areas = []
+    for i in range(w):
+        for j in range(h):
+            pass

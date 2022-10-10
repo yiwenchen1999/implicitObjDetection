@@ -129,7 +129,7 @@ class SLICViT(nn.Module):
             score = logits[i]
             heatmap[i][mask] = score
         heatmap = np.stack(heatmap, 0)
-        print("heatmap:", heatmap.shape)
+        print("heatmap:", type(heatmap), heatmap.shape)
 
         heatmap = np.exp(heatmap / self.temperature)
 
