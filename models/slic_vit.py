@@ -122,7 +122,7 @@ class SLICViT(nn.Module):
                 assert logits.size(0) == 1
                 logits = logits.cpu().float().numpy()[0]
                 logits_all.append(logits)
-                
+
             logits = np.concatenate(logits_all, 0)
             print("logits shape", logits.shape)
 
@@ -197,13 +197,18 @@ class SLICViT(nn.Module):
         print("masks and logits:", type(masks), logits.shape)
         heatmap = (np.nan + np.zeros((im.shape[0], im.shape[1]), dtype=np.float32))
         print("heatmap:", type(heatmap), heatmap.shape)
-        # for i in range(len(masks)):
+        n = 0
+        for i in range(im.shape[0]):
+            for j in range(im.shape[1]):
+                score = logits[n]
+                heatmap[i][j] = score
         #     mask = masks[i]
         #     # print("mask:",mask.shape)
         #     score = logits[i]
         #     heatmap[i][mask] = score
         # heatmap = np.stack(heatmap, 0)
-        # print("heatmap:", type(heatmap), heatmap.shape)
+        print("heatmap:", type(heatmap), heatmap.shape)
+        return heatmap
 
         # heatmap = np.exp(heatmap / self.temperature)
         # print("self.aggregation:", self.aggregation)
