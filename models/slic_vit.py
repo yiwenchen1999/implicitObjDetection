@@ -38,6 +38,7 @@ class SLICViT(nn.Module):
         self.compactness = compactness
         self.sigma = sigma
         self.window_size = 5
+        self.batch_size = 4096
 
     def get_masks(self, im, perpixel = False):
         masks = []
@@ -99,30 +100,53 @@ class SLICViT(nn.Module):
                 masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             # masks = torch.from_numpy(masks.astype(np.bool))
 
-            detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
-            # detection_areas = torch.from_numpy(detection_areas.astype(np.bool))
             im = self.model.preprocess(im).unsqueeze(0).cuda()
-            # im = self.model.preprocess(im).unsqueeze(0)
-            # print("preprocessed image:", im.shape)
-
-            image_features = self.model(im, detection_areas)
-            
-            image_features = image_features.permute(0, 2, 1)
-            print("features in get heatmap:", image_features.shape)
-
             text = clip.tokenize([text]).cuda()
             # text = clip.tokenize([text])
             text_features = self.model.encode_text(text)
 
-            image_features = image_features / \
+            print("num of sliding windows:", detection_areas.shape)
+            for index in range(0,detection_areas.shape[0],self.batch_size):
+                batch=detection_areas[index:min(index+self.batch_size,detection_areas.shape[0]),:]
+                print(batch.shape)
+                batch = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
+                image_features = self.model(im, batch)
+                image_features = image_features.permute(0, 2, 1)
+                image_features = image_features / \
                 image_features.norm(dim=1, keepdim=True)
-            text_features = text_features / \
-                text_features.norm(dim=1, keepdim=True)
+                text_features = text_features / \
+                    text_features.norm(dim=1, keepdim=True)
 
-            logits = (image_features * text_features.unsqueeze(-1)).sum(1)
-            print("logits shape", logits.shape)
-            assert logits.size(0) == 1
-            logits = logits.cpu().float().numpy()[0]
+                logits = (image_features * text_features.unsqueeze(-1)).sum(1)
+                print("logits shape", logits.shape)
+                assert logits.size(0) == 1
+                logits = logits.cpu().float().numpy()[0]
+
+            # detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
+            # # detection_areas = torch.from_numpy(detection_areas.astype(np.bool))
+            # im = self.model.preprocess(im).unsqueeze(0).cuda()
+            # im = self.model.preprocess(im).unsqueeze(0)
+            # print("preprocessed image:", im.shape)
+            
+
+            # image_features = self.model(im, detection_areas)
+            
+            # image_features = image_features.permute(0, 2, 1)
+            # print("features in get heatmap:", image_features.shape)
+
+            # text = clip.tokenize([text]).cuda()
+            # # text = clip.tokenize([text])
+            # text_features = self.model.encode_text(text)
+
+            # image_features = image_features / \
+            #     image_features.norm(dim=1, keepdim=True)
+            # text_features = text_features / \
+            #     text_features.norm(dim=1, keepdim=True)
+
+            # logits = (image_features * text_features.unsqueeze(-1)).sum(1)
+            # print("logits shape", logits.shape)
+            # assert logits.size(0) == 1
+            # logits = logits.cpu().float().numpy()[0]
 
         if perpixel:
             return None, logits
