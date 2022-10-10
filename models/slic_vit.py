@@ -123,6 +123,7 @@ class SLICViT(nn.Module):
         masks, logits = self.get_mask_scores(im, text)
         print("masks and logits:", masks.shape, logits.shape)
         heatmap = list(np.nan + np.zeros(masks.shape, dtype=np.float32))
+        print("heatmap:", type(heatmap),len(heatmap), heatmap[0].shape)
         for i in range(len(masks)):
             mask = masks[i]
             # print("mask:",mask.shape)
