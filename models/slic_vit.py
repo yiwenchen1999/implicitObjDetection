@@ -133,6 +133,7 @@ class SLICViT(nn.Module):
         print("heatmap:", type(heatmap), heatmap.shape)
 
         heatmap = np.exp(heatmap / self.temperature)
+        print("self.aggregation:", self.aggregation)
 
         if self.aggregation == 'mean':
             heatmap = np.nanmean(heatmap, 0)
