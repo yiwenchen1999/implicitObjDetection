@@ -106,9 +106,10 @@ class SLICViT(nn.Module):
             text_features = self.model.encode_text(text)
 
             print("num of sliding windows:", detection_areas.shape)
+            logits_all = []
             for index in range(0,detection_areas.shape[0],self.batch_size):
                 batch=detection_areas[index:min(index+self.batch_size,detection_areas.shape[0]),:]
-                print(batch.shape)
+                # print(batch.shape)
                 batch = torch.from_numpy(batch.astype(np.bool)).cuda()
                 image_features = self.model(im, batch)
                 image_features = image_features.permute(0, 2, 1)
@@ -118,9 +119,12 @@ class SLICViT(nn.Module):
                     text_features.norm(dim=1, keepdim=True)
 
                 logits = (image_features * text_features.unsqueeze(-1)).sum(1)
-                print("logits shape", logits.shape)
                 assert logits.size(0) == 1
                 logits = logits.cpu().float().numpy()[0]
+                logits_all.append(logits)
+                
+            logits = np.concatenate(logits_all, 0)
+            print("logits shape", logits.shape)
 
             # detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
             # # detection_areas = torch.from_numpy(detection_areas.astype(np.bool))
