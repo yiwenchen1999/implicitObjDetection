@@ -123,6 +123,9 @@ class CLIPMaskedSpatialViT(nn.Module):
         return gv
 
     def getImageFeature(self, im):
-        images = self.preprocess(im).unsqueeze(0)
+        images = []
+        for image in im:
+            images.append(self.preprocess(image).unsqueeze(0))
+        images = np.stack(images,0)
         features = self.encode_image(images)
         return features

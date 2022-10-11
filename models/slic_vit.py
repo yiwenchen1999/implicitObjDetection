@@ -51,13 +51,14 @@ class SLICViT(nn.Module):
                 b_mask = areas[int(i)] == 1
                 # print(b_mask)
                 detection_areas.append(b_mask)
+            detection_areas = np.stack(detection_areas, 0)
         elif not att:
             areas = cropPerPixel(im, window_size= self.window_size)
             detection_areas=[]
             for i in range(im.shape[0]* im.shape[1]):
                 cropped = areas[i]
                 cropped = cropped.resize(224,224)
-                cropped = cropped.astype(np.float32)/255.
+                # cropped = cropped.astype(np.float32)/255.
                 detection_areas.append(cropped)
         else:
             for n in self.n_segments:
@@ -73,7 +74,8 @@ class SLICViT(nn.Module):
                     masks.append(mask)
                     detection_areas.append(b_mask)
             masks = np.stack(masks, 0)
-        detection_areas = np.stack(detection_areas, 0)
+            detection_areas = np.stack(detection_areas, 0)
+        
         return masks, detection_areas
 
     def get_mask_features(self,im):
@@ -114,16 +116,15 @@ class SLICViT(nn.Module):
             # text = clip.tokenize([text])
             text_features = self.model.encode_text(text)
 
-            print("num of sliding windows:", detection_areas.shape)
+            print("num of sliding windows:", len(detection_areas))
             logits_all = []
-            for index in range(0,detection_areas.shape[0],self.batch_size):
+            for index in range(0,len(detection_areas),self.batch_size):
                 batch=detection_areas[index:min(index+self.batch_size,detection_areas.shape[0]),:]
                 # print(batch.shape)
                 if att:
                     batch = torch.from_numpy(batch.astype(np.bool)).cuda()
                     image_features = self.model(im, batch)
                 else:
-
                     image_features = self.model.getImageFeature(batch)
                     print("image_featrue without att")
                 image_features = image_features.permute(0, 2, 1)
