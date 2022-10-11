@@ -46,14 +46,8 @@ class SLICViT(nn.Module):
         # Do SLIC with different number of segments so that it has a hierarchical scale structure
         # This can average out spurious activations that happens sometimes when the segments are too small
         if perpixel:
-            areas = segPerPixel(im.astype(np.float32)/255., window_size= self.window_size)
-            for i in range(im.shape[0]* im.shape[1]):
-                b_mask = areas[int(i)] == 1
-                # print(b_mask)
-                detection_areas.append(b_mask)
-            detection_areas = np.stack(detection_areas, 0)
             if not att:
-                areas = cropPerPixel(im, window_size= self.window_size)
+                areas = cropPerPixel(im, windowsize= self.window_size)
                 detection_areas=[]
                 for i in range(im.shape[0]* im.shape[1]):
                     cropped = areas[i]
@@ -61,6 +55,14 @@ class SLICViT(nn.Module):
                     # cropped = cropped.astype(np.float32)/255.
                     detection_areas.append(cropped)
                     print(type(detection_areas))
+            else:
+                areas = segPerPixel(im.astype(np.float32)/255., window_size= self.window_size)
+                for i in range(im.shape[0]* im.shape[1]):
+                    b_mask = areas[int(i)] == 1
+                    # print(b_mask)
+                    detection_areas.append(b_mask)
+                detection_areas = np.stack(detection_areas, 0)
+            
         else:
             for n in self.n_segments:
                 # segments_slic = slic(im.astype(
