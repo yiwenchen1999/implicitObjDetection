@@ -195,12 +195,15 @@ class SLICViT(nn.Module):
     def get_heatmap_perpixel(self, im, text):
         masks, logits = self.get_mask_scores(im, text, perpixel= True)
         print("masks and logits:", type(masks), logits.shape)
-        im = im.resize((224, 224))
-        heatmap = (np.nan + np.zeros((im.shape[0], im.shape[1]), dtype=np.float32))
+        # im = im.resize((224, 224))
+        # heatmap = (np.nan + np.zeros((im.shape[0], im.shape[1]), dtype=np.float32))
+        heatmap = (np.nan + np.zeros((224, 224), dtype=np.float32))
         print("heatmap:", type(heatmap), heatmap.shape)
         n = 0
-        for i in range(im.shape[0]):
-            for j in range(im.shape[1]):
+        # for i in range(im.shape[0]):
+        #     for j in range(im.shape[1]):
+        for i in range(224):
+            for j in range(224):
                 score = logits[n]
                 heatmap[i][j] = score
                 n = n+1
