@@ -56,6 +56,7 @@ class SLICViT(nn.Module):
                     detection_areas.append(cropped)
                     print(type(detection_areas))
             else:
+                im = np.array(im)
                 areas = segPerPixel(im.astype(np.float32)/255., window_size= self.window_size)
                 for i in range(im.shape[0]* im.shape[1]):
                     b_mask = areas[int(i)] == 1
@@ -64,6 +65,7 @@ class SLICViT(nn.Module):
                 detection_areas = np.stack(detection_areas, 0)
             
         else:
+            im = np.array(im)
             for n in self.n_segments:
                 # segments_slic = slic(im.astype(
                 #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
@@ -109,7 +111,7 @@ class SLICViT(nn.Module):
             h, w = im.shape[:2]
             im = Image.fromarray(im).convert('RGB')
             im = im.resize((224, 224))
-            masks, detection_areas = self.get_masks(np.array(im), perpixel=perpixel, att = att)
+            masks, detection_areas = self.get_masks(im, perpixel=perpixel, att = att)
             if not perpixel:
                 masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             # masks = torch.from_numpy(masks.astype(np.bool))
