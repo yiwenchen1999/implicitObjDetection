@@ -37,7 +37,7 @@ class SLICViT(nn.Module):
         self.temperature = temperature
         self.compactness = compactness
         self.sigma = sigma
-        self.window_size = 21
+        self.window_size = 51
         self.batch_size = 4096
 
     def get_masks(self, im, perpixel = False):
@@ -49,7 +49,7 @@ class SLICViT(nn.Module):
             areas = segPerPixel(im.astype(np.float32)/255., window_size= self.window_size)
             for i in range(im.shape[0]* im.shape[1]):
                 b_mask = areas[int(i)] == 1
-                print(b_mask)
+                # print(b_mask)
                 detection_areas.append(b_mask)
         else:
             for n in self.n_segments:
