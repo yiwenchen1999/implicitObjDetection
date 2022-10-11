@@ -104,7 +104,7 @@ class SLICViT(nn.Module):
             h, w = im.shape[:2]
             im = Image.fromarray(im).convert('RGB')
             im = im.resize((224, 224))
-            masks, detection_areas = self.get_masks(np.array(im), perpixel=perpixel)
+            masks, detection_areas = self.get_masks(np.array(im), perpixel=perpixel, att = att)
             if not perpixel:
                 masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             # masks = torch.from_numpy(masks.astype(np.bool))
@@ -205,8 +205,8 @@ class SLICViT(nn.Module):
         heatmap[np.logical_not(mask_valid)] = 0.
         return heatmap
 
-    def get_heatmap_perpixel(self, im, text):
-        masks, logits = self.get_mask_scores(im, text, perpixel= True)
+    def get_heatmap_perpixel(self, im, text, att=True):
+        masks, logits = self.get_mask_scores(im, text, perpixel= True, att = att)
         print("masks and logits:", type(masks), logits.shape)
         # im = im.resize((224, 224))
         # heatmap = (np.nan + np.zeros((im.shape[0], im.shape[1]), dtype=np.float32))
