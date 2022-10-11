@@ -52,15 +52,15 @@ class SLICViT(nn.Module):
                 # print(b_mask)
                 detection_areas.append(b_mask)
             detection_areas = np.stack(detection_areas, 0)
-        elif not att:
-            areas = cropPerPixel(im, window_size= self.window_size)
-            detection_areas=[]
-            for i in range(im.shape[0]* im.shape[1]):
-                cropped = areas[i]
-                cropped = cropped.resize(224,224)
-                # cropped = cropped.astype(np.float32)/255.
-                detection_areas.append(cropped)
-                print(type(detection_areas))
+            if not att:
+                areas = cropPerPixel(im, window_size= self.window_size)
+                detection_areas=[]
+                for i in range(im.shape[0]* im.shape[1]):
+                    cropped = areas[i]
+                    cropped = cropped.resize(224,224)
+                    # cropped = cropped.astype(np.float32)/255.
+                    detection_areas.append(cropped)
+                    print(type(detection_areas))
         else:
             for n in self.n_segments:
                 # segments_slic = slic(im.astype(
