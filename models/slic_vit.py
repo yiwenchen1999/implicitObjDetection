@@ -49,7 +49,7 @@ class SLICViT(nn.Module):
             if not att:
                 areas = cropPerPixel(im, windowsize= self.window_size)
                 detection_areas=[]
-                for i in range(im.shape[0]* im.shape[1]):
+                for i in range(im.size[0]* im.size[1]):
                     cropped = areas[i]
                     cropped = cropped.resize(224,224)
                     # cropped = cropped.astype(np.float32)/255.
