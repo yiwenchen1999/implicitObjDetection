@@ -48,14 +48,13 @@ def segPerPixel(image, window_size = 5):
     return areas
 
 def cropPerPixel(image, windowsize = 5):
-    w = image.shape[0]
-    h = image.shape[1]
+    w , h = image.size
     window_size = windowsize
     r  = int((window_size-1)/2)
     areas = []
     for i in range(w):
         for j in range(h):
-            canvas = np.zeros((image.shape[0],image.shape[1]))
+            canvas = np.zeros((w, h))
             canvas = image.crop((max(0,i-r), j - r, min(w, i+r),  min(h, j + r)))
             # canvas[max(0,i-r):min(w, i+r), max(0, j - r): min(h, j + r)] = 1
             areas.append(canvas)
