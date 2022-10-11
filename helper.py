@@ -50,7 +50,7 @@ def segPerPixel(image, window_size = 5):
 def cropPerPixel(image, windowsize = 5):
     w = image.shape[0]
     h = image.shape[1]
-    window_size = window_size
+    window_size = windowsize
     r  = int((window_size-1)/2)
     areas = []
     for i in range(w):
