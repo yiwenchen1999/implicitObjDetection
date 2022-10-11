@@ -121,3 +121,8 @@ class CLIPMaskedSpatialViT(nn.Module):
                   vit.proj).view(gv.size(0), gv.size(1), -1)
 
         return gv
+
+    def getImageFeature(self, im):
+        images = self.preprocess(im).unsqueeze(0)
+        features = self.encode_image(images)
+        return features

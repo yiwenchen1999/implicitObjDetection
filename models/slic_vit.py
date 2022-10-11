@@ -123,7 +123,8 @@ class SLICViT(nn.Module):
                 if att:
                     image_features = self.model(im, batch)
                 else:
-                    image_features = self.model.encode_image(batch)
+
+                    image_features = self.model.getImageFeature(batch)
                     print("image_featrue without att")
                 image_features = image_features.permute(0, 2, 1)
                 image_features = image_features / \
