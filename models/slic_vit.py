@@ -119,8 +119,8 @@ class SLICViT(nn.Module):
             for index in range(0,detection_areas.shape[0],self.batch_size):
                 batch=detection_areas[index:min(index+self.batch_size,detection_areas.shape[0]),:]
                 # print(batch.shape)
-                batch = torch.from_numpy(batch.astype(np.bool)).cuda()
                 if att:
+                    batch = torch.from_numpy(batch.astype(np.bool)).cuda()
                     image_features = self.model(im, batch)
                 else:
 
