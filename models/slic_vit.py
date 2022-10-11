@@ -60,6 +60,7 @@ class SLICViT(nn.Module):
                 cropped = cropped.resize(224,224)
                 # cropped = cropped.astype(np.float32)/255.
                 detection_areas.append(cropped)
+                print(type(detection_areas))
         else:
             for n in self.n_segments:
                 # segments_slic = slic(im.astype(
