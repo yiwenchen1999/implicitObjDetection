@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
 from skimage.segmentation import slic
-from helper import seg, segPerPixel
+from helper import seg, segPerPixel, cropPerPixel
 from utils.box_search import BruteForceBoxSearch, FractionAreaObjective
 import clip
 from spatial_clip import CLIPMaskedSpatialViT
@@ -40,7 +40,7 @@ class SLICViT(nn.Module):
         self.window_size = 51
         self.batch_size = 4096
 
-    def get_masks(self, im, perpixel = False):
+    def get_masks(self, im, perpixel = False, att = True):
         masks = []
         detection_areas = []
         # Do SLIC with different number of segments so that it has a hierarchical scale structure
@@ -51,6 +51,14 @@ class SLICViT(nn.Module):
                 b_mask = areas[int(i)] == 1
                 # print(b_mask)
                 detection_areas.append(b_mask)
+        elif not att:
+            areas = cropPerPixel(im, window_size= self.window_size)
+            detection_areas=[]
+            for i in range(im.shape[0]* im.shape[1]):
+                cropped = areas[i]
+                cropped = cropped.resize(224,224)
+                cropped = cropped.astype(np.float32)/255.
+                detection_areas.append(cropped)
         else:
             for n in self.n_segments:
                 # segments_slic = slic(im.astype(
@@ -90,7 +98,7 @@ class SLICViT(nn.Module):
 
             return masks.cpu().numpy(), image_features
 
-    def get_mask_scores(self, im, text, perpixel = False):
+    def get_mask_scores(self, im, text, perpixel = False, att = True):
         with torch.no_grad():
             # im is uint8 numpy
             h, w = im.shape[:2]
@@ -112,7 +120,11 @@ class SLICViT(nn.Module):
                 batch=detection_areas[index:min(index+self.batch_size,detection_areas.shape[0]),:]
                 # print(batch.shape)
                 batch = torch.from_numpy(batch.astype(np.bool)).cuda()
-                image_features = self.model(im, batch)
+                if att:
+                    image_features = self.model(im, batch)
+                else:
+                    image_features = self.model.encode_image(batch)
+                    print("image_featrue without att")
                 image_features = image_features.permute(0, 2, 1)
                 image_features = image_features / \
                 image_features.norm(dim=1, keepdim=True)
