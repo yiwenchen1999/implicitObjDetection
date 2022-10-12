@@ -37,7 +37,7 @@ class SLICViT(nn.Module):
         self.temperature = temperature
         self.compactness = compactness
         self.sigma = sigma
-        self.window_size = 51
+        self.window_size = 101
         self.batch_size = 4096
 
     def get_masks(self, im, perpixel = False, att = True):
@@ -51,7 +51,7 @@ class SLICViT(nn.Module):
                 detection_areas=[]
                 for i in range(im.size[0]* im.size[1]):
                     cropped = areas[i]
-                    cropped.resize(224,224)
+                    cropped.resize((224,224))
                     # cropped = cropped.astype(np.float32)/255.
                     detection_areas.append(cropped)
                     print(type(detection_areas))
