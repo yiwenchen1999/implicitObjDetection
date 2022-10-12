@@ -130,13 +130,14 @@ class SLICViT(nn.Module):
                     batch=detection_areas[index:min(index+self.batch_size,len(detection_areas)),:]
                     batch = torch.from_numpy(batch.astype(np.bool)).cuda()
                     image_features = self.model(im, batch)
-                    image_features = image_features.permute(0, 2, 1)
+                    
                 else:
                     batch=detection_areas[index:min(index+self.batch_size,len(detection_areas))]
                     image_features = self.model.getImageFeature(batch)
-                    image_features.reshape((1, image_features.shape[0], image_features.shape[1]))
+                    image_features = torch.reshape(image_features,(1, image_features.shape[0], image_features.shape[1]))
                     print("image_featrue without att")
                 print("feature dimensions:", image_features.shape)
+                image_features = image_features.permute(0, 2, 1)
                 image_features = image_features / \
                 image_features.norm(dim=1, keepdim=True)
                 text_features = text_features / \
