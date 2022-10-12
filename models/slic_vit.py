@@ -127,11 +127,11 @@ class SLICViT(nn.Module):
                 
                 # print(batch.shape)
                 if att:
-                    batch=detection_areas[index:min(index+self.batch_size,len(detection_areas))]
+                    batch=detection_areas[index:min(index+self.batch_size,len(detection_areas)),:]
                     batch = torch.from_numpy(batch.astype(np.bool)).cuda()
                     image_features = self.model(im, batch)
                 else:
-                    batch=detection_areas[index:min(index+self.batch_size,len(detection_areas)),:]
+                    batch=detection_areas[index:min(index+self.batch_size,len(detection_areas))]
                     image_features = self.model.getImageFeature(batch)
                     print("image_featrue without att")
                 image_features = image_features.permute(0, 2, 1)
