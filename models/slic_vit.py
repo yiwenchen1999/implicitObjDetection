@@ -51,7 +51,7 @@ class SLICViT(nn.Module):
                 detection_areas=[]
                 for i in range(im.size[0]* im.size[1]):
                     cropped = areas[i]
-                    cropped = cropped.resize(224,224)
+                    cropped.resize(224,224)
                     # cropped = cropped.astype(np.float32)/255.
                     detection_areas.append(cropped)
                     print(type(detection_areas))
