@@ -124,9 +124,11 @@ class CLIPMaskedSpatialViT(nn.Module):
 
     def getImageFeature(self, im):
         images = []
+        shape = (self.preprocess(image).unsqueeze(0).shape).shape
         for image in im:
             # print(self.preprocess(image).unsqueeze(0).shape)
-            images.append(self.preprocess(image).unsqueeze(0))
+            images.append(self.preprocess(image).unsqueeze(0).reshape((shape[1], shape[2], shape[3])))
+            
             
         images = torch.from_numpy(np.stack(images,0))
         print("images: ", images.shape)
