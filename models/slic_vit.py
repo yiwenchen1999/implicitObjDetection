@@ -124,7 +124,7 @@ class SLICViT(nn.Module):
             print("num of sliding windows:", len(detection_areas))
             logits_all = []
             for index in range(0,len(detection_areas),self.batch_size):
-                batch=detection_areas[index:min(index+self.batch_size,detection_areas.shape[0]),:]
+                batch=detection_areas[index:min(index+len(self.batch_size,detection_areas)),:]
                 # print(batch.shape)
                 if att:
                     batch = torch.from_numpy(batch.astype(np.bool)).cuda()
