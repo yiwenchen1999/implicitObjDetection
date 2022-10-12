@@ -124,12 +124,14 @@ class SLICViT(nn.Module):
             print("num of sliding windows:", len(detection_areas))
             logits_all = []
             for index in range(0,len(detection_areas),self.batch_size):
-                batch=detection_areas[index:min(index+self.batch_size,len(detection_areas)),:]
+                
                 # print(batch.shape)
                 if att:
+                    batch=detection_areas[index:min(index+self.batch_size,len(detection_areas))]
                     batch = torch.from_numpy(batch.astype(np.bool)).cuda()
                     image_features = self.model(im, batch)
                 else:
+                    batch=detection_areas[index:min(index+self.batch_size,len(detection_areas)),:]
                     image_features = self.model.getImageFeature(batch)
                     print("image_featrue without att")
                 image_features = image_features.permute(0, 2, 1)
