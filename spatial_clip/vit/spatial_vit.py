@@ -124,7 +124,7 @@ class CLIPMaskedSpatialViT(nn.Module):
 
     def getImageFeature(self, im):
         images = []
-        shape = (self.preprocess(im[0]).unsqueeze(0).shape).shape
+        shape = (self.preprocess(im[0]).unsqueeze(0)).shape
         for image in im:
             # print(self.preprocess(image).unsqueeze(0).shape)
             images.append(self.preprocess(image).unsqueeze(0).reshape((shape[1], shape[2], shape[3])))
