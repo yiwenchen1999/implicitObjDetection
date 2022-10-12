@@ -38,7 +38,7 @@ class SLICViT(nn.Module):
         self.compactness = compactness
         self.sigma = sigma
         self.window_size = 101
-        self.batch_size = 64
+        self.batch_size = 128
 
     def get_masks(self, im, perpixel = False, att = True):
         masks = []
@@ -135,15 +135,17 @@ class SLICViT(nn.Module):
                     batch=detection_areas[index:min(index+self.batch_size,len(detection_areas))]
                     image_features = self.model.getImageFeature(batch)
                     image_features = torch.reshape(image_features,(1, image_features.shape[0], image_features.shape[1]))
-                    print("image_featrue without att")
-                print("feature dimensions:", image_features.shape)
+                    # print("image_featrue without att")
+                # print("feature dimensions:", image_features.shape)
                 image_features = image_features.permute(0, 2, 1)
+                # print("feature dimensions:", image_features.shape)
                 image_features = image_features / \
                 image_features.norm(dim=1, keepdim=True)
                 text_features = text_features / \
                     text_features.norm(dim=1, keepdim=True)
 
                 logits = (image_features * text_features.unsqueeze(-1)).sum(1)
+                print("logits shape:", logits.shape)
                 assert logits.size(0) == 1
                 logits = logits.cpu().float().numpy()[0]
                 logits_all.append(logits)
