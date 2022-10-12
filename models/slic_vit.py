@@ -124,6 +124,7 @@ class SLICViT(nn.Module):
             print("num of sliding windows:", len(detection_areas))
             logits_all = []
             for index in range(0,len(detection_areas),self.batch_size):
+                print("processing images:", index + " of " + len(detection_areas))
                 
                 # print(batch.shape)
                 if att:
@@ -145,7 +146,7 @@ class SLICViT(nn.Module):
                     text_features.norm(dim=1, keepdim=True)
 
                 logits = (image_features * text_features.unsqueeze(-1)).sum(1)
-                print("logits shape:", logits.shape)
+                # print("logits shape:", logits.shape)
                 assert logits.size(0) == 1
                 logits = logits.cpu().float().numpy()[0]
                 logits_all.append(logits)

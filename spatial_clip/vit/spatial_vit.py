@@ -132,7 +132,7 @@ class CLIPMaskedSpatialViT(nn.Module):
             
             
         images = torch.from_numpy(np.stack(images,0)).to(self.device)
-        print("images: ", images.shape)
+        # print("images: ", images.shape)
         features = self.encode_image(images)
-        print("features:", features.shape)
+        # print("features:", features.shape)
         return features
