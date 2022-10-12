@@ -54,7 +54,7 @@ class SLICViT(nn.Module):
                     cropped.resize((224,224))
                     # cropped = cropped.astype(np.float32)/255.
                     detection_areas.append(cropped)
-                    print(type(detection_areas))
+                    # print(type(detection_areas))
             else:
                 im = np.array(im)
                 areas = segPerPixel(im.astype(np.float32)/255., window_size= self.window_size)
