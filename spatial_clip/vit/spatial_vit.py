@@ -128,10 +128,10 @@ class CLIPMaskedSpatialViT(nn.Module):
         shape = (self.preprocess(im[0]).unsqueeze(0)).shape
         for image in im:
             # print(self.preprocess(image).unsqueeze(0).shape)
-            images.append(self.preprocess(image).unsqueeze(0).reshape((shape[1], shape[2], shape[3]))).to(self.device)
+            images.append(self.preprocess(image).unsqueeze(0).reshape((shape[1], shape[2], shape[3])))
             
             
-        images = torch.from_numpy(np.stack(images,0))
+        images = torch.from_numpy(np.stack(images,0)).to(self.device)
         print("images: ", images.shape)
         features = self.encode_image(images)
         return features
