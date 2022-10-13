@@ -63,6 +63,7 @@ if __name__=='__main__':
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/NiceSlamTesting/Datasets/Demo/frames/color/'
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/train/'
     directories = os.listdir( path )
+    i = 0
     for filename in directories:
         # if filename[5] == "." or filename[4] == "." or filename[3] == ".":
         if filename[0:4] == 'rgba':
@@ -86,3 +87,6 @@ if __name__=='__main__':
             # clipmap = getclipmap(model, im)
             # print(filename+" clipmap has shape: ", clipmap.shape)
             print(filename+" saved")
+            i = i + 1
+            if i > 10:
+                break
