@@ -55,9 +55,9 @@ def cropPerPixel(image, windowsize = 5):
     for i in range(w):
         for j in range(h):
             canvas = np.zeros((w, h))
-            canvas = image.crop((max(0,i-r), j - r, min(w, i+r),  min(h, j + r)))
-            if i%30 == 0 and j%30 == 0:
-                canvas.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/perpixel3/"+str(i)+"_"+str(j)+".png")
+            canvas = image.crop((max(0, j - r), max(0,i-r), min(h, j + r), min(w, i+r)))
+            # if i%30 == 0 and j%30 == 0:
+            #     canvas.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/perpixel3/"+str(i)+"_"+str(j)+".png")
             # canvas[max(0,i-r):min(w, i+r), max(0, j - r): min(h, j + r)] = 1
             areas.append(canvas)
     return areas
