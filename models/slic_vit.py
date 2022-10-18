@@ -37,7 +37,7 @@ class SLICViT(nn.Module):
         self.temperature = temperature
         self.compactness = compactness
         self.sigma = sigma
-        self.window_size = 51
+        self.window_size = 25
         self.batch_size = 128
 
     def get_masks(self, im, perpixel = False, att = True):
