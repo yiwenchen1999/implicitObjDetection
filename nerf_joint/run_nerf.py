@@ -1395,10 +1395,10 @@ def train(env, flag, test_file, i_weights):
         if i%args.i_video==0 and i > 0:
             with torch.no_grad():
                 rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True)
-                imageio.mimwrite(args.root_path + "Nesf0_2D/queries.mp4", to8b(queries), fps=30, quality=8)
-                imageio.mimwrite(args.root_path + "Nesf0_2D/queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
-                imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
-                imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_disps.mp4", to8b(rgb_disps / np.max(rgb_disps)), fps=30, quality=8)
+                imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "queries.mp4", to8b(queries), fps=30, quality=8)
+                imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
+                imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
+                imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "rgb_disps.mp4", to8b(rgb_disps / np.max(rgb_disps)), fps=30, quality=8)
 
             # Turn on testing mode
             # with torch.no_grad():
