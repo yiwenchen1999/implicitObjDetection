@@ -818,9 +818,9 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
         query_map = torch.zeros_like(input)
         for i in range(r):
             for j in range(c):
-                print(image_features_normalized[i,j,:].shape)
-                print(text_features_normalized.shape)
-                query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
+                # print(image_features_normalized[i,j,:].shape)
+                # print(text_features_normalized.shape)
+                query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized.reshape(-1)) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
         query_map = query_map.cpu().float().numpy()
         query_map = np.squeeze(query_map)
         query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
@@ -1017,7 +1017,7 @@ def train(env, flag, test_file, i_weights):
 
     # Create nerf model
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args, flag, test_file)
-    global_step = 9000
+    global_step = start
     bds_dict = {
         'near' : near,
         'far' : far,
