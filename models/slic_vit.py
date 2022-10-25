@@ -121,8 +121,8 @@ class SLICViT(nn.Module):
             # text = clip.tokenize([text])
             
             text_features = self.model.encode_text(text)
-            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0_2D/chair_clip_feature", np.asarray(text_features.cpu()))
-            print("feature saved")
+            # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Nesf0_2D/chair_clip_feature", np.asarray(text_features.cpu()))
+            # print("feature saved")
 
             print("num of sliding windows:", len(detection_areas))
             logits_all = []

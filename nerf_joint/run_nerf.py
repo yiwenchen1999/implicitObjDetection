@@ -1015,7 +1015,7 @@ def train(env, flag, test_file, i_weights):
 
     # Create nerf model
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args, flag, test_file)
-    global_step = start
+    global_step = 980
     bds_dict = {
         'near' : near,
         'far' : far,
