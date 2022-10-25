@@ -818,6 +818,8 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
         query_map = torch.zeros_like(input)
         for i in range(r):
             for j in range(c):
+                print(image_features_normalized[i,j,:].shape)
+                print(text_features_normalized.shape)
                 query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
         query_map = query_map.cpu().float().numpy()
         query_map = np.squeeze(query_map)
