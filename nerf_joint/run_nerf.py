@@ -1099,7 +1099,7 @@ def train(env, flag, test_file, i_weights):
                 if args.with_clip:
                     #clips
                     img_id = dataloader_test[i]["img_ids"]
-                    print(img_id)
+                    # print(img_id)
                     clips = []
                     fname = "rgba_" + img_id[-5:] + '_image_clip_feature.npy'
                     fname = os.path.join(args.clip_datadir, fname)
@@ -1333,18 +1333,21 @@ def train(env, flag, test_file, i_weights):
             #rgb_est = normalize(rgb_est, p = 2, dim = -1)
             clip_est = ret_clip_list[0]
             clip_est = normalize(clip_est, p = 2, dim = -1)
-            print("rgb_s: ", rgb_s[0,:3])
-            print("rgb_est: ", rgb_est[0,:3])
-            print("clip_s: ", clip_s[0,:3])
-            print("clip_est: ", clip_est[0,:3])
+            # print("rgb_s: ", rgb_s[0,:3])
+            # print("rgb_est: ", rgb_est[0,:3])
+            # print("clip_s: ", clip_s[0,:3])
+            # print("clip_est: ", clip_est[0,:3])
 
         #loss: dot product
         if train_rgb:
             optimizer.zero_grad()
             img_loss = l1_loss(rgb_est, rgb_s)
-            print("training rgb_loss: ", img_loss)
             psnr = mse2psnr(img_loss)
-            print("training rgb_psnr: ", psnr)
+
+            if i%1000 == 0:
+                print("training rgb_loss: ", img_loss)
+                print("training rgb_psnr: ", psnr)
+
         if train_clip:
             optimizer_clip.zero_grad()
             img_loss = clip_loss(clip_est, clip_s)
