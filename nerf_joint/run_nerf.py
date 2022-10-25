@@ -1231,7 +1231,7 @@ def train(env, flag, test_file, i_weights):
 
 
         time0 = time.time()
-        print("iter_______: ", i)
+        # print("iter_______: ", i)
         if use_batching:
             # Random over all images
             batch = rays_rgb[i_batch:i_batch+N_rand] # [B, 2+1, 3*?]
@@ -1262,7 +1262,7 @@ def train(env, flag, test_file, i_weights):
             #clip
             if args.with_clip:
                 img_id = dataloader_train[img_i]["img_ids"]
-                print("img_id: ", img_id)
+                # print("img_id: ", img_id)
                 fname = "rgba_" + img_id[-5:] + '_image_clip_feature.npy'
                 fname = os.path.join(args.clip_datadir, fname)
                 clip = np.load(fname)
