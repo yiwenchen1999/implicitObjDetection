@@ -1419,101 +1419,101 @@ def train(env, flag, test_file, i_weights):
             testsavedir = os.path.join(basedir, expname, 'testset_{:06d}'.format(i))
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses[i_test].shape)
-            # with torch.no_grad():
-            for i in range(len(dataloader_test)):
-                #images
-                images = []
-                image = dataloader_test[i]["image"]
-                images.append(image)
-                images = np.array(images).astype(np.float32) # keep all 4 channels (RGBA)
-                images = torch.Tensor(images).to(device)
-                #images = normalize(images, p = 2, dim = -1)
-                #poses
-                poses = []
-                pose = dataloader_test[i]["pose"]
-                poses.append(pose)
-                poses = np.array(poses).astype(np.float32)
-                render_poses = torch.Tensor(poses).to(device)
-                testsavedir = os.path.join(basedir, expname, 'renderonly_{}_{:06d}'.format('test' if args.render_test else 'path', start))
-                os.makedirs(testsavedir, exist_ok=True)
-                if args.with_clip:
-                    #clips
-                    img_id = dataloader_test[i]["img_ids"]
-                    print(img_id)
-                    clips = []
-                    fname = "rgba_" + img_id[-5:] + '_image_clip_feature.npy'
-                    fname = os.path.join(args.clip_datadir, fname)
-                    clip = np.load(fname)
-                    clips.append(clip)
-                    clips = np.array(clips).astype(np.float32)
-                    clips = torch.Tensor(clips).to(device)
-                    clips = normalize(clips, p = 2, dim = -1)
-                    #clips_ests
-                    rgbs_ests, rgbs_disps, clips_ests, clips_disps = render_CLIP_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=None, savedir=testsavedir, render_factor=args.render_factor, use_clip = args.with_clip)
-                    clips_ests = torch.Tensor(clips_ests).to(device)
-                    clips_ests = normalize(clips_ests, p = 2, dim = -1) #clips_ests_normalized = (clips_ests - torch.unsqueeze(torch.min(clips_ests,-1)[0],-1)) / (torch.unsqueeze(torch.max(clips_ests,-1)[0],-1) - torch.unsqueeze(torch.min(clips_ests,-1)[0],-1))
-                    rgbs_ests = torch.Tensor(rgbs_ests).to(device)
-                    #rgbs_ests = normalize(rgbs_ests, p = 2, dim = -1) 
-                    #loss
-                    print(rgbs_ests.size())
-                    print(images.size())
-                    print("rgb_loss in test is: ", l1_loss(rgbs_ests[0,:,:,:], images[0,:,:,:]))
-                    print("clip_loss in test is: ", clip_loss(clips_ests[0,:,:,:], clips[0,:,:,:]))
-                    #nerf_query_map
-                    nerf_img_clip = torch.tensor(np.squeeze(clips_ests[0,:,:,:].cpu().detach().numpy()))
-                    image_features_normalized = nerf_img_clip
-                    image_features_normalized = image_features_normalized.to(torch.float) #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
-                    gt_text_clip = torch.tensor(np.load(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy"))
-                    text_features_normalized = gt_text_clip
-                    text_features_normalized = text_features_normalized.to(torch.float)
-                    r,c,f = image_features_normalized.size()
-                    input = torch.empty(r, c, 1)
-                    query_map = torch.zeros_like(input)
-                    for i in range(r):
-                        for j in range(c):
-                            query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
-                    query_map = query_map.cpu().float().numpy()
-                    query_map = np.squeeze(query_map)
-                    query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
-                    r,c = np.shape(query_map_remapped)
-                    query_map_3d = np.zeros((r,c,3))
-                    query_map_3d[:,:,0] = query_map_remapped
-                    query_map_3d[:,:,1] = query_map_remapped
-                    query_map_3d[:,:,2] = query_map_remapped
-                    plt.imshow(query_map_3d)
-                    plt.imsave(args.root_path + "Nesf0_2D/nerf_query_map.png", query_map_3d)
-                    rgb_est_img = np.squeeze(rgbs_ests[0,:,:,:].cpu().detach().numpy())
-                    rgb_est_img_remapped = (rgb_est_img - np.min(rgb_est_img)) / (np.max(rgb_est_img) - np.min(rgb_est_img))
-                    plt.imsave(args.root_path + "Nesf0_2D/rgb_est_img.png", rgb_est_img_remapped)
-                    #gt_query_map
-                    gt_img_clip = torch.tensor(np.squeeze(clips[0,:,:,:].cpu().detach().numpy()))
-                    image_features_normalized = gt_img_clip
-                    image_features_normalized = image_features_normalized.to(torch.float) #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
-                    r,c,f = image_features_normalized.size()
-                    input = torch.empty(r, c, 1)
-                    query_map = torch.zeros_like(input)
-                    for i in range(r):
-                        for j in range(c):
-                            query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
-                    query_map = query_map.cpu().float().numpy()
-                    query_map = np.squeeze(query_map)
-                    query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
-                    r,c = np.shape(query_map_remapped)
-                    query_map_3d = np.zeros((r,c,3))
-                    query_map_3d[:,:,0] = query_map_remapped
-                    query_map_3d[:,:,1] = query_map_remapped
-                    query_map_3d[:,:,2] = query_map_remapped
-                    plt.imshow(query_map_3d)
-                    plt.imsave(args.root_path + "Nesf0_2D/gt_query_map.png", query_map_3d)
-                    rgb_gt_img = np.squeeze(images[0,:,:,:].cpu().detach().numpy())
-                    rgb_gt_img_remapped = (rgb_gt_img - np.min(rgb_gt_img)) / (np.max(rgb_gt_img) - np.min(rgb_gt_img))
-                    plt.imsave(args.root_path + "Nesf0_2D/rgb_gt_img.png", rgb_gt_img_remapped)
-                else:
-                    rgbs, _ = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
-                    print('Done rendering', testsavedir)
-                    imageio.mimwrite(os.path.join(testsavedir, 'video.mp4'), to8b(rgbs), fps=30, quality=8)
+            with torch.no_grad():
+                for i in range(len(dataloader_test)):
+                    #images
+                    images = []
+                    image = dataloader_test[i]["image"]
+                    images.append(image)
+                    images = np.array(images).astype(np.float32) # keep all 4 channels (RGBA)
+                    images = torch.Tensor(images).to(device)
+                    #images = normalize(images, p = 2, dim = -1)
+                    #poses
+                    poses = []
+                    pose = dataloader_test[i]["pose"]
+                    poses.append(pose)
+                    poses = np.array(poses).astype(np.float32)
+                    render_poses = torch.Tensor(poses).to(device)
+                    testsavedir = os.path.join(basedir, expname, 'renderonly_{}_{:06d}'.format('test' if args.render_test else 'path', start))
+                    os.makedirs(testsavedir, exist_ok=True)
+                    if args.with_clip:
+                        #clips
+                        img_id = dataloader_test[i]["img_ids"]
+                        print(img_id)
+                        clips = []
+                        fname = "rgba_" + img_id[-5:] + '_image_clip_feature.npy'
+                        fname = os.path.join(args.clip_datadir, fname)
+                        clip = np.load(fname)
+                        clips.append(clip)
+                        clips = np.array(clips).astype(np.float32)
+                        clips = torch.Tensor(clips).to(device)
+                        clips = normalize(clips, p = 2, dim = -1)
+                        #clips_ests
+                        rgbs_ests, rgbs_disps, clips_ests, clips_disps = render_CLIP_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=None, savedir=testsavedir, render_factor=args.render_factor, use_clip = args.with_clip)
+                        clips_ests = torch.Tensor(clips_ests).to(device)
+                        clips_ests = normalize(clips_ests, p = 2, dim = -1) #clips_ests_normalized = (clips_ests - torch.unsqueeze(torch.min(clips_ests,-1)[0],-1)) / (torch.unsqueeze(torch.max(clips_ests,-1)[0],-1) - torch.unsqueeze(torch.min(clips_ests,-1)[0],-1))
+                        rgbs_ests = torch.Tensor(rgbs_ests).to(device)
+                        #rgbs_ests = normalize(rgbs_ests, p = 2, dim = -1) 
+                        #loss
+                        print(rgbs_ests.size())
+                        print(images.size())
+                        print("rgb_loss in test is: ", l1_loss(rgbs_ests[0,:,:,:], images[0,:,:,:]))
+                        print("clip_loss in test is: ", clip_loss(clips_ests[0,:,:,:], clips[0,:,:,:]))
+                        #nerf_query_map
+                        nerf_img_clip = torch.tensor(np.squeeze(clips_ests[0,:,:,:].cpu().detach().numpy()))
+                        image_features_normalized = nerf_img_clip
+                        image_features_normalized = image_features_normalized.to(torch.float) #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
+                        gt_text_clip = torch.tensor(np.load(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy"))
+                        text_features_normalized = gt_text_clip
+                        text_features_normalized = text_features_normalized.to(torch.float)
+                        r,c,f = image_features_normalized.size()
+                        input = torch.empty(r, c, 1)
+                        query_map = torch.zeros_like(input)
+                        for i in range(r):
+                            for j in range(c):
+                                query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
+                        query_map = query_map.cpu().float().numpy()
+                        query_map = np.squeeze(query_map)
+                        query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
+                        r,c = np.shape(query_map_remapped)
+                        query_map_3d = np.zeros((r,c,3))
+                        query_map_3d[:,:,0] = query_map_remapped
+                        query_map_3d[:,:,1] = query_map_remapped
+                        query_map_3d[:,:,2] = query_map_remapped
+                        plt.imshow(query_map_3d)
+                        plt.imsave(args.root_path + "Nesf0_2D/nerf_query_map.png", query_map_3d)
+                        rgb_est_img = np.squeeze(rgbs_ests[0,:,:,:].cpu().detach().numpy())
+                        rgb_est_img_remapped = (rgb_est_img - np.min(rgb_est_img)) / (np.max(rgb_est_img) - np.min(rgb_est_img))
+                        plt.imsave(args.root_path + "Nesf0_2D/rgb_est_img.png", rgb_est_img_remapped)
+                        #gt_query_map
+                        gt_img_clip = torch.tensor(np.squeeze(clips[0,:,:,:].cpu().detach().numpy()))
+                        image_features_normalized = gt_img_clip
+                        image_features_normalized = image_features_normalized.to(torch.float) #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
+                        r,c,f = image_features_normalized.size()
+                        input = torch.empty(r, c, 1)
+                        query_map = torch.zeros_like(input)
+                        for i in range(r):
+                            for j in range(c):
+                                query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
+                        query_map = query_map.cpu().float().numpy()
+                        query_map = np.squeeze(query_map)
+                        query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
+                        r,c = np.shape(query_map_remapped)
+                        query_map_3d = np.zeros((r,c,3))
+                        query_map_3d[:,:,0] = query_map_remapped
+                        query_map_3d[:,:,1] = query_map_remapped
+                        query_map_3d[:,:,2] = query_map_remapped
+                        plt.imshow(query_map_3d)
+                        plt.imsave(args.root_path + "Nesf0_2D/gt_query_map.png", query_map_3d)
+                        rgb_gt_img = np.squeeze(images[0,:,:,:].cpu().detach().numpy())
+                        rgb_gt_img_remapped = (rgb_gt_img - np.min(rgb_gt_img)) / (np.max(rgb_gt_img) - np.min(rgb_gt_img))
+                        plt.imsave(args.root_path + "Nesf0_2D/rgb_gt_img.png", rgb_gt_img_remapped)
+                    else:
+                        rgbs, _ = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
+                        print('Done rendering', testsavedir)
+                        imageio.mimwrite(os.path.join(testsavedir, 'video.mp4'), to8b(rgbs), fps=30, quality=8)
 
-            print('Saved test set')
+                print('Saved test set')
 
         if i%args.i_print==0:
             tqdm.write(f"[TRAIN] Iter: {i} Loss: {img_loss.item()}  PSNR: {psnr.item()}")
