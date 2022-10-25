@@ -733,7 +733,7 @@ def config_parser(env, flag):
     parser.add_argument("--i_weights")
     parser.add_argument("--i_testset", type=int, default=1000000000, 
                         help='frequency of testset saving')
-    parser.add_argument("--i_video",   type=int, default=10000, 
+    parser.add_argument("--i_video",   type=int, default=20000, 
                         help='frequency of render_poses video saving')
     parser.add_argument("--env")
     parser.add_argument("--flag")
@@ -1228,6 +1228,8 @@ def train(env, flag, test_file, i_weights):
             train_clip = True
         if (i == 40000):
             print("Switched to clip")
+            render_kwargs_train["network_fn"].switch_to_clip()
+            render_kwargs_train["network_fine"].switch_to_clip()
             grad_vars_clip = (filter(lambda p: p.requires_grad, render_kwargs_train["network_fn"].parameters()))
             grad_vars_clip += (filter(lambda p: p.requires_grad, render_kwargs_train["network_fine"].parameters()))
             optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
@@ -1344,7 +1346,7 @@ def train(env, flag, test_file, i_weights):
         #loss: dot product
         if train_rgb:
             optimizer.zero_grad()
-            img_loss = img2mse(rgb_est, rgb_s)
+            img_loss = l1_loss(rgb_est, rgb_s)
             psnr = mse2psnr(img_loss)
 
             # if i%1000 == 0:
