@@ -155,7 +155,7 @@ def load_Nesf_CLIP_data(basedir, clip_basedir, env, use_CLIP = False):
     K = dataloader_train[0]["Intrinsics"]
     dataloader_test = Nesf_CLIP_Dataset(basedir, split="test")
     print(len(dataloader_test))
-    render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
+    render_poses = torch.stack([pose_spherical(angle, -30.0, 10) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
     return dataloader_train, dataloader_test, render_poses, [H, W, focal], near, far, K
 
 
