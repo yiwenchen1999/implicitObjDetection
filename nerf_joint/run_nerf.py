@@ -1357,7 +1357,7 @@ def train(env, flag, test_file, i_weights):
 
         if train_clip:
             optimizer_clip.zero_grad()
-            img_loss = img2mse(clip_est, clip_s)
+            img_loss = clip_loss(clip_est, clip_s)
             # print("training clip_loss: ", img_loss)
             psnr = mse2psnr(img_loss)
             # print("training clip_psnr: ", psnr)
