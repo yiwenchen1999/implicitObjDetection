@@ -1341,19 +1341,19 @@ def train(env, flag, test_file, i_weights):
         #loss: dot product
         if train_rgb:
             optimizer.zero_grad()
-            img_loss = l1_loss(rgb_est, rgb_s)
+            img_loss = img2mse(rgb_est, rgb_s)
             psnr = mse2psnr(img_loss)
 
-            if i%1000 == 0:
-                print("training rgb_loss: ", img_loss)
-                print("training rgb_psnr: ", psnr)
+            # if i%1000 == 0:
+            #     print("training rgb_loss: ", img_loss)
+            #     print("training rgb_psnr: ", psnr)
 
         if train_clip:
             optimizer_clip.zero_grad()
             img_loss = clip_loss(clip_est, clip_s)
-            print("training clip_loss: ", img_loss)
+            # print("training clip_loss: ", img_loss)
             psnr = mse2psnr(img_loss)
-            print("training clip_psnr: ", psnr)
+            # print("training clip_psnr: ", psnr)
         losses.append(img_loss.cpu().detach().numpy())
 
         """
