@@ -114,13 +114,13 @@ class NeRF(nn.Module):
             self.featureCLIP_linear = nn.Linear(W, W)
             self.CLIP_linear = nn.Linear(W//2, self.clip_dim)
 
-            self.alpha_linear.weights.requires_grad=True
-            self.feature_linear.weights.requires_grad=True
-            self.rgb_linear.weights.requires_grad=True
+            self.alpha_linear.weight.requires_grad=True
+            self.feature_linear.weight.requires_grad=True
+            self.rgb_linear.weight.requires_grad=True
             #CLIP branch
-            self.alphaCLIP_linear.weights.requires_grad=False
-            self.featureCLIP_linear.weights.requires_grad=False
-            self.CLIP_linear.weights.requires_grad=False
+            self.alphaCLIP_linear.weight.requires_grad=False
+            self.featureCLIP_linear.weight.requires_grad=False
+            self.CLIP_linear.weight.requires_grad=False
             
 
     def forward(self, x):
@@ -156,13 +156,13 @@ class NeRF(nn.Module):
     def switch_to_clip(self):
         if self.with_CLIP:
             #RGB branch
-            self.alpha_linear.weights.requires_grad=False
-            self.feature_linear.weights.requires_grad=False
-            self.rgb_linear.weights.requires_grad=False
+            self.alpha_linear.weight.requires_grad=False
+            self.feature_linear.weight.requires_grad=False
+            self.rgb_linear.weight.requires_grad=False
             #CLIP branch
-            self.alphaCLIP_linear.weights.requires_grad=True
-            self.featureCLIP_linear.weights.requires_grad=True
-            self.CLIP_linear.weights.requires_grad=True
+            self.alphaCLIP_linear.weight.requires_grad=True
+            self.featureCLIP_linear.weight.requires_grad=True
+            self.CLIP_linear.weight.requires_grad=True
 
 
     def load_weights_from_keras(self, weights):
