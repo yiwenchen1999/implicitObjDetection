@@ -88,6 +88,8 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     return outputs_rgb, outputs_clips
 
 
+
+
 def render_rays(ray_batch,
                 network_fn,
                 network_query_fn,
@@ -436,14 +438,15 @@ def create_nerf(args, flag, test_file):
     print("D, w, input_ch, ouput_ch:", args.netdepth, args.netwidth, input_ch, output_ch) #8 256 63 4
     print("skips, input_ch_views, use_viewdirs", skips, input_ch_views, args.use_viewdirs) #[4] 0 False
     print("--------------------------------------")
-    grad_vars = list(model.parameters())
+    grad_vars = (filter(lambda p: p.requires_grad, model.parameters()))
+    
     #fine network
     model_fine = None
     if args.N_importance > 0:
         model_fine = NeRF(D=args.netdepth_fine, W=args.netwidth_fine,
                           input_ch=input_ch, output_ch=output_ch, skips=skips,
                           input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency, with_CLIP=args.with_clip, clip_dim=768).to(device)
-        grad_vars += list(model_fine.parameters())
+        grad_vars += (filter(lambda p: p.requires_grad, model_fine.parameters()))
     """
     print(args.N_importance) = 0
     print(model_fine) = None
@@ -594,13 +597,13 @@ def config_parser(env, flag):
         parser.add_argument("--data_path", type=str, default= '../data/' + 'toybox-13/0/', 
                             help='input data directory') 
     elif(env == 'linux'):
-        parser.add_argument("--datadir", type=str, default='/users/aren10/data/0/', 
+        parser.add_argument("--datadir", type=str, default='/gpfs/data/ssrinath/toybox-13/0/', 
                             help='input data directory')
-        parser.add_argument("--clip_datadir", type=str, default='/users/aren10/data/Nesf0_2D/', 
+        parser.add_argument("--clip_datadir", type=str, default='/gpfs/data/ssrinath/Nesf0_2D/', 
                             help='input data directory')
-        parser.add_argument("--root_path", type=str, default='/users/aren10/data/', 
+        parser.add_argument("--root_path", type=str, default='../', 
                             help='input data directory')
-        parser.add_argument("--data_path", type=str, default= '/users/aren10/data/0/', 
+        parser.add_argument("--data_path", type=str, default= '/gpfs/data/ssrinath/toybox-13/0/', 
                             help='input data directory')
 
     # training options
@@ -1215,12 +1218,18 @@ def train(env, flag, test_file, i_weights):
     
     start = start + 1
     for i in trange(start, N_iters):
-        if(i < 80000 ):
+        if(i < 40000 ):
             train_rgb = True
             train_clip = False
         else:
             train_rgb = False
             train_clip = True
+        if (i == 40000):
+            grad_vars_clip = (filter(lambda p: p.requires_grad, render_kwargs_train["network_fn"].parameters()))
+            grad_vars_clip += (filter(lambda p: p.requires_grad, render_kwargs_train["network_fine"].parameters()))
+            optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
+
+
         time0 = time.time()
         print("iter_______: ", i)
         if use_batching:
@@ -1330,13 +1339,14 @@ def train(env, flag, test_file, i_weights):
             print("clip_est: ", clip_est[0,:3])
 
         #loss: dot product
-        optimizer.zero_grad()
         if train_rgb:
+            optimizer.zero_grad()
             img_loss = l1_loss(rgb_est, rgb_s)
             print("training rgb_loss: ", img_loss)
             psnr = mse2psnr(img_loss)
             print("training rgb_psnr: ", psnr)
         if train_clip:
+            optimizer_clip.zero_grad()
             img_loss = clip_loss(clip_est, clip_s)
             print("training clip_loss: ", img_loss)
             psnr = mse2psnr(img_loss)
@@ -1350,13 +1360,23 @@ def train(env, flag, test_file, i_weights):
             psnr0 = mse2psnr(img_loss0)
         """
         img_loss.backward()
-        optimizer.step()
+        if train_rgb:
+            optimizer.step()
+            decay_rate = 0.1
+            decay_steps = args.lrate_decay * 1000
+            new_lrate = args.lrate * (decay_rate ** (global_step / decay_steps))
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = new_lrate
+
+        if train_clip:
+            optimizer_clip.step()
+            decay_rate = 0.1
+            decay_steps = args.lrate_decay * 1000
+            new_lrate = args.lrate * (decay_rate ** (global_step - 40000 / decay_steps))
+            for param_group in optimizer_clip.param_groups:
+                param_group['lr'] = new_lrate
+
         #Update
-        decay_rate = 0.1
-        decay_steps = args.lrate_decay * 1000
-        new_lrate = args.lrate * (decay_rate ** (global_step / decay_steps))
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = new_lrate
         dt = time.time()-time0
         #Logging
         if i%i_weights==0:
