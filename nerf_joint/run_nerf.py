@@ -1220,13 +1220,13 @@ def train(env, flag, test_file, i_weights):
     
     start = start + 1
     for i in trange(start, N_iters):
-        if(i < 80001 ):
+        if(i < 40001 ):
             train_rgb = True
             train_clip = False
         else:
             train_rgb = False
             train_clip = True
-        if (i == 80001):
+        if (i == 40001):
             print("Switched to clip")
             render_kwargs_train["network_fn"].switch_to_clip()
             if render_kwargs_train["network_fine"] is not None:
@@ -1382,7 +1382,7 @@ def train(env, flag, test_file, i_weights):
             optimizer_clip.step()
             decay_rate = 0.1
             decay_steps = args.lrate_decay * 1000
-            new_lrate = args.lrate * (decay_rate ** (global_step - 80000 / decay_steps))
+            new_lrate = args.lrate * (decay_rate ** (global_step - 40000 / decay_steps))
             for param_group in optimizer_clip.param_groups:
                 param_group['lr'] = new_lrate
 
