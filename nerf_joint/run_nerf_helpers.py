@@ -160,10 +160,10 @@ class NeRF(nn.Module):
             self.alpha_linear.weight.requires_grad=False
             self.feature_linear.weight.requires_grad=False
             self.rgb_linear.weight.requires_grad=False
-            #CLIP branch
-            self.alphaCLIP_linear = nn.Linear(self.W, 1)
-            self.featureCLIP_linear = nn.Linear(self.W, self.W)
-            self.CLIP_linear = nn.Linear(self.W//2, self.clip_dim)
+            # #CLIP branch
+            # self.alphaCLIP_linear = nn.Linear(self.W, 1)
+            # self.featureCLIP_linear = nn.Linear(self.W, self.W)
+            # self.CLIP_linear = nn.Linear(self.W//2, self.clip_dim)
 
             self.alphaCLIP_linear.weight.requires_grad=True
             self.featureCLIP_linear.weight.requires_grad=True
