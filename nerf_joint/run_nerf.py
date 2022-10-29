@@ -1227,7 +1227,7 @@ def train(env, flag, test_file, i_weights):
         else:
             train_rgb = False
             train_clip = True
-        if (i == 0):
+        if (i == 1):
             print("Switched to clip")
             render_kwargs_train["network_fn"].switch_to_clip()
             if render_kwargs_train["network_fine"] is not None:
