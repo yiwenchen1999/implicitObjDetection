@@ -1220,13 +1220,13 @@ def train(env, flag, test_file, i_weights):
     
     start = start + 1
     for i in trange(start, N_iters):
-        if(i < 60000 ):
+        if(i < -1 ):
             train_rgb = True
             train_clip = False
         else:
             train_rgb = False
             train_clip = True
-        if (i == 60000):
+        if (i == -1):
             print("Switched to clip")
             render_kwargs_train["network_fn"].switch_to_clip()
             if render_kwargs_train["network_fine"] is not None:
