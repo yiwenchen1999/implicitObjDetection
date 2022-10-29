@@ -1220,7 +1220,7 @@ def train(env, flag, test_file, i_weights):
     
     start = start + 1
     for i in trange(start, N_iters):
-        print(i)
+        # print(i)
         if(i < -1 ):
             train_rgb = True
             train_clip = False
