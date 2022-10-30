@@ -165,6 +165,10 @@ class NeRF(nn.Module):
             self.alpha_linear.weight.requires_grad=False
             self.feature_linear.weight.requires_grad=False
             self.rgb_linear.weight.requires_grad=False
+
+            self.alpha_linear.bias.requires_grad = False
+            self.feature_linear.bias.requires_grad = False
+            self.rgb_linear.requires_grad = False
             # #CLIP branch
             # self.alphaCLIP_linear = nn.Linear(self.W, 1)
             # self.featureCLIP_linear = nn.Linear(self.W, self.W)
@@ -173,6 +177,10 @@ class NeRF(nn.Module):
             self.alphaCLIP_linear.weight.requires_grad=True
             self.featureCLIP_linear.weight.requires_grad=True
             self.CLIP_linear.weight.requires_grad=True
+
+            self.alphaCLIP_linear.bias.requires_grad=True
+            self.featureCLIP_linear.bias.requires_grad=True
+            self.CLIP_linear.bias.requires_grad=True
 
 
     def load_weights_from_keras(self, weights):
