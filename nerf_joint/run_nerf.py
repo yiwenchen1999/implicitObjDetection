@@ -1229,15 +1229,16 @@ def train(env, flag, test_file, i_weights):
         else:
             train_rgb = False
             train_clip = True
-        # if (i == 40000):
-        #     print("Switched to clip")
-        #     render_kwargs_train["network_fn"].switch_to_clip()
-        #     if render_kwargs_train["network_fine"] is not None:
-        #         render_kwargs_train["network_fine"].switch_to_clip()
-        #     grad_vars_clip = (filter(lambda p: p.requires_grad, render_kwargs_train["network_fn"].parameters()))
-        #     if render_kwargs_train["network_fine"] is not None:
-        #         grad_vars_clip += (filter(lambda p: p.requires_grad, render_kwargs_train["network_fine"].parameters()))
-        #     optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
+        if (i == 40000):
+            print("Switched to clip")
+            render_kwargs_train["network_fn"].switch_to_clip()
+            if render_kwargs_train["network_fine"] is not None:
+                render_kwargs_train["network_fine"].switch_to_clip()
+            grad_vars_clip = (filter(lambda p: p.requires_grad, render_kwargs_train["network_fn"].parameters()))
+            if render_kwargs_train["network_fine"] is not None:
+                grad_vars_clip += (filter(lambda p: p.requires_grad, render_kwargs_train["network_fine"].parameters()))
+            optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
+            optimizer = optimizer_clip
 
 
         time0 = time.time()
