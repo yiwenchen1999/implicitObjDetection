@@ -76,7 +76,7 @@ def get_embedder(multires, i=0):
 
 # Model
 class NeRF(nn.Module):
-    def __init__(self, D=8, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[4], use_viewdirs=False, with_saliency=False, with_CLIP=False, clip_dim=768):
+    def __init__(self, D=8, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[4], use_viewdirs=False, with_saliency=False, with_CLIP=False, clip_dim=768, training_clip = False):
         super(NeRF, self).__init__()
         self.D = D
         self.W = W
@@ -114,9 +114,14 @@ class NeRF(nn.Module):
             self.featureCLIP_linear = nn.Linear(W, W)
             self.CLIP_linear = nn.Linear(W//2, self.clip_dim)
 
-            self.alpha_linear.weight.requires_grad=True
-            self.feature_linear.weight.requires_grad=True
-            self.rgb_linear.weight.requires_grad=True
+            # if training_clip:
+            #     self.alpha_linear.weight.requires_grad=False
+            #     self.feature_linear.weight.requires_grad=False
+            #     self.rgb_linear.weight.requires_grad=False
+            # else:
+            #     self.alphaCLIP_linear.weight.requires_grad=False
+            #     self.featureCLIP_linear.weight.requires_grad=False
+            #     self.CLIP_linear.weight.requires_grad=False
             #CLIP branch
             # self.alphaCLIP_linear.weight.requires_grad=False
             # self.featureCLIP_linear.weight.requires_grad=False

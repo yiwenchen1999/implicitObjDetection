@@ -433,7 +433,7 @@ def create_nerf(args, flag, test_file):
     #coarse network
     model = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
-                 input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency, with_CLIP=args.with_clip, clip_dim=768).to(device)
+                 input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency, with_CLIP=args.with_clip, clip_dim=768, training_clip = args.training_clip).to(device)
     print("nerf created:")
     print("D, w, input_ch, ouput_ch:", args.netdepth, args.netwidth, input_ch, output_ch) #8 256 63 4
     print("skips, input_ch_views, use_viewdirs", skips, input_ch_views, args.use_viewdirs) #[4] 0 False
@@ -631,6 +631,8 @@ def config_parser(env, flag):
                         help='do not reload weights from saved ckpt')
     parser.add_argument("--ft_path", type=str, default=None, 
                         help='specific weights npy file to reload for coarse network')
+    parser.add_argument("--training_clip", type=bool, default=False, 
+                        help='Is the nerwork training clip features')
 
     # rendering options
     parser.add_argument("--N_samples", type=int, default=64, 
@@ -1227,15 +1229,15 @@ def train(env, flag, test_file, i_weights):
         else:
             train_rgb = False
             train_clip = True
-        if (i == 40000):
-            print("Switched to clip")
-            render_kwargs_train["network_fn"].switch_to_clip()
-            if render_kwargs_train["network_fine"] is not None:
-                render_kwargs_train["network_fine"].switch_to_clip()
-            grad_vars_clip = (filter(lambda p: p.requires_grad, render_kwargs_train["network_fn"].parameters()))
-            if render_kwargs_train["network_fine"] is not None:
-                grad_vars_clip += (filter(lambda p: p.requires_grad, render_kwargs_train["network_fine"].parameters()))
-            optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
+        # if (i == 40000):
+        #     print("Switched to clip")
+        #     render_kwargs_train["network_fn"].switch_to_clip()
+        #     if render_kwargs_train["network_fine"] is not None:
+        #         render_kwargs_train["network_fine"].switch_to_clip()
+        #     grad_vars_clip = (filter(lambda p: p.requires_grad, render_kwargs_train["network_fn"].parameters()))
+        #     if render_kwargs_train["network_fine"] is not None:
+        #         grad_vars_clip += (filter(lambda p: p.requires_grad, render_kwargs_train["network_fine"].parameters()))
+        #     optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
 
 
         time0 = time.time()
@@ -1357,7 +1359,7 @@ def train(env, flag, test_file, i_weights):
             #     print("training rgb_psnr: ", psnr)
 
         if train_clip:
-            optimizer_clip.zero_grad()
+            optimizer.zero_grad()
             img_loss = clip_loss(clip_est, clip_s)
             # print("training clip_loss: ", img_loss)
             psnr = mse2psnr(img_loss)
@@ -1382,11 +1384,11 @@ def train(env, flag, test_file, i_weights):
 
         if train_clip:
             img_loss.backward()
-            optimizer_clip.step()
+            optimizer.step()
             decay_rate = 0.1
             decay_steps = args.lrate_decay * 1000
             new_lrate = args.lrate * (decay_rate ** (global_step-40000/ decay_steps))
-            for param_group in optimizer_clip.param_groups:
+            for param_group in optimizer.param_groups:
                 param_group['lr'] = new_lrate
 
         #Update
