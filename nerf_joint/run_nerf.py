@@ -1370,8 +1370,9 @@ def train(env, flag, test_file, i_weights):
             loss = loss + img_loss0
             psnr0 = mse2psnr(img_loss0)
         """
-        img_loss.backward()
+        # img_loss.backward()
         if train_rgb:
+            img_loss.backward()
             optimizer.step()
             decay_rate = 0.1
             decay_steps = args.lrate_decay * 1000
@@ -1380,6 +1381,7 @@ def train(env, flag, test_file, i_weights):
                 param_group['lr'] = new_lrate
 
         if train_clip:
+            img_loss.backward()
             optimizer_clip.step()
             decay_rate = 0.1
             decay_steps = args.lrate_decay * 1000
