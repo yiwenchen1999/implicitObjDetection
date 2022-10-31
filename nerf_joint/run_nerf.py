@@ -1411,7 +1411,7 @@ def train(env, flag, test_file, i_weights):
             decay_rate = 0.1
             decay_steps = args.lrate_decay * 1000
             new_lrate = args.lrate * (decay_rate ** (global_step/ decay_steps))
-            for param_group in optimizer.param_groups:
+            for param_group in image_clip_loss.param_groups:
                 param_group['lr'] = new_lrate
 
         #Update
