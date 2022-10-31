@@ -104,11 +104,13 @@ class NeRF(nn.Module):
             self.featureS_linear = nn.Linear(W, W)
             self.alphaS_linear = nn.Linear(W, 1)
             self.saliency_linear = nn.Linear(W//2, 1)
+            
+        self.alpha_linear = nn.Linear(W, 1)
+        self.feature_linear = nn.Linear(W, W)
+        self.rgb_linear = nn.Linear(W//2, 3)
+
         if with_CLIP:
             #RGB branch
-            self.alpha_linear = nn.Linear(W, 1)
-            self.feature_linear = nn.Linear(W, W)
-            self.rgb_linear = nn.Linear(W//2, 3)
             #CLIP branch
             self.alphaCLIP_linear = nn.Linear(W, 1)
             self.featureCLIP_linear = nn.Linear(W, W)
