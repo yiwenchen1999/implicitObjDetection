@@ -76,7 +76,7 @@ def get_embedder(multires, i=0):
 
 # Model
 class NeRF(nn.Module):
-    def __init__(self, D=8, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[4], use_viewdirs=False, with_saliency=False, with_CLIP=False, clip_dim=768, training_clip = False):
+    def __init__(self, D=8, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[4], use_viewdirs=False, with_saliency=False, with_CLIP=False, clip_dim=768):
         super(NeRF, self).__init__()
         self.D = D
         self.W = W
@@ -104,35 +104,15 @@ class NeRF(nn.Module):
             self.featureS_linear = nn.Linear(W, W)
             self.alphaS_linear = nn.Linear(W, 1)
             self.saliency_linear = nn.Linear(W//2, 1)
-
-
-
-        self.alpha_linear = nn.Linear(W, 1)
-        self.feature_linear = nn.Linear(W, W)
-        self.rgb_linear = nn.Linear(W//2, 3)
-
-
         if with_CLIP:
             #RGB branch
+            self.alpha_linear = nn.Linear(W, 1)
+            self.feature_linear = nn.Linear(W, W)
+            self.rgb_linear = nn.Linear(W//2, 3)
             #CLIP branch
             self.alphaCLIP_linear = nn.Linear(W, 1)
             self.featureCLIP_linear = nn.Linear(W, W)
             self.CLIP_linear = nn.Linear(W//2, self.clip_dim)
-
-
-
-            # if training_clip:
-            #     self.alpha_linear.weight.requires_grad=False
-            #     self.feature_linear.weight.requires_grad=False
-            #     self.rgb_linear.weight.requires_grad=False
-            # else:
-            #     self.alphaCLIP_linear.weight.requires_grad=False
-            #     self.featureCLIP_linear.weight.requires_grad=False
-            #     self.CLIP_linear.weight.requires_grad=False
-            #CLIP branch
-            # self.alphaCLIP_linear.weight.requires_grad=False
-            # self.featureCLIP_linear.weight.requires_grad=False
-            # self.CLIP_linear.weight.requires_grad=False
             
 
     def forward(self, x):
@@ -152,45 +132,20 @@ class NeRF(nn.Module):
             h = self.views_linears[i](h)
             h = F.relu(h)
         rgb = self.rgb_linear(h)
-        outputs_rgb = torch.cat([rgb, alpha], -1)
-        outputs_clips = torch.zeros([65536, 769])
-
         #CLIP branch
-        if self.with_CLIP:
-            alphaCLIP = self.alphaCLIP_linear(h_original)
-            featureCLIP = self.featureCLIP_linear(h_original)
-            hs = torch.cat([featureCLIP, input_views], -1)
-            for i, l in enumerate(self.views_linears):
-                hs = self.views_linears[i](hs)
-                hs = F.relu(hs)
-            CLIP_val = self.CLIP_linear(hs)
-            #Outputs
-            # outputs_clips = torch.cat([CLIP_val, alphaCLIP * alpha], -1) #torch.Size([65536, 769])
-            outputs_clips = torch.cat([CLIP_val, alphaCLIP], -1)#for render test
+        alphaCLIP = self.alphaCLIP_linear(h_original)
+        featureCLIP = self.featureCLIP_linear(h_original)
+        hs = torch.cat([featureCLIP, input_views], -1)
+        for i, l in enumerate(self.views_linears):
+            hs = self.views_linears[i](hs)
+            hs = F.relu(hs)
+        CLIP_val = self.CLIP_linear(hs)
+        #Outputs
+        outputs_rgb = torch.cat([rgb, alpha], -1)
+        # outputs_clips = torch.cat([CLIP_val, alphaCLIP * alpha], -1) #torch.Size([65536, 769])
+        outputs_clips = torch.cat([CLIP_val, alphaCLIP], -1) #torch.Size([65536, 769])
+
         return outputs_rgb, outputs_clips
-
-    def switch_to_clip(self):
-        if self.with_CLIP:
-            #RGB branch
-            self.alpha_linear.weight.requires_grad=False
-            self.feature_linear.weight.requires_grad=False
-            self.rgb_linear.weight.requires_grad=False
-
-            self.alpha_linear.bias.requires_grad = False
-            self.feature_linear.bias.requires_grad = False
-            self.rgb_linear.requires_grad = False
-            # #CLIP branch
-            # self.alphaCLIP_linear = nn.Linear(self.W, 1)
-            # self.featureCLIP_linear = nn.Linear(self.W, self.W)
-            # self.CLIP_linear = nn.Linear(self.W//2, self.clip_dim)
-
-            self.alphaCLIP_linear.weight.requires_grad=True
-            self.featureCLIP_linear.weight.requires_grad=True
-            self.CLIP_linear.weight.requires_grad=True
-
-            self.alphaCLIP_linear.bias.requires_grad=True
-            self.featureCLIP_linear.bias.requires_grad=True
-            self.CLIP_linear.bias.requires_grad=True
 
 
     def load_weights_from_keras(self, weights):
