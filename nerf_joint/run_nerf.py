@@ -1386,7 +1386,7 @@ def train(env, flag, test_file, i_weights):
             #     print("training rgb_psnr: ", psnr)
 
         if train_clip:
-            image_clip_loss.zero_grad()
+            optimizer_clip.zero_grad()
             image_clip_loss = clip_loss(clip_est, clip_s)
             # print("training clip_loss: ", img_loss)
             psnr = mse2psnr(image_clip_loss)
