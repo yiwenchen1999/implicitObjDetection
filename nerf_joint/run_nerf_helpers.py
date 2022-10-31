@@ -104,7 +104,7 @@ class NeRF(nn.Module):
             self.featureS_linear = nn.Linear(W, W)
             self.alphaS_linear = nn.Linear(W, 1)
             self.saliency_linear = nn.Linear(W//2, 1)
-            
+
         self.alpha_linear = nn.Linear(W, 1)
         self.feature_linear = nn.Linear(W, W)
         self.rgb_linear = nn.Linear(W//2, 3)
@@ -147,6 +147,7 @@ class NeRF(nn.Module):
             h = self.views_linears[i](h)
             h = F.relu(h)
         rgb = self.rgb_linear(h)
+        outputs_rgb = torch.cat([rgb, alpha], -1)
         #CLIP branch
         if self.with_CLIP:
             alphaCLIP = self.alphaCLIP_linear(h_original)
@@ -157,7 +158,6 @@ class NeRF(nn.Module):
                 hs = F.relu(hs)
             CLIP_val = self.CLIP_linear(hs)
             #Outputs
-            outputs_rgb = torch.cat([rgb, alpha], -1)
             # outputs_clips = torch.cat([CLIP_val, alphaCLIP * alpha], -1) #torch.Size([65536, 769])
             outputs_clips = torch.cat([CLIP_val, alphaCLIP], -1)#for render test
         else:
