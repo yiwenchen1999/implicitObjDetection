@@ -169,9 +169,6 @@ def render_rays(ray_batch,
     rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
     # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
     #doing clip
-    _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
-    clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
-    torch.cuda.empty_cache()
     
     if N_importance > 0:
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
@@ -186,7 +183,10 @@ def render_rays(ray_batch,
         # print("raw output be like:", raw.shape)
         rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, _ = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
 
-    
+    _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
+    clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
+    torch.cuda.empty_cache()
+
     
     rgb_ret = {'rgb_map' : rgb_map, 'rgb_disp_map' : rgb_disp_map, 'rgb_acc_map' : rgb_acc_map}
     clip_ret =  {'clip_map' : clip_map, 'clip_disp_map' : clip_disp_map, 'clip_acc_map' : clip_acc_map}
