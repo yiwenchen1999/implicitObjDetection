@@ -99,6 +99,7 @@ def render_rays(ray_batch,
                 perturb=0.,
                 N_importance=0,
                 network_fine=None,
+                network_clip = None,
                 white_bkgd=False,
                 raw_noise_std=0.,
                 verbose=False,
@@ -163,16 +164,19 @@ def render_rays(ray_batch,
             t_rand = torch.Tensor(t_rand)
         z_vals = lower + (upper - lower) * t_rand
     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples, 3] torch.Size([4096, 64, 3])
-    raw_rgb, raw_clips = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
+    raw_rgb, raw_clips_false = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
 
     rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
+    # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
+    #doing clip
+    raw_rgb_false, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
     clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
 
-    """
+    
     if N_importance > 0:
-        rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
+        rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
         z_vals_mid = .5 * (z_vals[...,1:] + z_vals[...,:-1])
-        z_samples = sample_pdf(z_vals_mid, weights[...,1:-1], N_importance, det=(perturb==0.), pytest=pytest)
+        z_samples = sample_pdf(z_vals_mid, rgb_weights[...,1:-1], N_importance, det=(perturb==0.), pytest=pytest)
         z_samples = z_samples.detach()
         z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
         pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples + N_importance, 3]
@@ -180,24 +184,22 @@ def render_rays(ray_batch,
 #         raw = run_network(pts, fn=run_fn)
         raw = network_query_fn(pts, viewdirs, run_fn)
         # print("raw output be like:", raw.shape)
-        if use_saliency:
-            saliency_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = True)
-            rgb_map = saliency_map
-        else:
-            rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
-    """
+        rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
+
+    
+    
     rgb_ret = {'rgb_map' : rgb_map, 'rgb_disp_map' : rgb_disp_map, 'rgb_acc_map' : rgb_acc_map}
     clip_ret =  {'clip_map' : clip_map, 'clip_disp_map' : clip_disp_map, 'clip_acc_map' : clip_acc_map}
     if retraw:
         rgb_ret['raw_rgb'] = raw_rgb
         clip_ret['raw_clips'] = raw_clips
-    """
+    
     if N_importance > 0:
-        ret['rgb0'] = rgb_map_0
-        ret['disp0'] = disp_map_0
-        ret['acc0'] = acc_map_0
-        ret['z_std'] = torch.std(z_samples, dim=-1, unbiased=False)  # [N_rays]
-    """
+        rgb_ret['rgb0'] = rgb_map_0
+        rgb_ret['disp0'] = disp_map_0
+        rgb_ret['acc0'] = acc_map_0
+        rgb_ret['z_std'] = torch.std(z_samples, dim=-1, unbiased=False)  # [N_rays]
+    
     for k in rgb_ret:
         if (torch.isnan(rgb_ret[k]).any() or torch.isinf(rgb_ret[k]).any()) and DEBUG:
             print(f"! [Numerical Error] {k} contains nan or inf.")
@@ -307,7 +309,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     clip_k_extract = ['clip_map', 'clip_disp_map', 'clip_acc_map']
     ret_clip_list = [all_clip_ret[k] for k in clip_k_extract]
     ret_clip_dict = {k : all_clip_ret[k] for k in all_clip_ret if k not in clip_k_extract}
-    return ret_rgb_list, ret_clip_list
+    return ret_rgb_list, ret_clip_list, ret_rgb_dict
 
 
 
@@ -439,6 +441,16 @@ def create_nerf(args, flag, test_file):
     print("skips, input_ch_views, use_viewdirs", skips, input_ch_views, args.use_viewdirs) #[4] 0 False
     print("--------------------------------------")
     grad_vars = (filter(lambda p: p.requires_grad, model.parameters()))
+
+    model_clip = NeRF(D=args.netdepth, W=args.netwidth,
+            input_ch=input_ch, output_ch=output_ch, skips=skips,
+            input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency, with_CLIP=args.with_clip, clip_dim=768, training_clip = args.training_clip).to(device)
+    print("clip nerf created:")
+    print("D, w, input_ch, ouput_ch:", args.netdepth, args.netwidth, input_ch, output_ch) #8 256 63 4
+    print("skips, input_ch_views, use_viewdirs", skips, input_ch_views, args.use_viewdirs) #[4] 0 False
+    print("--------------------------------------")
+    grad_vars_clip = (filter(lambda p: p.requires_grad, model_clip.parameters()))
+
     
     #fine network
     model_fine = None
@@ -457,6 +469,8 @@ def create_nerf(args, flag, test_file):
                                                                 netchunk=args.netchunk)
     # Create optimizer
     optimizer = torch.optim.Adam(params=grad_vars, lr=args.lrate, betas=(0.9, 0.999))
+    optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
+
     start = 0
     basedir = args.basedir #./logs/
     expname = args.expname #mac0
@@ -480,6 +494,9 @@ def create_nerf(args, flag, test_file):
         model.load_state_dict(ckpt['network_fn_state_dict'])
         if model_fine is not None:
             model_fine.load_state_dict(ckpt['network_fine_state_dict'])
+        if model_clip is not None:
+            model_fine.load_state_dict(ckpt['network_clip_state_dict'])
+            optimizer_clip.load_state_dict(ckpt['optimizer_clip_state_dict'])
     #exit(0)
     ##########################
     render_kwargs_train = {
@@ -492,6 +509,7 @@ def create_nerf(args, flag, test_file):
         'use_viewdirs' : args.use_viewdirs, #False
         'white_bkgd' : args.white_bkgd, #False
         'raw_noise_std' : args.raw_noise_std, #0
+        'network_clip' : model_clip
     }
     # NDC only good for LLFF-style forward facing data
     if args.dataset_type != 'llff' or args.no_ndc:
@@ -502,7 +520,7 @@ def create_nerf(args, flag, test_file):
     render_kwargs_test = {k : render_kwargs_train[k] for k in render_kwargs_train}
     render_kwargs_test['perturb'] = False
     render_kwargs_test['raw_noise_std'] = 0.
-    return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer
+    return render_kwargs_train, render_kwargs_test, start, grad_vars, grad_vars_clip, optimizer, optimizer_clip
 
 
 def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False, saliency = False, clip = False):
@@ -637,7 +655,7 @@ def config_parser(env, flag):
     # rendering options
     parser.add_argument("--N_samples", type=int, default=64, 
                         help='number of coarse samples per ray')
-    parser.add_argument("--N_importance", type=int, default=0,
+    parser.add_argument("--N_importance", type=int, default=128,
                         help='number of additional fine samples per ray')
     parser.add_argument("--perturb", type=float, default=1.,
                         help='set to 0. for no jitter, 1. for jitter')
@@ -901,6 +919,7 @@ def render_compressed_feature_video(render_poses, hwf, K, chunk, render_kwargs, 
 
 
 def train(env, flag, test_file, i_weights):
+    
 
     parser = config_parser(env, flag)
     args = parser.parse_args()
@@ -1018,7 +1037,8 @@ def train(env, flag, test_file, i_weights):
 
 
     # Create nerf model
-    render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args, flag, test_file)
+    print("N_importance is :", args.N_importance)
+    render_kwargs_train, render_kwargs_test, start, grad_vars, grad_vars_clip, optimizer, optimizer_clip = create_nerf(args, flag, test_file)
     global_step = start
     bds_dict = {
         'near' : near,
@@ -1229,16 +1249,16 @@ def train(env, flag, test_file, i_weights):
         else:
             train_rgb = False
             train_clip = True
-        if (i == 40000):
-            print("Switched to clip")
-            render_kwargs_train["network_fn"].switch_to_clip()
-            if render_kwargs_train["network_fine"] is not None:
-                render_kwargs_train["network_fine"].switch_to_clip()
-            grad_vars_clip = (filter(lambda p: p.requires_grad, render_kwargs_train["network_fn"].parameters()))
-            if render_kwargs_train["network_fine"] is not None:
-                grad_vars_clip += (filter(lambda p: p.requires_grad, render_kwargs_train["network_fine"].parameters()))
-            optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
-            optimizer = optimizer_clip
+        # if (i == 40000):
+        #     print("Switched to clip")
+        #     render_kwargs_train["network_fn"].switch_to_clip()
+        #     if render_kwargs_train["network_fine"] is not None:
+        #         render_kwargs_train["network_fine"].switch_to_clip()
+        #     grad_vars_clip = (filter(lambda p: p.requires_grad, render_kwargs_train["network_fn"].parameters()))
+        #     if render_kwargs_train["network_fine"] is not None:
+        #         grad_vars_clip += (filter(lambda p: p.requires_grad, render_kwargs_train["network_fine"].parameters()))
+        #     optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
+        #     optimizer = optimizer_clip
 
 
         time0 = time.time()
@@ -1337,7 +1357,7 @@ def train(env, flag, test_file, i_weights):
 
 
         if args.with_clip:
-            ret_rgb_list, ret_clip_list = render(H, W, K, chunk=args.chunk, rays=batch_rays,
+            ret_rgb_list, ret_clip_list, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                     verbose=i < 10, retraw=True,
                                     **render_kwargs_train, use_saliency= False, use_CLIP = True)
             rgb_est = ret_rgb_list[0]
@@ -1354,6 +1374,12 @@ def train(env, flag, test_file, i_weights):
             optimizer.zero_grad()
             img_loss = img2mse(rgb_est, rgb_s)
             psnr = mse2psnr(img_loss)
+            losses.append(img_loss.cpu().detach().numpy())
+        
+        if 'rgb0' in extras:
+            img_loss0 = img2mse(extras['rgb0'], target_s)
+            img_loss = img_loss + img_loss0
+            psnr0 = mse2psnr(img_loss0)
 
             # if i%1000 == 0:
             #     print("training rgb_loss: ", img_loss)
@@ -1361,18 +1387,14 @@ def train(env, flag, test_file, i_weights):
 
         if train_clip:
             optimizer.zero_grad()
-            img_loss = clip_loss(clip_est, clip_s)
+            image_clip_loss = clip_loss(clip_est, clip_s)
             # print("training clip_loss: ", img_loss)
             psnr = mse2psnr(img_loss)
+            losses.append(image_clip_loss.cpu().detach().numpy())
             # print("training clip_psnr: ", psnr)
-        losses.append(img_loss.cpu().detach().numpy())
+        
 
-        """
-        if 'rgb0' in extras:
-            img_loss0 = img2mse(extras['rgb0'], target_s)
-            loss = loss + img_loss0
-            psnr0 = mse2psnr(img_loss0)
-        """
+        
         # img_loss.backward()
         if train_rgb:
             img_loss.backward()
@@ -1384,8 +1406,8 @@ def train(env, flag, test_file, i_weights):
                 param_group['lr'] = new_lrate
 
         if train_clip:
-            img_loss.backward()
-            optimizer.step()
+            image_clip_loss.backward()
+            optimizer_clip.step()
             decay_rate = 0.1
             decay_steps = args.lrate_decay * 1000
             new_lrate = args.lrate * (decay_rate ** (global_step/ decay_steps))
@@ -1400,8 +1422,10 @@ def train(env, flag, test_file, i_weights):
             torch.save({
                 'global_step': global_step,
                 'network_fn_state_dict': render_kwargs_train['network_fn'].state_dict(),
-                #'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
+                'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
+                'network_clip_state_dict' : render_kwargs_train['network_clip'].state_dict(),
+                'optimizer_clip_state_dict': optimizer_clip.state_dict(),
             }, path)
             print('Saved checkpoints at', path)
 
