@@ -161,7 +161,7 @@ class NeRF(nn.Module):
             # outputs_clips = torch.cat([CLIP_val, alphaCLIP * alpha], -1) #torch.Size([65536, 769])
             outputs_clips = torch.cat([CLIP_val, alphaCLIP], -1)#for render test
         else:
-            outputs_clips = torch.zeros([2, 4])
+            outputs_clips = torch.zeros([65536, 769])
         return outputs_rgb, outputs_clips
 
     def switch_to_clip(self):
