@@ -495,7 +495,7 @@ def create_nerf(args, flag, test_file):
         if model_fine != None:
             model_fine.load_state_dict(ckpt['network_fine_state_dict'])
         if model_clip is not None:
-            model_fine.load_state_dict(ckpt['network_clip_state_dict'])
+            model_clip.load_state_dict(ckpt['network_clip_state_dict'])
             optimizer_clip.load_state_dict(ckpt['optimizer_clip_state_dict'])
     #exit(0)
     ##########################
