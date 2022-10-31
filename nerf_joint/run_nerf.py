@@ -1386,7 +1386,7 @@ def train(env, flag, test_file, i_weights):
             #     print("training rgb_psnr: ", psnr)
 
         if train_clip:
-            optimizer.zero_grad()
+            image_clip_loss.zero_grad()
             image_clip_loss = clip_loss(clip_est, clip_s)
             # print("training clip_loss: ", img_loss)
             psnr = mse2psnr(image_clip_loss)
@@ -1411,7 +1411,7 @@ def train(env, flag, test_file, i_weights):
             decay_rate = 0.1
             decay_steps = args.lrate_decay * 1000
             new_lrate = args.lrate * (decay_rate ** (global_step/ decay_steps))
-            for param_group in image_clip_loss.param_groups:
+            for param_group in optimizer_clip.param_groups:
                 param_group['lr'] = new_lrate
 
         #Update
