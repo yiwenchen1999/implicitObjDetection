@@ -440,7 +440,7 @@ def create_nerf(args, flag, test_file):
     print("D, w, input_ch, ouput_ch:", args.netdepth, args.netwidth, input_ch, output_ch) #8 256 63 4
     print("skips, input_ch_views, use_viewdirs", skips, input_ch_views, args.use_viewdirs) #[4] 0 False
     print("--------------------------------------")
-    grad_vars = (filter(lambda p: p.requires_grad, model.parameters()))
+    grad_vars = list(model.parameters())
 
     model_clip = NeRF(D=args.netdepth, W=args.netwidth,
             input_ch=input_ch, output_ch=output_ch, skips=skips,
