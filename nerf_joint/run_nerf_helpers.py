@@ -107,6 +107,11 @@ class NeRF(nn.Module):
 
 
 
+        self.alpha_linear = nn.Linear(W, 1)
+        self.feature_linear = nn.Linear(W, W)
+        self.rgb_linear = nn.Linear(W//2, 3)
+
+
         if with_CLIP:
             #RGB branch
             #CLIP branch
@@ -114,10 +119,7 @@ class NeRF(nn.Module):
             self.featureCLIP_linear = nn.Linear(W, W)
             self.CLIP_linear = nn.Linear(W//2, self.clip_dim)
 
-        else:
-            self.alpha_linear = nn.Linear(W, 1)
-            self.feature_linear = nn.Linear(W, W)
-            self.rgb_linear = nn.Linear(W//2, 3)
+
 
             # if training_clip:
             #     self.alpha_linear.weight.requires_grad=False
