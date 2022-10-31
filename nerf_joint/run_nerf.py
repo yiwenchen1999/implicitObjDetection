@@ -170,7 +170,7 @@ def render_rays(ray_batch,
     # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
     #doing clip
     _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
-    clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
+    clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)
 
     
     if N_importance > 0:
@@ -523,7 +523,7 @@ def create_nerf(args, flag, test_file):
     return render_kwargs_train, render_kwargs_test, start, grad_vars, grad_vars_clip, optimizer, optimizer_clip
 
 
-def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False, saliency = False, clip = False):
+def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False, saliency = False, clip = False, raw_rgb = None, joint = False):
     """Transforms model's predictions to semantically meaningful values.
     Args:
         raw: [num_rays, num_samples along ray, 4]. Prediction from model.
@@ -553,7 +553,11 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
                 np.random.seed(0)
                 noise = np.random.rand(*list(raw[...,-1].shape)) * raw_noise_std
                 noise = torch.Tensor(noise)
+        
         alphaCLIP = raw2alpha_sigmoid(raw[...,-1] + noise, dists)  # [N_rays, N_samples] torch.Size([4096, 64])
+        if joint:
+            alpha_rgb = raw2alpha_sigmoid(raw_rgb[...,3] + noise, dists)
+            alphaCLIP = alphaCLIP * alpha_rgb
         weightsCLIP = alphaCLIP * torch.cumprod(torch.cat([torch.ones((alphaCLIP.shape[0], 1)), 1.-alphaCLIP + 1e-10], -1), -1)[:, :-1]
 
         clip_map = torch.sum(weightsCLIP[...,None] * clip_s, -2)  # [N_rays, 768] torch.Size([4096, 768]) 
