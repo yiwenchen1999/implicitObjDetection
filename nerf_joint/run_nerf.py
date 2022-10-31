@@ -458,7 +458,7 @@ def create_nerf(args, flag, test_file):
         model_fine = NeRF(D=args.netdepth_fine, W=args.netwidth_fine,
                           input_ch=input_ch, output_ch=output_ch, skips=skips,
                           input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency, with_CLIP=args.with_clip, clip_dim=768).to(device)
-        grad_vars += (filter(lambda p: p.requires_grad, model_fine.parameters()))
+        grad_vars += list(model_fine.parameters())
     """
     print(args.N_importance) = 0
     print(model_fine) = None
