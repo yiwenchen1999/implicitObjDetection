@@ -151,7 +151,7 @@ class NeRF(nn.Module):
             h = F.relu(h)
         rgb = self.rgb_linear(h)
         outputs_rgb = torch.cat([rgb, alpha], -1)
-        outputs_clips = torch.zeros([[65536, 769]])
+        outputs_clips = torch.zeros([65536, 769])
 
         #CLIP branch
         if self.with_CLIP:
