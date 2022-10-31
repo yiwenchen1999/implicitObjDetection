@@ -164,14 +164,14 @@ def render_rays(ray_batch,
             t_rand = torch.Tensor(t_rand)
         z_vals = lower + (upper - lower) * t_rand
     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples, 3] torch.Size([4096, 64, 3])
-    raw_rgb, raw_clips_false = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
+    raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
 
     rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
     # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
     #doing clip
-    raw_rgb_false, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
-    clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
-
+    _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
+    clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
+    torch.cuda.empty_cache()
     
     if N_importance > 0:
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
@@ -182,9 +182,9 @@ def render_rays(ray_batch,
         pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples + N_importance, 3]
         run_fn = network_fn if network_fine is None else network_fine
 #         raw = run_network(pts, fn=run_fn)
-        raw_rgb, raw_clips_false = network_query_fn(pts, viewdirs, run_fn)
+        raw_rgb, _ = network_query_fn(pts, viewdirs, run_fn)
         # print("raw output be like:", raw.shape)
-        rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
+        rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, _ = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
 
     
     
