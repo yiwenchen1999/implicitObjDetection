@@ -146,17 +146,20 @@ class NeRF(nn.Module):
             h = F.relu(h)
         rgb = self.rgb_linear(h)
         #CLIP branch
-        alphaCLIP = self.alphaCLIP_linear(h_original)
-        featureCLIP = self.featureCLIP_linear(h_original)
-        hs = torch.cat([featureCLIP, input_views], -1)
-        for i, l in enumerate(self.views_linears):
-            hs = self.views_linears[i](hs)
-            hs = F.relu(hs)
-        CLIP_val = self.CLIP_linear(hs)
-        #Outputs
-        outputs_rgb = torch.cat([rgb, alpha], -1)
-        # outputs_clips = torch.cat([CLIP_val, alphaCLIP * alpha], -1) #torch.Size([65536, 769])
-        outputs_clips = torch.cat([CLIP_val, alphaCLIP], -1)#for render test
+        if self.with_CLIP:
+            alphaCLIP = self.alphaCLIP_linear(h_original)
+            featureCLIP = self.featureCLIP_linear(h_original)
+            hs = torch.cat([featureCLIP, input_views], -1)
+            for i, l in enumerate(self.views_linears):
+                hs = self.views_linears[i](hs)
+                hs = F.relu(hs)
+            CLIP_val = self.CLIP_linear(hs)
+            #Outputs
+            outputs_rgb = torch.cat([rgb, alpha], -1)
+            # outputs_clips = torch.cat([CLIP_val, alphaCLIP * alpha], -1) #torch.Size([65536, 769])
+            outputs_clips = torch.cat([CLIP_val, alphaCLIP], -1)#for render test
+        else:
+            outputs_clips = None
         return outputs_rgb, outputs_clips
 
     def switch_to_clip(self):

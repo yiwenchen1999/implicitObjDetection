@@ -435,7 +435,7 @@ def create_nerf(args, flag, test_file):
     #coarse network
     model = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
-                 input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency, with_CLIP=args.with_clip, clip_dim=768, training_clip = args.training_clip).to(device)
+                 input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency, with_CLIP=False, clip_dim=768, training_clip = args.training_clip).to(device)
     print("nerf created:")
     print("D, w, input_ch, ouput_ch:", args.netdepth, args.netwidth, input_ch, output_ch) #8 256 63 4
     print("skips, input_ch_views, use_viewdirs", skips, input_ch_views, args.use_viewdirs) #[4] 0 False
@@ -457,7 +457,7 @@ def create_nerf(args, flag, test_file):
     if args.N_importance > 0:
         model_fine = NeRF(D=args.netdepth_fine, W=args.netwidth_fine,
                           input_ch=input_ch, output_ch=output_ch, skips=skips,
-                          input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency, with_CLIP=args.with_clip, clip_dim=768).to(device)
+                          input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, with_saliency = args.with_saliency, with_CLIP=False, clip_dim=768).to(device)
         grad_vars += list(model_fine.parameters())
     """
     print(args.N_importance) = 0
