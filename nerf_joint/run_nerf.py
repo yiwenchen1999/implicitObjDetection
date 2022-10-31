@@ -818,7 +818,7 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
     for i, c2w in enumerate(tqdm(render_poses)):
         #print(i, time.time() - t)
         t = time.time()
-        ret_rgb_list, ret_clip_list = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs, use_CLIP=use_clip)
+        ret_rgb_list, ret_clip_list, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs, use_CLIP=use_clip)
         rgb_est = ret_rgb_list[0]
         rgb_disp = ret_rgb_list[1]
         rgb_ests.append(rgb_est.cpu().float().numpy())
