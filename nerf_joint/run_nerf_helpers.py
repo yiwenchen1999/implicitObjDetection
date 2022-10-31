@@ -105,9 +105,7 @@ class NeRF(nn.Module):
             self.alphaS_linear = nn.Linear(W, 1)
             self.saliency_linear = nn.Linear(W//2, 1)
 
-        self.alpha_linear = nn.Linear(W, 1)
-        self.feature_linear = nn.Linear(W, W)
-        self.rgb_linear = nn.Linear(W//2, 3)
+
 
         if with_CLIP:
             #RGB branch
@@ -115,6 +113,11 @@ class NeRF(nn.Module):
             self.alphaCLIP_linear = nn.Linear(W, 1)
             self.featureCLIP_linear = nn.Linear(W, W)
             self.CLIP_linear = nn.Linear(W//2, self.clip_dim)
+
+        else:
+            self.alpha_linear = nn.Linear(W, 1)
+            self.feature_linear = nn.Linear(W, W)
+            self.rgb_linear = nn.Linear(W//2, 3)
 
             # if training_clip:
             #     self.alpha_linear.weight.requires_grad=False
@@ -140,14 +143,6 @@ class NeRF(nn.Module):
             if i in self.skips:
                 h_original = torch.cat([input_pts, h_original], -1)
         #RGB branch
-        alpha = self.alpha_linear(h_original)
-        feature = self.feature_linear(h_original)
-        h = torch.cat([feature, input_views], -1)
-        for i, l in enumerate(self.views_linears):
-            h = self.views_linears[i](h)
-            h = F.relu(h)
-        rgb = self.rgb_linear(h)
-        outputs_rgb = torch.cat([rgb, alpha], -1)
         #CLIP branch
         if self.with_CLIP:
             alphaCLIP = self.alphaCLIP_linear(h_original)
@@ -160,7 +155,16 @@ class NeRF(nn.Module):
             #Outputs
             # outputs_clips = torch.cat([CLIP_val, alphaCLIP * alpha], -1) #torch.Size([65536, 769])
             outputs_clips = torch.cat([CLIP_val, alphaCLIP], -1)#for render test
+            outputs_rgb = torch.zeros([65536, 3])
         else:
+            alpha = self.alpha_linear(h_original)
+            feature = self.feature_linear(h_original)
+            h = torch.cat([feature, input_views], -1)
+            for i, l in enumerate(self.views_linears):
+                h = self.views_linears[i](h)
+                h = F.relu(h)
+            rgb = self.rgb_linear(h)
+            outputs_rgb = torch.cat([rgb, alpha], -1)
             outputs_clips = torch.zeros([65536, 769])
         return outputs_rgb, outputs_clips
 
