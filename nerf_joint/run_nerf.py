@@ -169,6 +169,9 @@ def render_rays(ray_batch,
     rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
     # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
     #doing clip
+    _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
+    clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
+
     
     if N_importance > 0:
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
@@ -183,9 +186,6 @@ def render_rays(ray_batch,
         # print("raw output be like:", raw.shape)
         rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, _ = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
 
-    _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
-    clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
-    torch.cuda.empty_cache()
 
     
     rgb_ret = {'rgb_map' : rgb_map, 'rgb_disp_map' : rgb_disp_map, 'rgb_acc_map' : rgb_acc_map}
@@ -1389,7 +1389,7 @@ def train(env, flag, test_file, i_weights):
             optimizer.zero_grad()
             image_clip_loss = clip_loss(clip_est, clip_s)
             # print("training clip_loss: ", img_loss)
-            psnr = mse2psnr(img_loss)
+            psnr = mse2psnr(image_clip_loss)
             losses.append(image_clip_loss.cpu().detach().numpy())
             # print("training clip_psnr: ", psnr)
         
@@ -1553,7 +1553,10 @@ def train(env, flag, test_file, i_weights):
                 print('Saved test set')
 
         if i%args.i_print==0:
-            tqdm.write(f"[TRAIN] Iter: {i} Loss: {img_loss.item()}  PSNR: {psnr.item()}")
+            if train_clip:
+                tqdm.write(f"[TRAIN] Iter: {i} Loss: {image_clip_loss.item()}  PSNR: {psnr.item()}")
+            else:
+                tqdm.write(f"[TRAIN] Iter: {i} Loss: {img_loss.item()}  PSNR: {psnr.item()}")
         """
             print(expname, i, psnr.numpy(), loss.numpy(), global_step.numpy())
             print('iter time {:.05f}'.format(dt))
