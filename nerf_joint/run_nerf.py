@@ -1429,7 +1429,7 @@ def train(env, flag, test_file, i_weights):
             }, path)
             print('Saved checkpoints at', path)
 
-        if i%args.i_video==0 and i > 0:
+        if i%args.i_video==1 and i > 0:
             with torch.no_grad():
                 rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True)
                 imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "queries.mp4", to8b(queries), fps=30, quality=8)
