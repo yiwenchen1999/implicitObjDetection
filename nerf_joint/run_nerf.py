@@ -181,6 +181,7 @@ def render_rays(ray_batch,
         clip_map = None
         clip_disp_map = None
         clip_acc_map = None
+        raw_clips = None
     
     if N_importance > 0 and not train_clip:
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
