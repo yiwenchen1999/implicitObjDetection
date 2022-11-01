@@ -309,9 +309,10 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     for k in all_rgb_ret:
         k_sh = list(sh[:-1]) + list(all_rgb_ret[k].shape[1:])
         all_rgb_ret[k] = torch.reshape(all_rgb_ret[k], k_sh)
-    for k in all_clip_ret:
-        k_sh = list(sh[:-1]) + list(all_clip_ret[k].shape[1:])
-        all_clip_ret[k] = torch.reshape(all_clip_ret[k], k_sh)
+    if train_clip:
+        for k in all_clip_ret:
+            k_sh = list(sh[:-1]) + list(all_clip_ret[k].shape[1:])
+            all_clip_ret[k] = torch.reshape(all_clip_ret[k], k_sh)
 
     rgb_k_extract = ['rgb_map', 'rgb_disp_map', 'rgb_acc_map']
     ret_rgb_list = [all_rgb_ret[k] for k in rgb_k_extract]
