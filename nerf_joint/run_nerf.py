@@ -819,7 +819,7 @@ def config_parser(env, flag):
 
 
 
-def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0, use_clip = False):
+def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0, use_clip = False, train_clip = True):
     H, W, focal = hwf
     if render_factor!=0:
         # Render downsampled for speed
@@ -834,7 +834,7 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
     for i, c2w in enumerate(tqdm(render_poses)):
         #print(i, time.time() - t)
         t = time.time()
-        ret_rgb_list, ret_clip_list, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], train_clip = True, **render_kwargs, use_CLIP=use_clip)
+        ret_rgb_list, ret_clip_list, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], train_clip = train_clip, **render_kwargs, use_CLIP=use_clip)
         rgb_est = ret_rgb_list[0]
         rgb_disp = ret_rgb_list[1]
         rgb_ests.append(rgb_est.cpu().float().numpy())
@@ -1091,6 +1091,8 @@ def train(env, flag, test_file, i_weights):
     if args.render_query_video:
         with torch.no_grad():
             rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True)
+            rgb_ests, rgb_disps, _, _ = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = False)
+
         imageio.mimwrite(args.root_path + "Nesf0_2D/queries.mp4", to8b(queries), fps=30, quality=8)
         imageio.mimwrite(args.root_path + "Nesf0_2D/queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
         imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
@@ -1254,7 +1256,7 @@ def train(env, flag, test_file, i_weights):
         rays_rgb = torch.Tensor(rays_rgb).to(device)
 
     #______________________________________
-    N_iters = 100000 + 1
+    N_iters = 200000 + 1
 
     losses = []
     # Summary writers
@@ -1263,7 +1265,7 @@ def train(env, flag, test_file, i_weights):
     start = start + 1
     for i in trange(start, N_iters):
         # print(i)
-        if(i < 10000):
+        if(i < 50000):
             train_rgb = True
             train_clip = False
         else:
@@ -1444,7 +1446,7 @@ def train(env, flag, test_file, i_weights):
         #Update
         dt = time.time()-time0
         #Logging
-        if i%i_weights==0:
+        if i%5000==0:
             path = os.path.join(basedir, expname, '{:06d}.tar'.format(i))
             torch.save({
                 'global_step': global_step,
@@ -1459,6 +1461,7 @@ def train(env, flag, test_file, i_weights):
         if i%args.i_video==0 and i > 0:
             with torch.no_grad():
                 rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True)
+
                 imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "queries.mp4", to8b(queries), fps=30, quality=8)
                 imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
                 imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
