@@ -176,7 +176,7 @@ def render_rays(ray_batch,
     #doing clip
     if train_clip:
         _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
-        clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)
+        clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = None, joint = False)
     else:
         clip_map = None
         clip_disp_map = None
