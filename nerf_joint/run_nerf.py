@@ -872,8 +872,8 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
         query_map_3d[:,:,0] = query_map_remapped
         query_map_3d[:,:,1] = query_map_remapped
         query_map_3d[:,:,2] = query_map_remapped
-        np.save("../colormaps/heatmaps"+str(i),query_map_3d)
-        query_map_3d_exp = np.exp(query_map_3d)
+        np.save("../colormaps/heatmaps"+str(i),query_map_remapped)
+        query_map_3d_exp = np.exp(query_map_remapped)
         np.save("../colormaps/heatmapsEXP"+str(i), query_map_3d_exp)
         queries.append(query_map_3d)
         clips_disps.append(clips_disp.cpu().numpy())
