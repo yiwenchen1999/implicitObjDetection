@@ -1,3 +1,4 @@
+from cgi import test
 from operator import gt
 import os, sys
 from pickle import TRUE
@@ -106,7 +107,8 @@ def render_rays(ray_batch,
                 pytest=False,
                 use_saliency = False,
                 use_CLIP = False,
-                train_clip = False):
+                train_clip = False,
+                test_time = False):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -166,26 +168,18 @@ def render_rays(ray_batch,
         z_vals = lower + (upper - lower) * t_rand
     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples, 3] torch.Size([4096, 64, 3])
 
-    if train_clip:
-        run_fn = network_fn if network_fine is None else network_fine
-        raw_rgb, _ = network_query_fn(pts, viewdirs, run_fn)
-    else:
-        raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
+    # if train_clip:
+    #     run_fn = network_fn if network_fine is None else network_fine
+    #     raw_rgb, _ = network_query_fn(pts, viewdirs, run_fn)
+    # else:
+    raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
     rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
     # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
     #doing clip
-    if train_clip:
-        _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
-        clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = None, joint = False)
-    else:
-        #just place holders
-        clip_map = torch.zeros([3,3])
-        clip_disp_map = torch.zeros([3,3])
-        clip_acc_map = torch.zeros([3,3])
-        raw_clips = torch.zeros([3,3])
     
-    if N_importance > 0 and not train_clip:
-        rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
+    if N_importance > 0 and ((not train_clip) or test_time):
+        if not test_time:
+            rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
         z_vals_mid = .5 * (z_vals[...,1:] + z_vals[...,:-1])
         z_samples = sample_pdf(z_vals_mid, rgb_weights[...,1:-1], N_importance, det=(perturb==0.), pytest=pytest)
         z_samples = z_samples.detach()
@@ -197,6 +191,15 @@ def render_rays(ray_batch,
         # print("raw output be like:", raw.shape)
         rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, _ = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
 
+    if train_clip:
+        _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
+        clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = None, joint = False)
+    else:
+        #just place holders
+        clip_map = torch.zeros([3,3])
+        clip_disp_map = torch.zeros([3,3])
+        clip_acc_map = torch.zeros([3,3])
+        raw_clips = torch.zeros([3,3])
 
     
     rgb_ret = {'rgb_map' : rgb_map, 'rgb_disp_map' : rgb_disp_map, 'rgb_acc_map' : rgb_acc_map}
@@ -205,7 +208,7 @@ def render_rays(ray_batch,
         rgb_ret['raw_rgb'] = raw_rgb
         clip_ret['raw_clips'] = raw_clips
     
-    if N_importance > 0 and not train_clip:
+    if N_importance > 0 and not train_clip and not test_time:
         rgb_ret['rgb0'] = rgb_map_0
         rgb_ret['disp0'] = disp_map_0
         rgb_ret['acc0'] = acc_map_0
@@ -222,14 +225,14 @@ def render_rays(ray_batch,
     return rgb_ret, clip_ret
 
 
-def batchify_rays(rays_flat, chunk=1024*32, use_saliency = False, use_CLIP = False, train_clip = False, **kwargs):
+def batchify_rays(rays_flat, chunk=1024*32, use_saliency = False, use_CLIP = False, train_clip = False, test_time = False, **kwargs):
     """Render rays in smaller minibatches to avoid OOM.
     """
     all_rgb_ret = {}
     all_clip_ret = {}
     for i in range(0, rays_flat.shape[0], chunk):
         #print("i: ", i)
-        rgb_ret, clip_ret = render_rays(rays_flat[i:i+chunk],use_saliency = use_saliency, use_CLIP = use_CLIP, train_clip = train_clip, **kwargs)
+        rgb_ret, clip_ret = render_rays(rays_flat[i:i+chunk],use_saliency = use_saliency, use_CLIP = use_CLIP, train_clip = train_clip,test_time = test_time, **kwargs)
         for k in rgb_ret:
             if k not in all_rgb_ret:
                 all_rgb_ret[k] = []
@@ -246,7 +249,7 @@ def batchify_rays(rays_flat, chunk=1024*32, use_saliency = False, use_CLIP = Fal
 
 def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
                   near=0., far=1.,
-                  use_viewdirs=False, c2w_staticcam=None,use_saliency = False, use_CLIP = False, train_clip = False,
+                  use_viewdirs=False, c2w_staticcam=None,use_saliency = False, use_CLIP = False, train_clip = False, test_time = False,
                   **kwargs):
     """
     clip_est, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
@@ -304,7 +307,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
         rays = torch.cat([rays, viewdirs], -1)
 
     # Render and reshape
-    all_rgb_ret, all_clip_ret = batchify_rays(rays, chunk, **kwargs, use_saliency = use_saliency, use_CLIP = use_CLIP, train_clip = train_clip)
+    all_rgb_ret, all_clip_ret = batchify_rays(rays, chunk, **kwargs, use_saliency = use_saliency, use_CLIP = use_CLIP, train_clip = train_clip, test_time = test_time)
 
     for k in all_rgb_ret:
         k_sh = list(sh[:-1]) + list(all_rgb_ret[k].shape[1:])
@@ -819,7 +822,7 @@ def config_parser(env, flag):
 
 
 
-def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0, use_clip = False, train_clip = True):
+def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0, use_clip = False, train_clip = True, test_time = False):
     H, W, focal = hwf
     if render_factor!=0:
         # Render downsampled for speed
@@ -834,7 +837,7 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
     for i, c2w in enumerate(tqdm(render_poses)):
         #print(i, time.time() - t)
         t = time.time()
-        ret_rgb_list, ret_clip_list, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], train_clip = train_clip, **render_kwargs, use_CLIP=use_clip)
+        ret_rgb_list, ret_clip_list, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], train_clip = train_clip, **render_kwargs, use_CLIP=use_clip, test_time = test_time)
         rgb_est = ret_rgb_list[0]
         rgb_disp = ret_rgb_list[1]
         rgb_ests.append(rgb_est.cpu().float().numpy())
@@ -1090,10 +1093,11 @@ def train(env, flag, test_file, i_weights):
 
     if args.render_query_video:
         with torch.no_grad():
-            rgb_ests, rgb_disps, _, _ = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = False)
-            rgb_ests0, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True)
+            rgb_ests, rgb_disps, queries, _ = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time = True)
+            rgb_ests0, rgb_disps, queries0, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time =False)
 
         imageio.mimwrite(args.root_path + "Nesf0_2D/queries.mp4", to8b(queries), fps=30, quality=8)
+        imageio.mimwrite(args.root_path + "Nesf0_2D/queries0.mp4", to8b(queries0), fps=30, quality=8)
         imageio.mimwrite(args.root_path + "Nesf0_2D/queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
         imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_ests0.mp4", to8b(rgb_ests0), fps=30, quality=8)
         imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
