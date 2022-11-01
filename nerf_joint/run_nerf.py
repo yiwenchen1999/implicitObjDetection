@@ -1449,7 +1449,7 @@ def train(env, flag, test_file, i_weights):
             torch.save({
                 'global_step': global_step,
                 'network_fn_state_dict': render_kwargs_train['network_fn'].state_dict(),
-                # 'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
+                'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'network_clip_state_dict' : render_kwargs_train['network_clip'].state_dict(),
                 'optimizer_clip_state_dict': optimizer_clip.state_dict(),
