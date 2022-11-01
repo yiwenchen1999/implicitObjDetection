@@ -1247,12 +1247,14 @@ def train(env, flag, test_file, i_weights):
     start = start + 1
     for i in trange(start, N_iters):
         # print(i)
-        if(i < 80000):
+        if(i < 30000):
             train_rgb = True
             train_clip = False
         else:
             train_rgb = False
             train_clip = True
+            for p in render_kwargs_train["network_fn"].parameters():
+               p.requires_grad = False
         # if (i == 40000):
         #     print("Switched to clip")
         #     render_kwargs_train["network_fn"].switch_to_clip()
@@ -1376,7 +1378,7 @@ def train(env, flag, test_file, i_weights):
         #loss: dot product
         if train_rgb:
             optimizer.zero_grad()
-            img_loss = l1_loss(rgb_est, rgb_s)
+            img_loss = img2mse(rgb_est, rgb_s)
             psnr = mse2psnr(img_loss)
             losses.append(img_loss.cpu().detach().numpy())
         
