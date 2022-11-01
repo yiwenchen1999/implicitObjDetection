@@ -178,10 +178,11 @@ def render_rays(ray_batch,
         _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
         clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = None, joint = False)
     else:
-        clip_map = None
-        clip_disp_map = None
-        clip_acc_map = None
-        raw_clips = None
+        #just place holders
+        clip_map = torch.zeros([3,3])
+        clip_disp_map = torch.zeros([3,3])
+        clip_acc_map = torch.zeros([3,3])
+        raw_clips = torch.zeros([3,3])
     
     if N_importance > 0 and not train_clip:
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
