@@ -105,7 +105,8 @@ def render_rays(ray_batch,
                 verbose=False,
                 pytest=False,
                 use_saliency = False,
-                use_CLIP = False):
+                use_CLIP = False,
+                train_clip = False):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -164,16 +165,24 @@ def render_rays(ray_batch,
             t_rand = torch.Tensor(t_rand)
         z_vals = lower + (upper - lower) * t_rand
     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples, 3] torch.Size([4096, 64, 3])
-    raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
 
+    if train_clip:
+        run_fn = network_fn if network_fine is None else network_fine
+        raw_rgb, _ = network_query_fn(pts, viewdirs, run_fn)
+    else:
+        raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
     rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
     # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
     #doing clip
-    _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
-    clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)
-
+    if train_clip:
+        _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
+        clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)
+    else:
+        clip_map = None
+        clip_disp_map = None
+        clip_acc_map = None
     
-    if N_importance > 0:
+    if N_importance > 0 and not train_clip:
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
         z_vals_mid = .5 * (z_vals[...,1:] + z_vals[...,:-1])
         z_samples = sample_pdf(z_vals_mid, rgb_weights[...,1:-1], N_importance, det=(perturb==0.), pytest=pytest)
@@ -194,31 +203,31 @@ def render_rays(ray_batch,
         rgb_ret['raw_rgb'] = raw_rgb
         clip_ret['raw_clips'] = raw_clips
     
-    if N_importance > 0:
+    if N_importance > 0 and not train_clip:
         rgb_ret['rgb0'] = rgb_map_0
         rgb_ret['disp0'] = disp_map_0
         rgb_ret['acc0'] = acc_map_0
         rgb_ret['z_std'] = torch.std(z_samples, dim=-1, unbiased=False)  # [N_rays]
     
-    for k in rgb_ret:
-        if (torch.isnan(rgb_ret[k]).any() or torch.isinf(rgb_ret[k]).any()) and DEBUG:
-            print(f"! [Numerical Error] {k} contains nan or inf.")
+    # for k in rgb_ret:
+    #     if (torch.isnan(rgb_ret[k]).any() or torch.isinf(rgb_ret[k]).any()) and DEBUG:
+    #         print(f"! [Numerical Error] {k} contains nan or inf.")
 
-    for k in clip_ret:
-        if (torch.isnan(clip_ret[k]).any() or torch.isinf(clip_ret[k]).any()) and DEBUG:
-            print(f"! [Numerical Error] {k} contains nan or inf.")
+    # for k in clip_ret:
+    #     if (torch.isnan(clip_ret[k]).any() or torch.isinf(clip_ret[k]).any()) and DEBUG:
+    #         print(f"! [Numerical Error] {k} contains nan or inf.")
 
     return rgb_ret, clip_ret
 
 
-def batchify_rays(rays_flat, chunk=1024*32, use_saliency = False, use_CLIP = False, **kwargs):
+def batchify_rays(rays_flat, chunk=1024*32, use_saliency = False, use_CLIP = False, train_clip = False, **kwargs):
     """Render rays in smaller minibatches to avoid OOM.
     """
     all_rgb_ret = {}
     all_clip_ret = {}
     for i in range(0, rays_flat.shape[0], chunk):
         #print("i: ", i)
-        rgb_ret, clip_ret = render_rays(rays_flat[i:i+chunk],use_saliency = use_saliency, use_CLIP = use_CLIP, **kwargs)
+        rgb_ret, clip_ret = render_rays(rays_flat[i:i+chunk],use_saliency = use_saliency, use_CLIP = use_CLIP, train_clip = train_clip, **kwargs)
         for k in rgb_ret:
             if k not in all_rgb_ret:
                 all_rgb_ret[k] = []
@@ -235,7 +244,7 @@ def batchify_rays(rays_flat, chunk=1024*32, use_saliency = False, use_CLIP = Fal
 
 def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
                   near=0., far=1.,
-                  use_viewdirs=False, c2w_staticcam=None,use_saliency = False, use_CLIP = False,
+                  use_viewdirs=False, c2w_staticcam=None,use_saliency = False, use_CLIP = False, train_clip = False,
                   **kwargs):
     """
     clip_est, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
@@ -293,7 +302,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
         rays = torch.cat([rays, viewdirs], -1)
 
     # Render and reshape
-    all_rgb_ret, all_clip_ret = batchify_rays(rays, chunk, **kwargs, use_saliency = use_saliency, use_CLIP = use_CLIP)
+    all_rgb_ret, all_clip_ret = batchify_rays(rays, chunk, **kwargs, use_saliency = use_saliency, use_CLIP = use_CLIP, train_clip = train_clip)
 
     for k in all_rgb_ret:
         k_sh = list(sh[:-1]) + list(all_rgb_ret[k].shape[1:])
@@ -822,7 +831,7 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
     for i, c2w in enumerate(tqdm(render_poses)):
         #print(i, time.time() - t)
         t = time.time()
-        ret_rgb_list, ret_clip_list, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs, use_CLIP=use_clip)
+        ret_rgb_list, ret_clip_list, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], train_clip = True, **render_kwargs, use_CLIP=use_clip)
         rgb_est = ret_rgb_list[0]
         rgb_disp = ret_rgb_list[1]
         rgb_ests.append(rgb_est.cpu().float().numpy())
@@ -845,6 +854,7 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
                 # print(image_features_normalized[i,j,:].shape)
                 # print(text_features_normalized.shape)
                 query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized.reshape(-1)) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
+
         query_map = query_map.cpu().float().numpy()
         query_map = np.squeeze(query_map)
         query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
@@ -853,6 +863,9 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
         query_map_3d[:,:,0] = query_map_remapped
         query_map_3d[:,:,1] = query_map_remapped
         query_map_3d[:,:,2] = query_map_remapped
+        np.save("../colormaps/heatmaps"+str(i),query_map_3d)
+        query_map_3d_exp = np.exp(query_map_3d)
+        np.save("../colormaps/heatmapsEXP"+str(i), query_map_3d_exp)
         queries.append(query_map_3d)
         clips_disps.append(clips_disp.cpu().numpy())
         if savedir is not None:
@@ -1255,6 +1268,9 @@ def train(env, flag, test_file, i_weights):
             train_clip = True
             for p in render_kwargs_train["network_fn"].parameters():
                p.requires_grad = False
+            if render_kwargs_train["network_fine"] is not None:
+                for p in render_kwargs_train["network_fn"].parameters():
+                    p.requires_grad = False
         # if (i == 40000):
         #     print("Switched to clip")
         #     render_kwargs_train["network_fn"].switch_to_clip()
@@ -1365,11 +1381,10 @@ def train(env, flag, test_file, i_weights):
         if args.with_clip:
             ret_rgb_list, ret_clip_list, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                     verbose=i < 10, retraw=True,
-                                    **render_kwargs_train, use_saliency= False, use_CLIP = True)
-            rgb_est = ret_rgb_list[0]
+                                    **render_kwargs_train, use_saliency= False, use_CLIP = True, train_clip = train_clip)
+            
             #rgb_est = normalize(rgb_est, p = 2, dim = -1)
-            clip_est = ret_clip_list[0]
-            clip_est = normalize(clip_est, p = 2, dim = -1)
+            
             # print("rgb_s: ", rgb_s[0,:3])
             # print("rgb_est: ", rgb_est[0,:3])
             # print("clip_s: ", clip_s[0,:3])
@@ -1377,21 +1392,24 @@ def train(env, flag, test_file, i_weights):
 
         #loss: dot product
         if train_rgb:
+            rgb_est = ret_rgb_list[0]
             optimizer.zero_grad()
             img_loss = img2mse(rgb_est, rgb_s)
             psnr = mse2psnr(img_loss)
             losses.append(img_loss.cpu().detach().numpy())
         
-        if 'rgb0' in extras:
-            img_loss0 = img2mse(extras['rgb0'], target_s)
-            img_loss = img_loss + img_loss0
-            psnr0 = mse2psnr(img_loss0)
+            if 'rgb0' in extras:
+                img_loss0 = img2mse(extras['rgb0'], target_s)
+                img_loss = img_loss + img_loss0
+                psnr0 = mse2psnr(img_loss0)
 
             # if i%1000 == 0:
             #     print("training rgb_loss: ", img_loss)
             #     print("training rgb_psnr: ", psnr)
 
         if train_clip:
+            clip_est = ret_clip_list[0]
+            clip_est = normalize(clip_est, p = 2, dim = -1)
             optimizer_clip.zero_grad()
             image_clip_loss = clip_loss(clip_est, clip_s)
             # print("training clip_loss: ", img_loss)
