@@ -843,6 +843,7 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
     t = time.time()
     for i, c2w in enumerate(tqdm(render_poses)):
         #print(i, time.time() - t)
+        i0 = i
         t = time.time()
         ret_rgb_list, ret_clip_list, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], train_clip = train_clip, **render_kwargs, use_CLIP=use_clip, test_time = test_time)
         rgb_est = ret_rgb_list[0]
@@ -876,9 +877,9 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
         query_map_3d[:,:,0] = query_map_remapped
         query_map_3d[:,:,1] = query_map_remapped
         query_map_3d[:,:,2] = query_map_remapped
-        np.save("../colormaps/heatmaps"+str(i),query_map_remapped)
+        np.save("../colormaps/heatmaps"+str(i0),query_map_remapped)
         query_map_3d_exp = np.exp(query_map_remapped)
-        np.save("../colormaps/heatmapsEXP"+str(i), query_map_3d_exp)
+        np.save("../colormaps/heatmapsEXP"+str(i0), query_map_3d_exp)
         queries.append(query_map_3d)
         clips_disps.append(clips_disp.cpu().numpy())
         if savedir is not None:
