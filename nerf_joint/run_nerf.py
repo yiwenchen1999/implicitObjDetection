@@ -168,16 +168,20 @@ def render_rays(ray_batch,
         z_vals = lower + (upper - lower) * t_rand
     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples, 3] torch.Size([4096, 64, 3])
 
-    # if train_clip:
-    #     run_fn = network_fn if network_fine is None else network_fine
-    #     raw_rgb, _ = network_query_fn(pts, viewdirs, run_fn)
-    # else:
-    raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
+    if train_clip:
+        run_fn = network_fn if network_fine is None else network_fine
+        raw_rgb, _ = network_query_fn(pts, viewdirs, run_fn)
+    else:
+        raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
+
+    # raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
     rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
     # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
     #doing clip
     
-    if N_importance > 0 and ((not train_clip) or test_time):
+    # if N_importance > 0 and ((not train_clip) or test_time):
+    if N_importance > 0 and ((not train_clip)):
+
         if not test_time:
             rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
         z_vals_mid = .5 * (z_vals[...,1:] + z_vals[...,:-1])
@@ -1273,7 +1277,7 @@ def train(env, flag, test_file, i_weights):
     start = start + 1
     for i in trange(start, N_iters):
         # print(i)
-        if(i < 50000):
+        if(i < 40000):
             train_rgb = True
             train_clip = False
         else:
