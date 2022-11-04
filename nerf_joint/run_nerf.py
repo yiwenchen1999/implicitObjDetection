@@ -1278,7 +1278,7 @@ def train(env, flag, test_file, i_weights):
     start = start + 1
     for i in trange(start, N_iters):
         # print(i)
-        if(i < 40000):
+        if(i < 14000):
             train_rgb = True
             train_clip = False
         else:
