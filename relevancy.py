@@ -75,6 +75,7 @@ if __name__=='__main__':
 
             heatmap = getHeatmap(model, im , "an air plane")
             heatimg = heatmap*200
+        
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
