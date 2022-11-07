@@ -196,6 +196,12 @@ def render_rays(ray_batch,
         rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, _ = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
 
     if train_clip:
+        z_vals_mid = .5 * (z_vals[...,1:] + z_vals[...,:-1])
+        z_samples = sample_pdf(z_vals_mid, rgb_weights[...,1:-1], N_importance, det=(perturb==0.), pytest=pytest)
+        z_samples = z_samples.detach()
+        z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
+        pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples + N_importance, 3]
+
         _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
         if test_time:
             clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)

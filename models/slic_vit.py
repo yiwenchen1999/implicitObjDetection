@@ -65,6 +65,14 @@ class SLICViT(nn.Module):
                 detection_areas = np.stack(detection_areas, 0)
             
         else:
+            if not att:
+                areas = cropPerPixel(im, windowsize= self.window_size)
+                detection_areas=[]
+                for i in range(im.size[0]* im.size[1]):
+                    cropped = areas[i]
+                    cropped.resize((224,224))
+                    # cropped = cropped.astype(np.float32)/255.
+                    detection_areas.append(cropped)
             im = np.array(im)
             for n in self.n_segments:
                 # segments_slic = slic(im.astype(
@@ -83,13 +91,13 @@ class SLICViT(nn.Module):
         
         return masks, detection_areas
 
-    def get_mask_features(self,im):
+    def get_mask_features(self,im, att = True):
         with torch.no_grad():
             # im is uint8 numpy
             h, w = im.shape[:2]
             im = Image.fromarray(im).convert('RGB')
             im = im.resize((224, 224))
-            masks, detection_areas = self.get_masks(np.array(im))
+            masks, detection_areas = self.get_masks(np.array(im), att = att)
             masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
             im = self.model.preprocess(im).unsqueeze(0).cuda()
@@ -298,6 +306,28 @@ class SLICViT(nn.Module):
         featuremap = np.stack(featuremap, 0)
         # print("heatmap:", featuremap.shape)
         return featuremap
+
+    def get_clipmap_raw(self, im, **args):
+        _args = {key: getattr(self, key) for key in args}
+        for key in args:
+            setattr(self, key, args[key])
+            print("keys:", key)
+        masks, clip_features = self.get_mask_features(im, att = False)
+        print("mask shape, feature shape:" , masks.shape, clip_features.shape)
+        featuremap = (np.nan + np.zeros((masks.shape[1], masks.shape[2],clip_features.shape[1] ), dtype=np.float32))
+        # print("featuremap shape", featuremap.shape)
+        print("i goes up to:", len(masks))
+        for i in range(len(masks)):
+            mask = masks[i]
+            # print("mask:",mask.shape)
+            features = clip_features[i]
+            # print("clip features: ", features.shape)
+            # print(featuremap.shape)
+            featuremap[mask] = features
+        featuremap = np.stack(featuremap, 0)
+        # print("heatmap:", featuremap.shape)
+        return featuremap
+
 
     def box_from_heatmap(self, heatmap):
         alpha = self.alpha
