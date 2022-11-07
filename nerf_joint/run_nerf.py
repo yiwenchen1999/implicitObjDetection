@@ -195,6 +195,9 @@ def render_rays(ray_batch,
         raw_rgb, _ = network_query_fn(pts, viewdirs, run_fn)
         # print("raw output be like:", raw.shape)
         rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, _ = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
+        if test_time:
+            _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
+            clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)
 
     if train_clip:
         # if not test_time:
@@ -203,12 +206,12 @@ def render_rays(ray_batch,
         #     z_samples = z_samples.detach()
         #     z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
         #     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples + N_importance, 3]
-
-        _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
-        if test_time:
-            clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)
-        else:
-            clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = None, joint = False)
+        if not test_time:
+            _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
+            if test_time:
+                clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)
+            else:
+                clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = None, joint = False)
     else:
         #just place holders
         clip_map = torch.zeros([3,3])
