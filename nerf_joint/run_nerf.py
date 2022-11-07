@@ -520,8 +520,8 @@ def create_nerf(args, flag, test_file):
         optimizer.load_state_dict(ckpt['optimizer_state_dict'])
         # Load model
         model.load_state_dict(ckpt['network_fn_state_dict'])
-        if model_fine != None:
-            model_fine.load_state_dict(ckpt['network_fine_state_dict'])
+        # if model_fine != None:
+        #     model_fine.load_state_dict(ckpt['network_fine_state_dict'])
         if model_clip is not None:
             model_clip.load_state_dict(ckpt['network_clip_state_dict'])
             optimizer_clip.load_state_dict(ckpt['optimizer_clip_state_dict'])
@@ -1470,7 +1470,7 @@ def train(env, flag, test_file, i_weights):
             torch.save({
                 'global_step': global_step,
                 'network_fn_state_dict': render_kwargs_train['network_fn'].state_dict(),
-                # 'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
+                'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'network_clip_state_dict' : render_kwargs_train['network_clip'].state_dict(),
                 'optimizer_clip_state_dict': optimizer_clip.state_dict(),
