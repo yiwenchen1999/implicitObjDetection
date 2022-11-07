@@ -175,12 +175,12 @@ def render_rays(ray_batch,
     #     raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
 
     raw_rgb, _ = network_query_fn(pts, viewdirs, network_fn) # torch.Size([4096, 64, 769])
-    rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, rgb_depth_map = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
+    rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, _ = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
     # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
     #doing clip
     
-    # if N_importance > 0 and ((not train_clip) or test_time):
-    if N_importance > 0 and ((not train_clip)):
+    if N_importance > 0 and ((not train_clip) or test_time):
+    # if N_importance > 0 and ((not train_clip)):
     # if N_importance > 0:
 
         if (not test_time):
