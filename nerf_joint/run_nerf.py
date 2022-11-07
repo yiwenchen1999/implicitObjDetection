@@ -183,7 +183,7 @@ def render_rays(ray_batch,
     # if N_importance > 0 and ((not train_clip)):
     if N_importance > 0:
 
-        if (not test_time) or (not train_clip):
+        if (not test_time) and (not train_clip):
             rgb_map_0, disp_map_0, acc_map_0 = rgb_map, rgb_disp_map, rgb_acc_map
         z_vals_mid = .5 * (z_vals[...,1:] + z_vals[...,:-1])
         z_samples = sample_pdf(z_vals_mid, rgb_weights[...,1:-1], N_importance, det=(perturb==0.), pytest=pytest)
