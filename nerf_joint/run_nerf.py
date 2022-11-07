@@ -195,6 +195,8 @@ def render_rays(ray_batch,
         raw_rgb, _ = network_query_fn(pts, viewdirs, run_fn)
         # print("raw output be like:", raw.shape)
         rgb_map, rgb_disp_map, rgb_acc_map, rgb_weights, _ = raw2outputs(raw_rgb, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = False)
+    else:
+        print("skipped fine model")
 
     if train_clip:
         if not test_time:
