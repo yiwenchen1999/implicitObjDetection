@@ -240,7 +240,7 @@ def render_rays(ray_batch,
     return rgb_ret, clip_ret
 
 
-def batchify_rays(rays_flat, chunk=1024*32, use_saliency = False, use_CLIP = False, train_clip = False, test_time = False, **kwargs):
+def batchify_rays(rays_flat, chunk=1024*32*0.5, use_saliency = False, use_CLIP = False, train_clip = False, test_time = False, **kwargs):
     """Render rays in smaller minibatches to avoid OOM.
     """
     all_rgb_ret = {}
