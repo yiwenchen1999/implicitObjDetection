@@ -179,8 +179,8 @@ def render_rays(ray_batch,
     # clip_map, clip_disp_map, clip_acc_map, clip_weights, clip_depth_map = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True)
     #doing clip
     
-    if N_importance > 0 and ((not train_clip) or test_time):
-    # if N_importance > 0 and ((not train_clip)):
+    # if N_importance > 0 and ((not train_clip) or test_time):
+    if N_importance > 0 and ((not train_clip)):
     # if N_importance > 0:
 
         if (not test_time):
@@ -206,12 +206,11 @@ def render_rays(ray_batch,
         #     z_samples = z_samples.detach()
         #     z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
         #     pts = rays_o[...,None,:] + rays_d[...,None,:] * z_vals[...,:,None] # [N_rays, N_samples + N_importance, 3]
-        if not test_time:
-            _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
-            if test_time:
-                clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)
-            else:
-                clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = None, joint = False)
+        _, raw_clips = network_query_fn(pts, viewdirs, network_clip) 
+        if test_time:
+            clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = raw_rgb, joint = True)
+        else:
+            clip_map, clip_disp_map, clip_acc_map, _, _ = raw2outputs(raw_clips, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, saliency = False, clip = True, raw_rgb = None, joint = False)
     else:
         #just place holders
         clip_map = torch.zeros([3,3])
