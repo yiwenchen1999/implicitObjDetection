@@ -73,21 +73,22 @@ class SLICViT(nn.Module):
                     cropped.resize((224,224))
                     # cropped = cropped.astype(np.float32)/255.
                     detection_areas.append(cropped)
-            im = np.array(im)
-            for n in self.n_segments:
-                # segments_slic = slic(im.astype(
-                #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
-                # print("n:", n)
-                # print("segments:",type(segments_slic))
-                oct_seg, areas = seg(im.astype(np.float32)/255., n_segments=n, window_size= self.window_size)
-                for i in np.unique(oct_seg):
-                    mask = oct_seg == i
-                    b_mask = areas[int(i)] == i
-                    # print(mask)
-                    masks.append(mask)
-                    detection_areas.append(b_mask)
-            masks = np.stack(masks, 0)
-            detection_areas = np.stack(detection_areas, 0)
+            else:
+                im = np.array(im)
+                for n in self.n_segments:
+                    # segments_slic = slic(im.astype(
+                    #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
+                    # print("n:", n)
+                    # print("segments:",type(segments_slic))
+                    oct_seg, areas = seg(im.astype(np.float32)/255., n_segments=n, window_size= self.window_size)
+                    for i in np.unique(oct_seg):
+                        mask = oct_seg == i
+                        b_mask = areas[int(i)] == i
+                        # print(mask)
+                        masks.append(mask)
+                        detection_areas.append(b_mask)
+                masks = np.stack(masks, 0)
+                detection_areas = np.stack(detection_areas, 0)
         
         return masks, detection_areas
 
