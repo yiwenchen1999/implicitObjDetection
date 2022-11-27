@@ -60,7 +60,7 @@ model = model(**args).cuda()
 if __name__=='__main__':
     # print("runnning main fuction")
     # path = '/gpfs/data/ssrinath/toybox-13/0/'
-    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color'
+    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/'
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/train/'
     directories = os.listdir( path )
     i = 0
