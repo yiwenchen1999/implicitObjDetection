@@ -368,7 +368,7 @@ class SLICViT(nn.Module):
         return bbox, heatmap
 
     def verify(self, image_features, text_features):
-        r,c,f = image_features.size()
+        r,c,f = image_features.size
         input = torch.empty(r, c, 1)
         query_map = torch.zeros_like(input)
         image_features = image_features / \
