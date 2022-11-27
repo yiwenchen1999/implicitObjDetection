@@ -85,10 +85,10 @@ if __name__=='__main__':
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat.png")
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat", heatmap)
             
-            clipmap = getclipmap(model, im)
-            print(filename+" clipmap has shape: ", clipmap.shape)
-            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename[:-4]+"_heat", clipmap)
-            print(filename+" saved")
+            # clipmap = getclipmap(model, im)
+            # print(filename+" clipmap has shape: ", clipmap.shape)
+            # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename[:-4]+"_heat", clipmap)
+            # print(filename+" saved")
             # i = i + 1
             # if i > 10:
             #     break
