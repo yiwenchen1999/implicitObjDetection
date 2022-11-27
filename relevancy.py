@@ -79,15 +79,15 @@ if __name__=='__main__':
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
-            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color"+filename)
-            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color"+filename[:-4]+"_heat_test.png")
+            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename)
+            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename[:-4]+"_heat_test.png")
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/perpixel3/"+filename[:-4]+"_heat_test", heatmap)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat.png")
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat", heatmap)
             
             clipmap = getclipmap(model, im)
             print(filename+" clipmap has shape: ", clipmap.shape)
-            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color"+filename[:-4]+"_heat", clipmap)
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename[:-4]+"_heat", clipmap)
             print(filename+" saved")
             # i = i + 1
             # if i > 10:
