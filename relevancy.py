@@ -100,8 +100,9 @@ if __name__=='__main__':
             # query_map_3d[:,:,0] = query_map_remapped
             # query_map_3d[:,:,1] = query_map_remapped
             # query_map_3d[:,:,2] = query_map_remapped
+            query_map = query_map.cpu.detach().numpy()
             plt.imshow(query_map)
-            plt.imsave("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat.png", query_map_3d)
+            plt.imsave("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat.png", query_map)
 
 
             # print(filename+" saved")
