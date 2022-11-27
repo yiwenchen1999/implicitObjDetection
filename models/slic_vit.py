@@ -368,9 +368,11 @@ class SLICViT(nn.Module):
         return bbox, heatmap
 
     def verify(self, image_features, text_features):
+        
         r = image_features.shape[0]
         c = image_features.shape[1]
         input = torch.empty(r, c, 1)
+        image_features = torch.tensor(image_features)
         query_map = torch.zeros_like(input)
         # image_features = image_features / \
         #         image_features.norm(dim=1, keepdim=True)
@@ -385,5 +387,5 @@ class SLICViT(nn.Module):
         image_features_normalized = image_features_normalized.to(torch.float)
         for i in range(r):
             for j in range(c):
-                query_map[i,j,0] = np.dot(image_features_normalized[i,j,:], text_features_normalized.cpu().detach().numpy()) / ((np.linalg.norm(image_features_normalized[i,j,:]) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
+                query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
         return query_map
