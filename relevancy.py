@@ -12,8 +12,6 @@ from PIL import Image
 import os
 
 
-
-
 def getHeatmap(model, im, text):
     _, heatmap  = model(im, text)
     # heatmap = model.get_heatmap_perpixel(im, text, att = True)
@@ -90,6 +88,10 @@ if __name__=='__main__':
             clipmap = getclipmap(model, im)
             print(filename+" clipmap has shape: ", clipmap.shape)
             np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat", clipmap)
+
+            query_map = model.verify(clipmap,text_feature)
+
+
             # print(filename+" saved")
             # i = i + 1
             # if i > 10:
