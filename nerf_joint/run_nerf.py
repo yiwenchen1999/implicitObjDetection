@@ -882,6 +882,7 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
 
         query_map = query_map.cpu().float().numpy()
         query_map = np.squeeze(query_map)
+        # query_map_remapped = query_map
         query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
         r,c = np.shape(query_map_remapped)
         query_map_3d = np.zeros((r,c,3))
