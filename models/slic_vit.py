@@ -382,7 +382,7 @@ class SLICViT(nn.Module):
         #text_features_normalized = torch.tensor(np.load(root_path + "Nesf0_2D/" + text + "_clip_feature.npy"))
         #print(text_features_normalized)
         text_features_normalized = text_features_normalized.to(torch.float)
-        # image_features_normalized = image_features_normalized.to(torch.float)
+        image_features_normalized = image_features_normalized.to(torch.float)
         for i in range(r):
             for j in range(c):
                 query_map[i,j,0] = np.dot(image_features_normalized[i,j,:], text_features_normalized.cpu().detach().numpy()) / ((np.linalg.norm(image_features_normalized[i,j,:]) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
