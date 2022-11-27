@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 
 
 def getHeatmap(model, im, text):
-    _, heatmap  = model(im, text)
-    # heatmap = model.get_heatmap_perpixel(im, text, att = True)
+    # _, heatmap  = model(im, text)
+    heatmap = model.get_heatmap_perpixel(im, text, att = False)
     return heatmap
 
 def getclipmap(model, im):
@@ -68,8 +68,8 @@ if __name__=='__main__':
     print("text feature has shape: "+str(text_feature.shape))
     for filename in directories:
         # if filename[5] == "." or filename[4] == "." or filename[3] == ".":
-        # if filename[0:4] == 'rgba':
-        if True:
+        if filename[0:4] == 'rgba':
+        # if True:
             img_path = path + filename
             im = np.array(Image.open(img_path).convert("RGB"))
             # print("image shae inspection: ")
