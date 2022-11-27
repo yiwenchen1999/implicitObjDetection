@@ -59,8 +59,8 @@ model = model(**args).cuda()
 
 if __name__=='__main__':
     # print("runnning main fuction")
-    # path = '/gpfs/data/ssrinath/toybox-13/0/'
-    path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/'
+    path = '/gpfs/data/ssrinath/ychen485/toybox-13/0/'
+    # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/'
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/train/'
     directories = os.listdir( path )
     i = 0
@@ -81,8 +81,11 @@ if __name__=='__main__':
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
             h_im = Image.fromarray(heatimg).convert ('RGB')
-            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename)
-            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat_test.png")
+            # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename)
+            # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat_test.png")
+            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename)
+            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename[:-4]+"_heat_test.png")
+
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/perpixel3/"+filename[:-4]+"_heat_test", heatmap)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat.png")
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat", heatmap)
