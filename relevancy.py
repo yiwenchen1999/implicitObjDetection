@@ -64,6 +64,8 @@ if __name__=='__main__':
     # path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_synthetic/chair/train/'
     directories = os.listdir( path )
     i = 0
+    text_feature = model.get_text_feature("chair")
+    print("text feature has shape: "+str(text_feature.shape))
     for filename in directories:
         # if filename[5] == "." or filename[4] == "." or filename[3] == ".":
         # if filename[0:4] == 'rgba':
@@ -73,21 +75,21 @@ if __name__=='__main__':
             # print("image shae inspection: ")
             # print(im.shape, im)
 
-            heatmap = getHeatmap(model, im , "an image of a wooden ship")
-            heatimg = heatmap*200
+            # heatmap = getHeatmap(model, im , "an image of a wooden ship")
+            # heatimg = heatmap*200
         
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
-            h_im = Image.fromarray(heatimg).convert ('RGB')
+            # h_im = Image.fromarray(heatimg).convert ('RGB')
             o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename)
-            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename[:-4]+"_heat_test.png")
+            # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename[:-4]+"_heat_test.png")
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/perpixel3/"+filename[:-4]+"_heat_test", heatmap)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat.png")
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat", heatmap)
             
-            # clipmap = getclipmap(model, im)
-            # print(filename+" clipmap has shape: ", clipmap.shape)
-            # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename[:-4]+"_heat", clipmap)
+            clipmap = getclipmap(model, im)
+            print(filename+" clipmap has shape: ", clipmap.shape)
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"+filename[:-4]+"_heat", clipmap)
             # print(filename+" saved")
             # i = i + 1
             # if i > 10:

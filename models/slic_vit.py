@@ -285,6 +285,9 @@ class SLICViT(nn.Module):
         #                        _min) / (_max - _min + 1e-8)
         # heatmap[np.logical_not(mask_valid)] = 0.
         # return heatmap
+    def get_text_feature(self, text):
+        text_features = self.model.encode_text(text)
+        return text_features
 
 
     def get_clipmap(self, im, **args):
@@ -305,7 +308,7 @@ class SLICViT(nn.Module):
             # print(featuremap.shape)
             featuremap[mask] = features
         featuremap = np.stack(featuremap, 0)
-        # print("heatmap:", featuremap.shape)
+        print("heatmap:", featuremap.shape)
         return featuremap
 
     def get_clipmap_raw(self, im, **args):
