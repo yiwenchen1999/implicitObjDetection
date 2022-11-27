@@ -10,6 +10,8 @@ from utils.zsg_data import FlickrDataset, VGDataset
 from utils.grounding_evaluator import GroundingEvaluator
 from PIL import Image
 import os
+import matplotlib.pyplot as plt
+
 
 
 def getHeatmap(model, im, text):
@@ -90,6 +92,16 @@ if __name__=='__main__':
             np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat", clipmap)
 
             query_map = model.verify(clipmap,text_feature)
+
+            query_map = np.squeeze(query_map)
+            query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
+            r,c = np.shape(query_map_remapped)
+            query_map_3d = np.zeros((r,c,3))
+            query_map_3d[:,:,0] = query_map_remapped
+            query_map_3d[:,:,1] = query_map_remapped
+            query_map_3d[:,:,2] = query_map_remapped
+            plt.imshow(query_map_3d)
+            plt.imsave("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat.png", query_map_3d)
 
 
             # print(filename+" saved")
