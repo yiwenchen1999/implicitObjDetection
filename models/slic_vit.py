@@ -286,6 +286,7 @@ class SLICViT(nn.Module):
         # heatmap[np.logical_not(mask_valid)] = 0.
         # return heatmap
     def get_text_feature(self, text):
+        text = clip.tokenize([text]).cuda()
         text_features = self.model.encode_text(text)
         return text_features
 
