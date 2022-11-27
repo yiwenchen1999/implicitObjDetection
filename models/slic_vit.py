@@ -372,10 +372,10 @@ class SLICViT(nn.Module):
         c = image_features.shape[1]
         input = torch.empty(r, c, 1)
         query_map = torch.zeros_like(input)
-        image_features = image_features / \
-                image_features.norm(dim=1, keepdim=True)
-        text_features = text_features / \
-                text_features.norm(dim=1, keepdim=True)
+        # image_features = image_features / \
+        #         image_features.norm(dim=1, keepdim=True)
+        # text_features = text_features / \
+        #         text_features.norm(dim=1, keepdim=True)
         text_features_normalized = text_features[0]
         image_features_normalized = image_features
         #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
@@ -385,5 +385,5 @@ class SLICViT(nn.Module):
         image_features_normalized = image_features_normalized.to(torch.float)
         for i in range(r):
             for j in range(c):
-                query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
+                query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized) / (np.linalg.norm(image_features_normalized[i,j,:]) * np.linalg.norm(text_features_normalized)))
         return query_map
