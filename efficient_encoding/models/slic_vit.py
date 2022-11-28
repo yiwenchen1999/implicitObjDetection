@@ -67,7 +67,7 @@ class SLICViT(nn.Module):
             # im is uint8 numpy
             h, w = im.shape[:2]
             im = Image.fromarray(im).convert('RGB')
-            # im = im.resize((224, 224))
+            im = im.resize((224, 224))
             masks, detection_areas = self.get_masks(np.array(im))
             masks = torch.from_numpy(masks.astype(np.bool)).cuda()
             detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
