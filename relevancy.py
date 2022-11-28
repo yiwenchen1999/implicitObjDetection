@@ -83,7 +83,7 @@ if __name__=='__main__':
             # h_im = Image.fromarray(heatimg).convert ('RGB')
             # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat_test.png")
-            # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename)
+            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename[:-4]+"_heat_test.png")
 
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/perpixel3/"+filename[:-4]+"_heat_test", heatmap)
@@ -94,7 +94,8 @@ if __name__=='__main__':
 
             clipmap = getclipmap(model, im)
             print(filename+" clipmap has shape: ", clipmap.shape)
-            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat", clipmap)
+            # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat", clipmap)
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename[:-4]+"_heat", clipmap)
 
             query_map = model.verify(clipmap,text_feature)
 
@@ -108,7 +109,8 @@ if __name__=='__main__':
             query_map = query_map.cpu().detach().numpy()
             query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
             plt.imshow(query_map)
-            plt.imsave("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat.png", query_map)
+            # plt.imsave("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat.png", query_map)
+            plt.imsave("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename[:-4]+"_heat.png", query_map)
 
 
 
