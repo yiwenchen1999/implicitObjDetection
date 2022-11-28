@@ -75,8 +75,8 @@ if __name__=='__main__':
             # print("image shae inspection: ")
             # print(im.shape, im)
 
-            heatmap = getHeatmap(model, im , "a chair")
-            heatimg = heatmap*200
+            # heatmap = getHeatmap(model, im , "a chair")
+            # heatimg = heatmap*200
         
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
