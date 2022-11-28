@@ -23,8 +23,10 @@ if __name__=='__main__':
 
     #root_path = '/users/aren10/data/'
     #data_path = root_path + '0/'
-    root_path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/'
-    data_path = "/gpfs/data/ssrinath/ychen485/toybox-13/0/"
+    root_path = '/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Democlips/'
+    # data_path = "/gpfs/data/ssrinath/ychen485/toybox-13/0/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/color/"
+
 
     directories = os.listdir(data_path)
     for filename in directories:
@@ -54,7 +56,7 @@ if __name__=='__main__':
             query_map_3d[:,:,1] = query_map_remapped
             query_map_3d[:,:,2] = query_map_remapped
             plt.imshow(query_map_3d)
-            plt.imsave(root_path + filename[:-4]+".png", query_map_3d)
+            plt.imsave(root_path + filename[:-4]+"_heat.png", query_map_3d)
             # exit(0)
             
             
