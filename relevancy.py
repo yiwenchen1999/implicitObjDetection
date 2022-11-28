@@ -80,11 +80,11 @@ if __name__=='__main__':
         
             # print(heatimg)
             o_im = Image.fromarray(im).convert ('RGB')
-            h_im = Image.fromarray(heatimg).convert ('RGB')
+            # h_im = Image.fromarray(heatimg).convert ('RGB')
             # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat_test.png")
-            o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename)
-            h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename[:-4]+"_heat_test.png")
+            # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename)
+            # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/toybox0/"+filename[:-4]+"_heat_test.png")
 
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/perpixel3/"+filename[:-4]+"_heat_test", heatmap)
             # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/outputChair/"+filename[:-4]+"_heat.png")
@@ -92,23 +92,23 @@ if __name__=='__main__':
             
 
 
-            # clipmap = getclipmap(model, im)
-            # print(filename+" clipmap has shape: ", clipmap.shape)
-            # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat", clipmap)
+            clipmap = getclipmap(model, im)
+            print(filename+" clipmap has shape: ", clipmap.shape)
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat", clipmap)
 
-            # query_map = model.verify(clipmap,text_feature)
+            query_map = model.verify(clipmap,text_feature)
 
-            # # query_map = np.squeeze(query_map)
-            # # query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
-            # # r,c = np.shape(query_map_remapped)
-            # # query_map_3d = np.zeros((r,c,3))
-            # # query_map_3d[:,:,0] = query_map_remapped
-            # # query_map_3d[:,:,1] = query_map_remapped
-            # # query_map_3d[:,:,2] = query_map_remapped
-            # query_map = query_map.cpu().detach().numpy()
-            # query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
-            # plt.imshow(query_map)
-            # plt.imsave("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat.png", query_map)
+            # query_map = np.squeeze(query_map)
+            # query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
+            # r,c = np.shape(query_map_remapped)
+            # query_map_3d = np.zeros((r,c,3))
+            # query_map_3d[:,:,0] = query_map_remapped
+            # query_map_3d[:,:,1] = query_map_remapped
+            # query_map_3d[:,:,2] = query_map_remapped
+            query_map = query_map.cpu().detach().numpy()
+            query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
+            plt.imshow(query_map)
+            plt.imsave("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/Demo/frames/clips/"+filename[:-4]+"_heat.png", query_map)
 
 
 

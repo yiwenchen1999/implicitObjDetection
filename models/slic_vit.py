@@ -113,6 +113,49 @@ class SLICViT(nn.Module):
             print("image feature converted to numpy" , image_features.shape)
 
             return masks.cpu().numpy(), image_features
+    
+    def get_mask_features_att(self,im):
+        with torch.no_grad():
+            # im is uint8 numpy
+            h, w = im.shape[:2]
+            im = Image.fromarray(im).convert('RGB')
+            # im = im.resize((224, 224))
+            masks, detection_areas = self.get_masks_att(np.array(im))
+            masks = torch.from_numpy(masks.astype(np.bool)).cuda()
+            detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
+            im = self.model.preprocess(im).unsqueeze(0).cuda()
+
+            image_features = self.model(im, detection_areas)
+            image_features = torch.reshape(image_features, (image_features.shape[1], image_features.shape[2]))
+            
+            print("image_features in clipmap:" , image_features.shape)
+            # image_features = torch.permute(image_features,(1, 0))
+
+            image_features = image_features.cpu().float().numpy()
+            print("image feature converted to numpy" , image_features.shape)
+
+            return masks.cpu().numpy(), image_features
+
+    def get_masks_att(self, im):
+        masks = []
+        detection_areas = []
+        # Do SLIC with different number of segments so that it has a hierarchical scale structure
+        # This can average out spurious activations that happens sometimes when the segments are too small
+        for n in self.n_segments:
+            # segments_slic = slic(im.astype(
+            #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
+            # print("n:", n)
+            # print("segments:",type(segments_slic))
+            oct_seg, areas = seg(im.astype(np.float32)/255., n_segments=n, window_size= self.window_size)
+            for i in np.unique(oct_seg):
+                mask = oct_seg == i
+                b_mask = areas[int(i)] == i
+                # print(mask)
+                masks.append(mask)
+                detection_areas.append(b_mask)
+        masks = np.stack(masks, 0)
+        detection_areas = np.stack(detection_areas, 0)
+        return masks, detection_areas
 
     def get_mask_scores(self, im, text, perpixel = False, att = True):
         with torch.no_grad():
@@ -296,7 +339,7 @@ class SLICViT(nn.Module):
         for key in args:
             setattr(self, key, args[key])
             print("keys:", key)
-        masks, clip_features = self.get_mask_features(im)
+        masks, clip_features = self.get_mask_features_att(im)
         print("mask shape, feature shape:" , masks.shape, clip_features.shape)
         featuremap = (np.nan + np.zeros((masks.shape[1], masks.shape[2],clip_features.shape[1] ), dtype=np.float32))
         # print("featuremap shape", featuremap.shape)
@@ -309,7 +352,7 @@ class SLICViT(nn.Module):
             # print(featuremap.shape)
             featuremap[mask] = features
         featuremap = np.stack(featuremap, 0)
-        print("heatmap:", featuremap.shape)
+        # print("heatmap:", featuremap.shape)
         return featuremap
 
     def get_clipmap_raw(self, im, **args):
