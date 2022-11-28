@@ -55,7 +55,7 @@ if __name__=='__main__':
             query_map_3d[:,:,2] = query_map_remapped
             plt.imshow(query_map_3d)
             plt.imsave(root_path + filename[:-4]+".png", query_map_3d)
-            exit(0)
+            # exit(0)
             
             
             
