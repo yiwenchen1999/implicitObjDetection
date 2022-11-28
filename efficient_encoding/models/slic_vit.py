@@ -227,7 +227,9 @@ class SLICViT(nn.Module):
             text_features = torch.squeeze(self.model.encode_text(text_tokenized))
             text_features_normalized = text_features
             #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
-            np.save(root_path + "Nesf0_2D/" + text + "_clip_feature", text_features_normalized.cpu().detach().numpy())
+            
+            # np.save(root_path + "Nesf0_2D/" + text + "_clip_feature", text_features_normalized.cpu().detach().numpy())
+            
             #text_features_normalized = torch.tensor(np.load(root_path + "Nesf0_2D/" + text + "_clip_feature.npy"))
             #print(text_features_normalized)
             text_features_normalized = text_features_normalized.to(torch.float)
