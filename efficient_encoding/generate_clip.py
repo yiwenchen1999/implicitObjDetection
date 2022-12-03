@@ -58,7 +58,7 @@ if __name__=='__main__':
             # query_map_3d[:,:,1] = query_map_remapped
             # query_map_3d[:,:,2] = query_map_remapped
 
-            query_map = query_map.cpu().detach().numpy()
+            # query_map = query_map.cpu().detach().numpy()
             query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
             plt.imshow(query_map)
             # plt.imshow(query_map_3d)
