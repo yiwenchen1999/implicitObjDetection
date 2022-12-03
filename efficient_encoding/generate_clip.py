@@ -23,9 +23,10 @@ if __name__=='__main__':
 
     #root_path = '/users/aren10/data/'
     #data_path = root_path + '0/'
-    root_path = '/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/'
+    # root_path = '/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/'
     # data_path = "/gpfs/data/ssrinath/ychen485/toybox-13/0/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/results/replica/room0/frames/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/results/replica/room0/frames/"
 
 
     directories = os.listdir(data_path)
