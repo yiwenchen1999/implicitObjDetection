@@ -24,9 +24,13 @@ if __name__=='__main__':
     #root_path = '/users/aren10/data/'
     #data_path = root_path + '0/'
     # root_path = '/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/'
-    # data_path = "/gpfs/data/ssrinath/ychen485/toybox-13/0/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/results/replica/room0/frames/"
+    # # data_path = "/gpfs/data/ssrinath/ychen485/toybox-13/0/"
+    #replica dataset
+    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/"
+    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/results/replica/room0/frames/"
+    #cups schemes
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups_score/"
 
 
     directories = os.listdir(data_path)
@@ -47,7 +51,7 @@ if __name__=='__main__':
             # image_clip_feature_normalized = torch.tensor(np.load(root_path + image_id + "_image_clip_feature.npy")).cuda() #[256, 256, 768]
             #print(image_clip_feature_normalized)
             #image_clip_feature_normalized = (image_clip_feature_normalized - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1)) / (torch.unsqueeze(torch.max(image_clip_feature_normalized, dim = -1)[0], dim = -1) - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1))
-            query_map = model.verify(image_clip_feature_normalized, "sofa", root_path).cpu().float().numpy()
+            query_map = model.verify(image_clip_feature_normalized, "a red mug", root_path).cpu().float().numpy()
             # #plt.imshow(query_map)
             # #plt.show()
             query_map_scores = np.squeeze(query_map)
