@@ -51,7 +51,7 @@ if __name__=='__main__':
             # image_clip_feature_normalized = torch.tensor(np.load(root_path + image_id + "_image_clip_feature.npy")).cuda() #[256, 256, 768]
             #print(image_clip_feature_normalized)
             #image_clip_feature_normalized = (image_clip_feature_normalized - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1)) / (torch.unsqueeze(torch.max(image_clip_feature_normalized, dim = -1)[0], dim = -1) - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1))
-            query_map = model.verify(image_clip_feature_normalized, "a red mug", root_path).cpu().float().numpy()
+            query_map = model.verify(image_clip_feature_normalized, "the handle of a cup", root_path).cpu().float().numpy()
             # #plt.imshow(query_map)
             # #plt.show()
             query_map_scores = np.squeeze(query_map)
