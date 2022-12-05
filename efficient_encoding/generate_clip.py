@@ -32,7 +32,7 @@ if __name__=='__main__':
     data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups/"
     root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups_score/"
 
-    def save_query(text, image_clip_feature_normalized):
+    def save_query(text, image_clip_feature_normalized, window_size):
         query_map = model.verify(image_clip_feature_normalized, "the handle", root_path).cpu().float().numpy()
         # query_map_scores = np.squeeze(query_map)
         # max = np.max(query_map)
@@ -49,7 +49,7 @@ if __name__=='__main__':
         query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
         plt.imshow(query_map)
         # plt.imshow(query_map_3d)
-        plt.imsave(root_path + filename[:-4] + text + "_heat.png", query_map)
+        plt.imsave(root_path + filename[:-4] + text + str(window_size)+ "_heat.png", query_map)
 
 
 
@@ -66,7 +66,12 @@ if __name__=='__main__':
             np.save(root_path + filename[:-4]+"_image_clip_feature", image_clip_feature_normalized)
             print(filename+" saved")
 
-            
+
+            save_query("a cup with a handle", image_clip_feature_normalized, 3)
+            save_query("the handle", image_clip_feature_normalized, 3)
+            save_query("a cup", image_clip_feature_normalized, 3)
+            save_query("red", image_clip_feature_normalized, 3)
+            save_query("the handle on the cup", image_clip_feature_normalized, 3)
             # image_id = "00080"
             # image_clip_feature_normalized = torch.tensor(np.load(root_path + image_id + "_image_clip_feature.npy")).cuda() #[256, 256, 768]
             #print(image_clip_feature_normalized)
