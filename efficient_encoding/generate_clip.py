@@ -32,6 +32,26 @@ if __name__=='__main__':
     data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups/"
     root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups_score/"
 
+    def save_query(text, image_clip_feature_normalized):
+        query_map = model.verify(image_clip_feature_normalized, "the handle", root_path).cpu().float().numpy()
+        # query_map_scores = np.squeeze(query_map)
+        # max = np.max(query_map)
+        # min = np.min(query_map)
+        # print(filename+" max score: "+str(max) + ", min score: "+str(min))
+        # query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
+            # r,c = np.shape(query_map_remapped)
+            # query_map_3d = np.zeros((r,c,3))
+            # query_map_3d[:,:,0] = query_map_remapped
+            # query_map_3d[:,:,1] = query_map_remapped
+            # query_map_3d[:,:,2] = query_map_remapped
+
+            # query_map = query_map.cpu().detach().numpy()
+        query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
+        plt.imshow(query_map)
+        # plt.imshow(query_map_3d)
+        plt.imsave(root_path + filename[:-4] + text + "_heat.png", query_map)
+
+
 
     directories = os.listdir(data_path)
     for filename in directories:
