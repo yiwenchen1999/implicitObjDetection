@@ -33,7 +33,7 @@ if __name__=='__main__':
     root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups_score/"
 
     def save_query(text, image_clip_feature_normalized, window_size):
-        query_map = model.verify(image_clip_feature_normalized, "the handle", root_path).cpu().float().numpy()
+        query_map = model.verify(image_clip_feature_normalized, "the text", root_path).cpu().float().numpy()
         # query_map_scores = np.squeeze(query_map)
         # max = np.max(query_map)
         # min = np.min(query_map)
