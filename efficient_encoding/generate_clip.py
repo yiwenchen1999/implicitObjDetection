@@ -28,9 +28,9 @@ if __name__=='__main__':
     #replica dataset
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/results/replica/room0/frames/"
-    #cups schemes
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups_score/"
+    #cups schemes/
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups/"
 
     def save_query(text, image_clip_feature_normalized, window_size):
         query_map = model.verify(image_clip_feature_normalized, text, root_path).cpu().float().numpy()
@@ -69,9 +69,9 @@ if __name__=='__main__':
 
 
             save_query("a cup with a handle", image_clip_feature_normalized, 3)
-            save_query("the handle", image_clip_feature_normalized, 3)
+            save_query("a cup with a cap", image_clip_feature_normalized, 3)
             save_query("a cup", image_clip_feature_normalized, 3)
-            save_query("red", image_clip_feature_normalized, 3)
+            save_query("the straw in a cup", image_clip_feature_normalized, 3)
             save_query("the handle on the cup", image_clip_feature_normalized, 3)
             # # image_id = "00080"
             # # image_clip_feature_normalized = torch.tensor(np.load(root_path + image_id + "_image_clip_feature.npy")).cuda() #[256, 256, 768]
