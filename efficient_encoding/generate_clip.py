@@ -34,11 +34,12 @@ if __name__=='__main__':
 
     def save_query(text, image_clip_feature_normalized, window_size):
         query_map = model.verify(image_clip_feature_normalized, text, root_path).cpu().float().numpy()
-        # query_map_scores = np.squeeze(query_map)
+        query_map_scores = np.squeeze(query_map)
         # max = np.max(query_map)
         # min = np.min(query_map)
         # print(filename+" max score: "+str(max) + ", min score: "+str(min))
-        # query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
+        query_map_remapped = (query_map_scores - np.min(query_map_scores)) / (np.max(query_map_scores) - np.min(query_map_scores))
+        np.save(root_path + filename[:-4]+ text + str(window_size), query_map_remapped)
             # r,c = np.shape(query_map_remapped)
             # query_map_3d = np.zeros((r,c,3))
             # query_map_3d[:,:,0] = query_map_remapped
