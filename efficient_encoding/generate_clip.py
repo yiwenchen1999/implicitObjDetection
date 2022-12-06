@@ -33,7 +33,7 @@ if __name__=='__main__':
     root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/cups_score/"
 
     def save_query(text, image_clip_feature_normalized, window_size):
-        query_map = model.verify(image_clip_feature_normalized, "the text", root_path).cpu().float().numpy()
+        query_map = model.verify(image_clip_feature_normalized, text, root_path).cpu().float().numpy()
         # query_map_scores = np.squeeze(query_map)
         # max = np.max(query_map)
         # min = np.min(query_map)
@@ -72,29 +72,29 @@ if __name__=='__main__':
             save_query("a cup", image_clip_feature_normalized, 3)
             save_query("red", image_clip_feature_normalized, 3)
             save_query("the handle on the cup", image_clip_feature_normalized, 3)
-            # image_id = "00080"
-            # image_clip_feature_normalized = torch.tensor(np.load(root_path + image_id + "_image_clip_feature.npy")).cuda() #[256, 256, 768]
-            #print(image_clip_feature_normalized)
-            #image_clip_feature_normalized = (image_clip_feature_normalized - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1)) / (torch.unsqueeze(torch.max(image_clip_feature_normalized, dim = -1)[0], dim = -1) - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1))
-            query_map = model.verify(image_clip_feature_normalized, "the handle", root_path).cpu().float().numpy()
-            # #plt.imshow(query_map)
-            # #plt.show()
-            query_map_scores = np.squeeze(query_map)
-            max = np.max(query_map)
-            min = np.min(query_map)
-            print(filename+" max score: "+str(max) + ", min score: "+str(min))
-            # query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
-            # r,c = np.shape(query_map_remapped)
-            # query_map_3d = np.zeros((r,c,3))
-            # query_map_3d[:,:,0] = query_map_remapped
-            # query_map_3d[:,:,1] = query_map_remapped
-            # query_map_3d[:,:,2] = query_map_remapped
+            # # image_id = "00080"
+            # # image_clip_feature_normalized = torch.tensor(np.load(root_path + image_id + "_image_clip_feature.npy")).cuda() #[256, 256, 768]
+            # #print(image_clip_feature_normalized)
+            # #image_clip_feature_normalized = (image_clip_feature_normalized - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1)) / (torch.unsqueeze(torch.max(image_clip_feature_normalized, dim = -1)[0], dim = -1) - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1))
+            # query_map = model.verify(image_clip_feature_normalized, "the handle", root_path).cpu().float().numpy()
+            # # #plt.imshow(query_map)
+            # # #plt.show()
+            # query_map_scores = np.squeeze(query_map)
+            # max = np.max(query_map)
+            # min = np.min(query_map)
+            # print(filename+" max score: "+str(max) + ", min score: "+str(min))
+            # # query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
+            # # r,c = np.shape(query_map_remapped)
+            # # query_map_3d = np.zeros((r,c,3))
+            # # query_map_3d[:,:,0] = query_map_remapped
+            # # query_map_3d[:,:,1] = query_map_remapped
+            # # query_map_3d[:,:,2] = query_map_remapped
 
-            # query_map = query_map.cpu().detach().numpy()
-            query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
-            plt.imshow(query_map)
-            # plt.imshow(query_map_3d)
-            plt.imsave(root_path + filename[:-4]+"_heat.png", query_map)
+            # # query_map = query_map.cpu().detach().numpy()
+            # query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
+            # plt.imshow(query_map)
+            # # plt.imshow(query_map_3d)
+            # plt.imsave(root_path + filename[:-4]+"_heat.png", query_map)
             # exit(0)
             
             
