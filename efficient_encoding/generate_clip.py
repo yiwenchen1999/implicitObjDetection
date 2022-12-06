@@ -29,8 +29,8 @@ if __name__=='__main__':
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/results/replica/room0/frames/"
     #cups schemes/
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/bags/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/chairs/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/chairs/"
 
     def save_query(text, image_clip_feature_normalized, window_size):
         query_map = model.verify(image_clip_feature_normalized, text, root_path).cpu().float().numpy()
@@ -68,11 +68,11 @@ if __name__=='__main__':
             print(filename+" saved")
 
 
-            save_query("a bag with handle", image_clip_feature_normalized, 3)
-            save_query("a bag with words on it", image_clip_feature_normalized, 3)
-            save_query("a bag", image_clip_feature_normalized, 3)
-            # save_query("the straw in a cup", image_clip_feature_normalized, 3)
-            # save_query("the handle on the cup", image_clip_feature_normalized, 3)
+            save_query("arms on a chair", image_clip_feature_normalized, 3)
+            save_query("legs of a chair", image_clip_feature_normalized, 3)
+            save_query("back of a chair", image_clip_feature_normalized, 3)
+            save_query("swivel chair", image_clip_feature_normalized, 3)
+            save_query("a chair", image_clip_feature_normalized, 3)
             # # image_id = "00080"
             # # image_clip_feature_normalized = torch.tensor(np.load(root_path + image_id + "_image_clip_feature.npy")).cuda() #[256, 256, 768]
             # #print(image_clip_feature_normalized)
