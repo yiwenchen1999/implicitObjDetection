@@ -68,11 +68,11 @@ if __name__=='__main__':
             print(filename+" saved")
 
 
-            save_query("a cup with a handle", image_clip_feature_normalized, 9)
-            save_query("the handle", image_clip_feature_normalized, 9)
-            save_query("a cup", image_clip_feature_normalized, 9)
-            save_query("red", image_clip_feature_normalized, 9)
-            save_query("the handle on the cup", image_clip_feature_normalized, 9)
+            save_query("a cup with a handle", image_clip_feature_normalized, 3)
+            save_query("the handle", image_clip_feature_normalized, 3)
+            save_query("a cup", image_clip_feature_normalized, 3)
+            save_query("red", image_clip_feature_normalized, 3)
+            save_query("the handle on the cup", image_clip_feature_normalized, 3)
             # # image_id = "00080"
             # # image_clip_feature_normalized = torch.tensor(np.load(root_path + image_id + "_image_clip_feature.npy")).cuda() #[256, 256, 768]
             # #print(image_clip_feature_normalized)
