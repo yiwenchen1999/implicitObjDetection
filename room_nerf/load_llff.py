@@ -84,7 +84,10 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
         filepath = (frame["file_path"])
         fname = (filepath)
         clipname =(clip_path)
-        
+    if factor is not None:
+        sfx = '_{}'.format(factor)
+        _minify(basedir, factors=[factor])
+        factor = factor
         
 def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
     
@@ -278,7 +281,6 @@ def load_from_json(filename: Path):
     Args:
         filename: The filename to load from.
     """
-    assert filename.suffix == ".json"
     with open(filename, encoding="UTF-8") as file:
         return json.load(file)
 
