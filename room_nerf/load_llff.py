@@ -1,5 +1,7 @@
 import numpy as np
 import os, imageio
+import json
+from pathlib import Path
 
 
 ########## Slightly modified version of LLFF data loading code 
@@ -56,7 +58,30 @@ def _minify(basedir, factors=[], resolutions=[]):
             print('Removed duplicates')
         print('Done')
             
-        
+def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=True):
+    meta = load_from_json(basedir / "transforms.json")
+    image_filenames = []
+    # mask_filenames = []
+    poses = []
+    clip_filenames = []
+    fx_fixed = "fl_x" in meta
+    fy_fixed = "fl_y" in meta
+    cx_fixed = "cx" in meta
+    cy_fixed = "cy" in meta
+    height_fixed = "h" in meta
+    width_fixed = "w" in meta
+    distort_fixed = False
+    for distort_key in ["k1", "k2", "k3", "p1", "p2"]:
+        if distort_key in meta:
+            distort_fixed = True
+            break
+    for frame in meta["frames"]:
+        # print(type(frame["file_path"]), frame["file_path"])
+        clip_path = (frame["file_path"][:-4]+".npy")
+        # print(str(clip_path))
+        filepath = (frame["file_path"])
+        fname = (filepath)
+        clipname =(clip_path)
         
         
 def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
@@ -70,7 +95,10 @@ def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
     sh = imageio.imread(img0).shape
     
     sfx = ''
-    
+    print("poses info: ",poses_arr.shape ,poses.shape)
+    print("img0: ", img0.shape, type(img0))
+    print("pds: ", bds.shape, bds)
+    print("factor: " factor)
     if factor is not None:
         sfx = '_{}'.format(factor)
         _minify(basedir, factors=[factor])
@@ -239,10 +267,18 @@ def spherify_poses(poses, bds):
     
     return poses_reset, new_poses, bds
     
+def load_from_json(filename: Path):
+    """Load a dictionary from a JSON filename.
+
+    Args:
+        filename: The filename to load from.
+    """
+    assert filename.suffix == ".json"
+    with open(filename, encoding="UTF-8") as file:
+        return json.load(file)
 
 def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=False, path_zflat=False):
     
-
     poses, bds, imgs = _load_data(basedir, factor=factor) # factor=8 downsamples original imgs by 8x
     print('Loaded', basedir, bds.min(), bds.max())
     
@@ -317,3 +353,6 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
 
 
 
+if __name__=='__main__':
+    load_llff_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_llff_data/fern")
+    _load_data_replica("/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio")
