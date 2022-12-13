@@ -12,6 +12,7 @@ def _minify(basedir, factors=[], resolutions=[]):
     needtoload = False
     for r in factors:
         imgdir = os.path.join(basedir, 'images_{}'.format(r))
+        print("imgdir: neetodload = true for: ", imgdir)
         if not os.path.exists(imgdir):
             needtoload = True
     for r in resolutions:
