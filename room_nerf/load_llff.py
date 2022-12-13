@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import torch
 
-def rotation_matrix(a: TensorType[3], b: TensorType[3]) -> TensorType[3, 3]:
+def rotation_matrix(a, b):
     """Compute the rotation matrix that rotates vector a to vector b.
 
     Args:
