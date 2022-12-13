@@ -143,6 +143,7 @@ def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
             return imageio.imread(f)
         
     imgs = imgs = [imread(f)[...,:3]/255. for f in imgfiles]
+    print(imgs[0].shape)
     imgs = np.stack(imgs, -1)  
     
     print('Loaded image data', imgs.shape, poses[:,-1,0])
