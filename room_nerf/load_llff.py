@@ -8,6 +8,7 @@ from pathlib import Path
 ##########  see https://github.com/Fyusion/LLFF for original
 
 def _minify(basedir, factors=[], resolutions=[]):
+    print("minifying")
     needtoload = False
     for r in factors:
         imgdir = os.path.join(basedir, 'images_{}'.format(r))
@@ -59,7 +60,7 @@ def _minify(basedir, factors=[], resolutions=[]):
         print('Done')
             
 def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=True):
-    meta = load_from_json(basedir / "transforms.json")
+    meta = load_from_json(basedir + "transforms.json")
     image_filenames = []
     # mask_filenames = []
     poses = []
@@ -99,6 +100,8 @@ def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
     print("img0: ", img0)
     print("pds: ", bds.shape, bds)
     print("factor: ", factor)
+    print("sh: ", sh.shape)
+
     if factor is not None:
         sfx = '_{}'.format(factor)
         _minify(basedir, factors=[factor])
@@ -355,4 +358,4 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
 
 if __name__=='__main__':
     load_llff_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_llff_data/fern")
-    _load_data_replica("/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio")
+    _load_data_replica("/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/")
