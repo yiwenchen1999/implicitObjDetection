@@ -98,6 +98,14 @@ def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=Tru
     if not os.path.exists(imgdir):
         print( imgdir, 'does not exist, returning' )
         return
+
+    def imread(f):
+        if f.endswith('png'):
+            return imageio.imread(f, ignoregamma=True)
+        else:
+            return imageio.imread(f)
+    print(os.path.join(imgdir, image_filenames[0][-15:]))
+    imgs = imgs = [imread(os.path.join(imgdir, f[-15:]))[...,:3]/255. for f in image_filenames]
     
     # imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
     # print(imgfiles[4])
