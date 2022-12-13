@@ -88,6 +88,14 @@ def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=Tru
         sfx = '_{}'.format(factor)
         _minify(basedir, factors=[factor])
         factor = factor
+    
+    imgdir = os.path.join(basedir, 'images' + sfx)
+    if not os.path.exists(imgdir):
+        print( imgdir, 'does not exist, returning' )
+        return
+    
+    imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
+    print(imgfiles[4])
         
 def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
     
