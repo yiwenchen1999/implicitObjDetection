@@ -96,7 +96,7 @@ def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
     
     sfx = ''
     print("poses info: ",poses_arr.shape ,poses.shape)
-    print("img0: ", img0.shape, type(img0))
+    print("img0: ", img0)
     print("pds: ", bds.shape, bds)
     print("factor: ", factor)
     if factor is not None:
