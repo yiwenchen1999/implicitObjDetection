@@ -84,9 +84,6 @@ def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=Tru
         filepath = (frame["file_path"])
         fname = (filepath)
         clipname =(clip_path)
-        if not fname.exists():
-            num_skipped_image_filenames += 1
-            continue
         image_filenames.append(fname)
         print(fname)
         poses.append(np.array(frame["transform_matrix"]))
