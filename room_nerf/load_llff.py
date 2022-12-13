@@ -2,6 +2,8 @@ import numpy as np
 import os, imageio
 import json
 from pathlib import Path
+import torch
+
 
 
 ########## Slightly modified version of LLFF data loading code 
@@ -12,7 +14,7 @@ def _minify(basedir, factors=[], resolutions=[]):
     needtoload = False
     for r in factors:
         imgdir = os.path.join(basedir, 'images_{}'.format(r))
-        print("imgdir: neetodload = true for: ", imgdir)
+        # print("imgdir: neetodload = true for: ", imgdir)
         if not os.path.exists(imgdir):
             needtoload = True
     for r in resolutions:
@@ -85,7 +87,7 @@ def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=Tru
         fname = (filepath)
         clipname =(clip_path)
         image_filenames.append(fname)
-        print(fname)
+        # print(fname)
         poses.append(np.array(frame["transform_matrix"]))
         clip_filenames.append(clipname)
 
@@ -106,7 +108,8 @@ def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=Tru
             return imageio.imread(f)
     print(os.path.join(imgdir, image_filenames[0][-15:]))
     imgs = imgs = [imread(os.path.join(imgdir, f[-15:]))[...,:3]/255. for f in image_filenames]
-    
+    poses = torch.from_numpy(np.array(poses).astype(np.float32))
+
     # imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
     # print(imgfiles[4])
         
@@ -169,6 +172,7 @@ def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
         
     imgs = imgs = [imread(f)[...,:3]/255. for f in imgfiles]
     print(imgs[0].shape)
+    print(poses.shape)
     imgs = np.stack(imgs, -1)  
     
     print('Loaded image data', imgs.shape, poses[:,-1,0])
