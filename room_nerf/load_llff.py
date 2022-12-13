@@ -84,6 +84,14 @@ def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=Tru
         filepath = (frame["file_path"])
         fname = (filepath)
         clipname =(clip_path)
+        if not fname.exists():
+            num_skipped_image_filenames += 1
+            continue
+        image_filenames.append(fname)
+        print(fname)
+        poses.append(np.array(frame["transform_matrix"]))
+        clip_filenames.append(clipname)
+
     if factor is not None:
         sfx = '_{}'.format(factor)
         _minify(basedir, factors=[factor])
@@ -94,8 +102,8 @@ def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=Tru
         print( imgdir, 'does not exist, returning' )
         return
     
-    imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
-    print(imgfiles[4])
+    # imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
+    # print(imgfiles[4])
         
 def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
     
