@@ -17,6 +17,9 @@ def rotation_matrix(a, b):
     """
     a = a / torch.linalg.norm(a)
     b = b / torch.linalg.norm(b)
+    a.to ("cpu")
+    b.to ("cpu")
+    
     v = torch.cross(a, b)
     c = torch.dot(a, b)
     # If vectors are exactly opposite, we add a little noise to one of them
