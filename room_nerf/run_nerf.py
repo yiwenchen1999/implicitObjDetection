@@ -575,6 +575,7 @@ def train():
             i_test = [i_test]
 
         i_val = i_test
+        print(type(i_test), type(i_val))
         i_train = np.array([i for i in np.arange(int(images.shape[0])) if
                         (i not in i_test and i not in i_val)])
 
