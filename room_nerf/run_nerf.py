@@ -569,6 +569,7 @@ def train():
 
     if args.dataset_type == 'replica':
         images, poses, near, far, K, render_poses, i_test = _load_data_replica(args.datadir)
+        print("images:", type(images), len(images))
         
         print('Loaded replica', images.shape, render_poses.shape, hwf, args.datadir)
         if not isinstance(i_test, list):
