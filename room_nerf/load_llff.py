@@ -142,7 +142,7 @@ def _minify(basedir, factors=[], resolutions=[]):
             print('Removed duplicates')
         print('Done')
             
-def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=True):
+def _load_data_replica(basedir, factor=2, width=None, height=None, load_imgs=True):
     meta = load_from_json(basedir + "transforms.json")
     image_filenames = []
     # mask_filenames = []
