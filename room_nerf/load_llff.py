@@ -84,7 +84,7 @@ def auto_orient_and_center_poses(
 
         rotation = rotation_matrix(up, torch.Tensor([0, 0, 1]))
         rotation = rotation.to("cpu")
-        transform = transform.to("cpu")
+        translation = translation.to("cpu")
         transform = torch.cat([rotation, rotation @ -translation[..., None]], dim=-1)
         oriented_poses = transform @ poses
     elif method == "none":
