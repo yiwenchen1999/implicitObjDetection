@@ -17,8 +17,8 @@ def rotation_matrix(a, b):
     """
     a = a / torch.linalg.norm(a)
     b = b / torch.linalg.norm(b)
-    a.to ("cpu")
-    b.to ("cpu")
+    a = a.to ("cpu")
+    b = b.to ("cpu")
     
     v = torch.cross(a, b)
     c = torch.dot(a, b)
