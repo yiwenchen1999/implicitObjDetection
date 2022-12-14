@@ -568,9 +568,7 @@ def train():
         print('NEAR FAR', near, far)
 
     if args.dataset_type == 'replica':
-        images, poses, near, far, K, render_poses, i_test = _load_data_replica(args.datadir, args.factor,
-                                                                  recenter=True, bd_factor=.75,
-                                                                  spherify=args.spherify)
+        images, poses, near, far, K, render_poses, i_test = _load_data_replica(args.datadir)
         
         print('Loaded llff', images.shape, render_poses.shape, hwf, args.datadir)
         if not isinstance(i_test, list):
