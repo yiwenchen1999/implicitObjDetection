@@ -3,6 +3,8 @@ import os, imageio
 import json
 from pathlib import Path
 import torch
+import math
+
 
 def rotation_matrix(a, b):
     """Compute the rotation matrix that rotates vector a to vector b.
@@ -201,9 +203,38 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
     imgs = np.moveaxis(imgs, -1, 0).astype(np.float32)
     images = imgs
     # poses = np.moveaxis(poses, -1, 0).astype(np.float32)
+    poses = poses.numpy()
 
     print("imgs: ", imgs.shape)
     print("poses: ", poses.shape)
+
+    images = images.astype(np.float32)
+    poses = poses.astype(np.float32)
+
+    idx_tensor = torch.tensor(1, dtype=torch.long)
+    fx = float(meta["fl_x"]) if fx_fixed else torch.tensor(fx, dtype=torch.float32)[idx_tensor]
+    fy = float(meta["fl_y"]) if fy_fixed else torch.tensor(fy, dtype=torch.float32)[idx_tensor]
+    cx = float(meta["cx"]) if cx_fixed else torch.tensor(cx, dtype=torch.float32)[idx_tensor]
+    cy = float(meta["cy"]) if cy_fixed else torch.tensor(cy, dtype=torch.float32)[idx_tensor]
+    height = int(meta["h"]) if height_fixed else torch.tensor(height, dtype=torch.int32)[idx_tensor]
+    width = int(meta["w"]) if width_fixed else torch.tensor(width, dtype=torch.int32)[idx_tensor]
+
+    K = np.array([
+            [fx, 0, 0.5*width],
+            [0, fy, 0.5*height],
+            [0, 0, 1]
+        ])
+
+    num_images = len(image_filenames)
+    num_train_images = math.ceil(num_images * 0.9)
+    num_eval_images = num_images - num_train_images
+    i_all = np.arange(num_images)
+    i_train = np.linspace(
+        0, num_images - 1, num_train_images, dtype=int
+    )  # equally spaced training images starting and ending at 0 and num_images-1
+    i_eval = np.setdiff1d(i_all, i_train)
+    print(i_eval)
+
 
 
     # imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
