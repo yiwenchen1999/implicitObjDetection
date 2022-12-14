@@ -206,8 +206,10 @@ class NICE_SLAM():
         self.fine_grid_len = fine_grid_len
         color_grid_len = cfg['grid_len']['color']
         self.color_grid_len = color_grid_len
-        belief_grid_len = cfg['grid_len']['color']
-        self.belief_grid_len = belief_grid_len
+        clipdens_grid_len = cfg['grid_len']['coarse']
+        self.clipdens_grid_len = clipdens_grid_len
+        clip_grid_len = cfg['grid_len']['color']
+        self.clip_grid_len = clip_grid_len
 
 
         c = {}
@@ -248,13 +250,13 @@ class NICE_SLAM():
         color_val = torch.zeros(val_shape).normal_(mean=0, std=0.01)
         c[color_key] = color_val
 
-        belief_key = 'grid_belief'
-        belief_val_shape = list(map(int, (xyz_len/belief_grid_len).tolist()))
-        belief_val_shape[0], belief_val_shape[2] = belief_val_shape[2], belief_val_shape[0]
-        self.belief_val_shape = belief_val_shape
-        val_shape = [1, c_dim, *belief_val_shape]
-        belief_val = torch.zeros(val_shape).normal_(mean=0, std=0.01)
-        c[belief_key] = belief_val
+        clip_key = 'grid_clip'
+        clip_val_shape = list(map(int, (xyz_len/clip_grid_len).tolist()))
+        clip_val_shape[0], clip_val_shape[2] = clip_val_shape[2], clip_val_shape[0]
+        self.clip_val_shape =clip_val_shape
+        val_shape = [1, c_dim, *clip_val_shape]
+        clip_val = torch.zeros(val_shape).normal_(mean=0, std=0.01)
+        c[clip_key] = clip_val
 
         self.shared_c = c
 
