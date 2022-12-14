@@ -1,6 +1,6 @@
 expname = replica
 basedir = ./logs
-datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/room_studio
+datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/
 dataset_type = replica
 
 N_rand = 1024
