@@ -469,6 +469,7 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
     images = images.astype(np.float32)
     poses = poses.astype(np.float32)
     print("bds shape", bds.shape)
+    print("near, far: ", np.ndarray.min(bds) * 0.9, np.ndarray.max(bds) * 1.)
 
     return images, poses, bds, render_poses, i_test
 
