@@ -265,8 +265,8 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
 
     # Generate poses for spiral path
     render_poses = render_path_spiral(c2w_path, up, rads, focal, zdelta, zrate=.5, rots=N_rots, N=N_views)
-    print("images: ", type(images))
-    
+    render_poses = np.array(render_poses).astype(np.float32)   
+
     return images, poses, near, far, K, render_poses, i_test
 
 
