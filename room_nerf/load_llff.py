@@ -197,7 +197,7 @@ def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=Tru
     scale_factor /= torch.max(torch.abs(poses[:, :3, 3]))
     poses[:, :3, 3] *= scale_factor 
     # imgs = np.stack(imgs, -1)  
-    print("imgs: ", len(imgs))
+    print("imgs: ", imgs.shape)
     print("poses: ", poses.shape)
 
 
