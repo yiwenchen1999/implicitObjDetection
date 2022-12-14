@@ -623,10 +623,11 @@ def train():
         print('Unknown dataset type', args.dataset_type, 'exiting')
         return
 
-    # Cast intrinsics to right types
-    H, W, focal = hwf
-    H, W = int(H), int(W)
-    hwf = [H, W, focal]
+    if args.dataset_type != 'replica':
+        # Cast intrinsics to right types
+        H, W, focal = hwf
+        H, W = int(H), int(W)
+        hwf = [H, W, focal]
 
     if K is None:
         K = np.array([
