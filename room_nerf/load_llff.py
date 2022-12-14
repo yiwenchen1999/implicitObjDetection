@@ -195,7 +195,9 @@ def _load_data_replica(basedir, factor=8, width=None, height=None, load_imgs=Tru
         )
     scale_factor = 1.0
     scale_factor /= torch.max(torch.abs(poses[:, :3, 3]))
-    poses[:, :3, 3] *= scale_factor * self.config.scale_factor
+    poses[:, :3, 3] *= scale_factor 
+    print("imgs: ", imgs.shape)
+    print("poses: ", poses.shape)
 
 
     # imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
