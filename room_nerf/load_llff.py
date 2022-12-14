@@ -233,7 +233,33 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
         0, num_images - 1, num_train_images, dtype=int
     )  # equally spaced training images starting and ending at 0 and num_images-1
     i_eval = np.setdiff1d(i_all, i_train)
-    print(i_eval)
+    # print(i_eval)
+    i_test = i_eval
+    near = 1
+    far = 7
+
+    c2w = poses[10]
+
+    ## Get spiral
+    # Get average pose
+    up = normalize(poses[:, :3, 1].sum(0))
+    # Find a reasonable "focus depth" for this dataset
+    close_depth, inf_depth = near*.9, far*5.
+    dt = .75
+    mean_dz = 1./(((1.-dt)/close_depth + dt/inf_depth))
+    focal = mean_dz
+    # Get radii for spiral path
+    shrink_factor = .8
+    zdelta = close_depth * .2
+    tt = poses[:,:3,3] # ptstocam(poses[:3,3,:].T, c2w).T
+    rads = np.percentile(np.abs(tt), 90, 0)
+    c2w_path = c2w
+    N_views = 120
+    N_rots = 2
+
+    # Generate poses for spiral path
+    render_poses = render_path_spiral(c2w_path, up, rads, focal, zdelta, zrate=.5, rots=N_rots, N=N_views)
+    return images, poses, near, far, K, render_poses, i_test
 
 
 

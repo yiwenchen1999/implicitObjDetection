@@ -17,6 +17,7 @@ from load_llff import load_llff_data
 from load_deepvoxels import load_dv_data
 from load_blender import load_blender_data
 from load_LINEMOD import load_LINEMOD_data
+from load_llff import _load_data_replica
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -564,6 +565,21 @@ def train():
         else:
             near = 0.
             far = 1.
+        print('NEAR FAR', near, far)
+
+    if args.dataset_type == 'replica':
+        images, poses, near, far, K, render_poses, i_test = _load_data_replica(args.datadir, args.factor,
+                                                                  recenter=True, bd_factor=.75,
+                                                                  spherify=args.spherify)
+        
+        print('Loaded llff', images.shape, render_poses.shape, hwf, args.datadir)
+        if not isinstance(i_test, list):
+            i_test = [i_test]
+
+        i_val = i_test
+        i_train = np.array([i for i in np.arange(int(images.shape[0])) if
+                        (i not in i_test and i not in i_val)])
+
         print('NEAR FAR', near, far)
 
     elif args.dataset_type == 'blender':
