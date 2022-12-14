@@ -568,7 +568,7 @@ def train():
         print('NEAR FAR', near, far)
 
     if args.dataset_type == 'replica':
-        images, poses, near, far, K, render_poses, i_test = _load_data_replica(args.datadir)
+        images, poses, near, far, K, render_poses, i_test, hwf = _load_data_replica(args.datadir)
         
         print('Loaded replica', images.shape, render_poses.shape, args.datadir)
         if not isinstance(i_test, list):
@@ -623,11 +623,10 @@ def train():
         print('Unknown dataset type', args.dataset_type, 'exiting')
         return
 
-    if args.dataset_type != 'replica':
         # Cast intrinsics to right types
-        H, W, focal = hwf
-        H, W = int(H), int(W)
-        hwf = [H, W, focal]
+    H, W, focal = hwf
+    H, W = int(H), int(W)
+    hwf = [H, W, focal]
 
     if K is None:
         K = np.array([
