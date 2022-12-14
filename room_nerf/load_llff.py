@@ -170,13 +170,14 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
         # print(fname)
         poses.append(np.array(frame["transform_matrix"]))
         clip_filenames.append(clipname)
-
+    imgdir = os.path.join(basedir, 'images')
     if factor is not None:
         sfx = '_{}'.format(factor)
         _minify(basedir, factors=[factor])
         factor = factor
+        imgdir = os.path.join(basedir, 'images' + sfx)
     
-    imgdir = os.path.join(basedir, 'images' + sfx)
+    
     if not os.path.exists(imgdir):
         print( imgdir, 'does not exist, returning' )
         return
