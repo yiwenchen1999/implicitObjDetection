@@ -340,7 +340,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     if white_bkgd:
         rgb_map = rgb_map + (1.-acc_map[...,None])
     if outputClip:
-        clip_map, disp_map, acc_map, weights, depth_map
+        return clip_map, disp_map, acc_map, weights, depth_map
     else:
         return rgb_map, disp_map, acc_map, weights, depth_map
 
