@@ -456,8 +456,11 @@ def render_rays(ray_batch,
         raw = network_query_fn(pts, viewdirs, run_fn)
 
         rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+    if train_clip:
+        ret = {'clip_map' : clip_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
+    else:
+        ret = {'rgb_map' : rgb_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
 
-    ret = {'rgb_map' : rgb_map, 'clip_map' : clip_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
     if retraw:
         ret['raw'] = raw
     if N_importance > 0 and not train_clip:
