@@ -867,6 +867,7 @@ def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, rend
         clips_est = torch.Tensor(clips_est).to(device)
         clips_est = normalize(clips_est, p = 2, dim = -1)
         nerf_img_clip = clips_est
+        print(clips_est.shape)
         image_features_normalized = nerf_img_clip
         image_features_normalized = image_features_normalized.to(torch.float) #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
         gt_text_clip = torch.tensor(np.load(text_embedding_address))
@@ -1525,7 +1526,7 @@ def train(env, flag, test_file, i_weights):
 
         if i%args.i_video==0 and i > 0:
             with torch.no_grad():
-                rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = train_clip)
+                rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "replica/feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = train_clip)
 
                 imageio.mimwrite(args.root_path + "replica/" + str(i) + "queries.mp4", to8b(queries), fps=30, quality=8)
                 imageio.mimwrite(args.root_path + "replica/" + str(i) + "queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)

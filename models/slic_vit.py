@@ -424,7 +424,6 @@ class SLICViT(nn.Module):
         text_features_normalized = text_features[0]
         image_features_normalized = image_features
         print("saved text feature")
-        np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/replica/feature",text_features)
         #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
         #text_features_normalized = torch.tensor(np.load(root_path + "Nesf0_2D/" + text + "_clip_feature.npy"))
         #print(text_features_normalized)
