@@ -325,12 +325,12 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     if outputClip:
         alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
         # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
-        weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
+        weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
         clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3]
     else:
         alpha_rgb = raw2alpha_rgb(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
         # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
-        weights = alpha_rgb * torch.cumprod(torch.cat([torch.ones((alpha_rgb.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
+        weights = alpha_rgb * torch.cumprod(torch.cat([torch.ones((alpha_rgb.shape[0], 1)), 1.-alpha_rgb + 1e-10], -1), -1)[:, :-1]
         rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
 
     depth_map = torch.sum(weights * z_vals, -1)
