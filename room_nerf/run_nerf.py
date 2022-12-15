@@ -429,7 +429,8 @@ def render_rays(ray_batch,
         raw = network_query_fn(pts, viewdirs, network_clip)
     else:
         raw = network_query_fn(pts, viewdirs, network_fn)
-
+    rgb_map = None
+    clip_map = None
     if train_clip:
         clip_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, outputClip = True)
         print("clip shape: ", clip_map.shape)
@@ -437,7 +438,7 @@ def render_rays(ray_batch,
         rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
         print("rgb shape: ", rgb_map.shape)
 
-    if N_importance > 0:
+    if N_importance > 0 and not train_clip:
 
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
 
