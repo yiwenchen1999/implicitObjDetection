@@ -251,7 +251,7 @@ def create_nerf(args):
         if model_fine is not None:
             model_fine.load_state_dict(ckpt['network_fine_state_dict'])
     
-    if len(ckpts) > 0 and not args.no_reload and args.with_clip:
+    if len(ckpts_clip) > 0 and not args.no_reload and args.with_clip:
         ckpt_path = ckpts_clip[-1]
         print('Reloading from', ckpt_path)
         ckpt_clip = torch.load(ckpt_path)
