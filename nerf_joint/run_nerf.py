@@ -1526,7 +1526,7 @@ def train(env, flag, test_file, i_weights):
 
         if i%args.i_video==0 and i > 0:
             with torch.no_grad():
-                rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "replica/feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = train_clip)
+                rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "replica/feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time = True)
 
                 imageio.mimwrite(args.root_path + "replica/" + str(i) + "queries.mp4", to8b(queries), fps=30, quality=8)
                 imageio.mimwrite(args.root_path + "replica/" + str(i) + "queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
