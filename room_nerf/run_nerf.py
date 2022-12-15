@@ -1021,7 +1021,7 @@ def train():
                     'global_step': global_step,
                     'network_clip_state_dict': render_kwargs_train['network_clip'].state_dict(),
                     'optimizer_clip_state_dict': optimizer_clip.state_dict(),
-                }, path)
+                }, path_clip)
                 print('Saved clip checkpoints at', path_clip)
 
         if i%args.i_video==0 and i > 0:
