@@ -1439,10 +1439,9 @@ def train(env, flag, test_file, i_weights):
                     select_coords_clip = select_coords
                     #remapping
                     print(clip.shape[0]/target.shape[0], clip.shape[1]/target.shape[1])
-                    print((select_coords[0, 0]*(clip.shape[0]/target.shape[0])), select_coords[0, 1]*(clip.shape[1]/target.shape[1]))
                     select_coords_clip[:, 0] = (select_coords[:, 0]*(clip.shape[0]/target.shape[0]))
                     select_coords_clip[:, 1] = (select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
-
+                    print(select_coords_clip[0])
                     clip_s = clip[select_coords_clip[:, 0], select_coords_clip[:, 1]]
 
 
