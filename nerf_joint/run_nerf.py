@@ -1435,10 +1435,13 @@ def train(env, flag, test_file, i_weights):
                 #clip_s             
                 if args.with_clip:
                     rgb_s = target[select_coords[:, 0], select_coords[:, 1]]
+                    print(select_coords.shape, select_coords[0])
                     select_coords_clip = select_coords
                     #remapping
-                    select_coords_clip[:, 0] = int(select_coords[:, 0]*(clip.shape[0]/target.shape[0]))
-                    select_coords_clip[:, 1] = int(select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
+                    print(clip.shape[0]/target.shape[0], clip.shape[1]/target.shape[1])
+                    print((select_coords[0, 0]*(clip.shape[0]/target.shape[0])), select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
+                    select_coords_clip[:, 0] = (select_coords[:, 0]*(clip.shape[0]/target.shape[0]))
+                    select_coords_clip[:, 1] = (select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
 
                     clip_s = clip[select_coords_clip[:, 0], select_coords_clip[:, 1]]
 
