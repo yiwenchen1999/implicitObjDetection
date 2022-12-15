@@ -57,7 +57,8 @@ if __name__=='__main__':
     directories = os.listdir(data_path)
     for filename in directories:
         # if filename[0:4] == 'rgba':
-        if True:
+        if filename[-4:] == 'rgba':
+        # if True:
             img_path = data_path + filename
             im = np.array(Image.open(img_path).convert("RGB")) #im shape is (256, 256, 3)
             o_im = Image.fromarray(im).convert ('RGB')

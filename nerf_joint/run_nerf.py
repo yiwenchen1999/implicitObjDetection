@@ -644,7 +644,7 @@ def config_parser(env, flag):
     parser.add_argument("--basedir", type=str, default='./logs/', 
                         help='where to store ckpts and logs')
     if(env == 'mac'):
-        parser.add_argument("--datadir", type=str, default='../data/toybox-13/0/', 
+        parser.add_argument("--datadir", type=str, default='/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/', 
                             help='input data directory')
         parser.add_argument("--clip_datadir", type=str, default='../data/Nesf0_2D/', 
                             help='input data directory')
@@ -655,7 +655,7 @@ def config_parser(env, flag):
     elif(env == 'linux'):
         parser.add_argument("--datadir", type=str, default='/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/', 
                             help='input data directory')
-        parser.add_argument("--clip_datadir", type=str, default='/gpfs/data/ssrinath/Nesf0_2D/', 
+        parser.add_argument("--clip_datadir", type=str, default='/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/', 
                             help='input data directory')
         parser.add_argument("--root_path", type=str, default='../', 
                             help='input data directory')
@@ -693,7 +693,7 @@ def config_parser(env, flag):
     # rendering options
     parser.add_argument("--N_samples", type=int, default=64, 
                         help='number of coarse samples per ray')
-    parser.add_argument("--N_importance", type=int, default=128,
+    parser.add_argument("--N_importance", type=int, default=64,
                         help='number of additional fine samples per ray')
     parser.add_argument("--perturb", type=float, default=1.,
                         help='set to 0. for no jitter, 1. for jitter')
@@ -750,7 +750,7 @@ def config_parser(env, flag):
                         default=.5, help='fraction of img taken for central crops') 
 
     # dataset options
-    parser.add_argument("--dataset_type", type=str, default='nesf_clip', 
+    parser.add_argument("--dataset_type", type=str, default='replica', 
                         help='options: llff / blender / deepvoxels')
     parser.add_argument("--testskip", type=int, default=8, 
                         help='will load 1/N images from test/val sets, useful for large datasets like deepvoxels')
@@ -1273,7 +1273,7 @@ def train(env, flag, test_file, i_weights):
 
 
 
-
+    use_batching = False
     # Prepare raybatch tensor if batching random rays
     N_rand = args.N_rand #4096
     use_batching = args.no_batching #False
@@ -1305,6 +1305,7 @@ def train(env, flag, test_file, i_weights):
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
     
+
     start = start + 1
     for i in trange(start, N_iters):
         # print(i)
