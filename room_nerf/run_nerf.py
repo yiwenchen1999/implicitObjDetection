@@ -26,8 +26,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
 DEBUG = False
 
-train_clip = False#just here for quick results, will be deleted later
-print("train_clip: " ,train_clip)
 
 
 def batchify(fn, chunk):
@@ -275,7 +273,8 @@ def create_nerf(args):
         'use_viewdirs' : args.use_viewdirs,
         'white_bkgd' : args.white_bkgd,
         'raw_noise_std' : args.raw_noise_std,
-        'network_clip' : model_clip
+        'network_clip' : model_clip,
+        'train_clip': False
     }
 
     # NDC only good for LLFF-style forward facing data
@@ -350,7 +349,8 @@ def render_rays(ray_batch,
                 raw_noise_std=0.,
                 verbose=False,
                 pytest=False,
-                network_clip = None):
+                network_clip = None,
+                train_clip = False):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -862,12 +862,15 @@ def train():
 
         if(i < 50000):
             train_rgb = True
+            train_clip = False
         else:
             if args.with_clip:
                 train_rgb = False
-                train_clip = True
+                render_kwargs_train['train_clip'] = True
+                train_clip = render_kwargs_train['train_clip']
             else:
                 train_rgb = True
+                train_clip = False
         # Sample random ray batch
         if use_batching:
             # Random over all images
