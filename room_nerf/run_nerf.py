@@ -919,7 +919,7 @@ def train():
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 if args.with_clip:
                     clip_filename = clip_filenames[img_i]
-                    clip_filename = os.path.join(args.clip_datadir, clip_filename)
+                    clip_filename = os.path.join(args.datadir, clip_filename)
                     clip = np.load(clip_filename)
                     clip = np.array(clip).astype(np.float32)
                     clip = torch.Tensor(clip).to(device)
