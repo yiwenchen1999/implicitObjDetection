@@ -1,14 +1,107 @@
 import numpy as np
 import os, imageio
+import json
+from pathlib import Path
+import torch
+import math
 
+
+def rotation_matrix(a, b):
+    """Compute the rotation matrix that rotates vector a to vector b.
+
+    Args:
+        a: The vector to rotate.
+        b: The vector to rotate to.
+    Returns:
+        The rotation matrix.
+    """
+    a = a / torch.linalg.norm(a)
+    b = b / torch.linalg.norm(b)
+    a = a.to ("cpu")
+    b = b.to ("cpu")
+    
+    v = torch.cross(a, b)
+    c = torch.dot(a, b)
+    # If vectors are exactly opposite, we add a little noise to one of them
+    if c < -1 + 1e-8:
+        eps = (torch.rand(3) - 0.5) * 0.01
+        return rotation_matrix(a + eps, b)
+    s = torch.linalg.norm(v)
+    skew_sym_mat = torch.Tensor(
+        [
+            [0, -v[2], v[1]],
+            [v[2], 0, -v[0]],
+            [-v[1], v[0], 0],
+        ]
+    )
+    return torch.eye(3) + skew_sym_mat + skew_sym_mat @ skew_sym_mat * ((1 - c) / (s**2 + 1e-8))
+
+def auto_orient_and_center_poses(
+    poses, method, center_poses = True
+):
+    """Orients and centers the poses. We provide two methods for orientation: pca and up.
+
+    pca: Orient the poses so that the principal component of the points is aligned with the axes.
+        This method works well when all of the cameras are in the same plane.
+    up: Orient the poses so that the average up vector is aligned with the z axis.
+        This method works well when images are not at arbitrary angles.
+
+
+    Args:
+        poses: The poses to orient.
+        method: The method to use for orientation.
+        center_poses: If True, the poses are centered around the origin.
+
+    Returns:
+        The oriented poses.
+    """
+
+    translation = poses[..., :3, 3]
+
+    mean_translation = torch.mean(translation, dim=0)
+    translation_diff = translation - mean_translation
+
+    if center_poses:
+        translation = mean_translation
+    else:
+        translation = torch.zeros_like(mean_translation)
+
+    if method == "pca":
+        _, eigvec = torch.linalg.eigh(translation_diff.T @ translation_diff)
+        eigvec = torch.flip(eigvec, dims=(-1,))
+
+        if torch.linalg.det(eigvec) < 0:
+            eigvec[:, 2] = -eigvec[:, 2]
+
+        transform = torch.cat([eigvec, eigvec @ -translation[..., None]], dim=-1)
+        oriented_poses = transform @ poses
+
+        if oriented_poses.mean(axis=0)[2, 1] < 0:
+            oriented_poses[:, 1:3] = -1 * oriented_poses[:, 1:3]
+    elif method == "up":
+        up = torch.mean(poses[:, :3, 1], dim=0)
+        up = up / torch.linalg.norm(up)
+
+        rotation = rotation_matrix(up, torch.Tensor([0, 0, 1]))
+        rotation = rotation.to("cpu")
+        translation = translation.to("cpu")
+        transform = torch.cat([rotation, rotation @ -translation[..., None]], dim=-1)
+        oriented_poses = transform @ poses
+    elif method == "none":
+        oriented_poses = poses[:, :3]
+        oriented_poses[..., 3] -= translation
+
+    return oriented_poses
 
 ########## Slightly modified version of LLFF data loading code 
 ##########  see https://github.com/Fyusion/LLFF for original
 
 def _minify(basedir, factors=[], resolutions=[]):
+    print("minifying")
     needtoload = False
     for r in factors:
         imgdir = os.path.join(basedir, 'images_{}'.format(r))
+        # print("imgdir: neetodload = true for: ", imgdir)
         if not os.path.exists(imgdir):
             needtoload = True
     for r in resolutions:
@@ -56,8 +149,130 @@ def _minify(basedir, factors=[], resolutions=[]):
             print('Removed duplicates')
         print('Done')
             
-        
-        
+def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=True):
+    meta = load_from_json(basedir + "transforms.json")
+    image_filenames = []
+    # mask_filenames = []
+    poses = []
+    clip_filenames = []
+    fx_fixed = "fl_x" in meta
+    fy_fixed = "fl_y" in meta
+    cx_fixed = "cx" in meta
+    cy_fixed = "cy" in meta
+    height_fixed = "h" in meta
+    width_fixed = "w" in meta
+    distort_fixed = False
+    for distort_key in ["k1", "k2", "k3", "p1", "p2"]:
+        if distort_key in meta:
+            distort_fixed = True
+            break
+    for frame in meta["frames"]:
+        # print(type(frame["file_path"]), frame["file_path"])
+        clip_path = (frame["file_path"][:-4]+".npy")
+        # print(str(clip_path))
+        filepath = (frame["file_path"])
+        fname = (filepath)
+        clipname =(clip_path)
+        image_filenames.append(fname)
+        # print(fname)
+        poses.append(np.array(frame["transform_matrix"]))
+        clip_filenames.append(clipname)
+    imgdir = os.path.join(basedir, 'images')
+    if factor is not None:
+        sfx = '_{}'.format(factor)
+        _minify(basedir, factors=[factor])
+        factor = factor
+        imgdir = os.path.join(basedir, 'images' + sfx)
+    
+    
+    if not os.path.exists(imgdir):
+        print( imgdir, 'does not exist, returning' )
+        return
+
+    def imread(f):
+        if f.endswith('png'):
+            return imageio.imread(f, ignoregamma=True)
+        else:
+            return imageio.imread(f)
+    print(os.path.join(imgdir, image_filenames[0][-15:]))
+    imgs = imgs = [imread(os.path.join(imgdir, f[-15:]))[...,:3]/255. for f in image_filenames]
+    poses = torch.from_numpy(np.array(poses).astype(np.float32))
+    poses = auto_orient_and_center_poses(
+            poses,
+            method="up",
+        )
+    scale_factor = 1.0
+    scale_factor /= torch.max(torch.abs(poses[:, :3, 3]))
+    poses[:, :3, 3] *= scale_factor 
+    imgs = np.stack(imgs, -1)  
+    imgs = np.moveaxis(imgs, -1, 0).astype(np.float32)
+    images = imgs
+    # poses = np.moveaxis(poses, -1, 0).astype(np.float32)
+    poses = poses.numpy()
+
+    print("imgs: ", imgs.shape)
+    print("poses: ", poses.shape)
+
+    images = images.astype(np.float32)
+    
+    poses = poses.astype(np.float32)
+
+    idx_tensor = torch.tensor(1, dtype=torch.long)
+    fx = float(meta["fl_x"]) if fx_fixed else torch.tensor(fx, dtype=torch.float32)[idx_tensor]
+    fy = float(meta["fl_y"]) if fy_fixed else torch.tensor(fy, dtype=torch.float32)[idx_tensor]
+    cx = float(meta["cx"]) if cx_fixed else torch.tensor(cx, dtype=torch.float32)[idx_tensor]
+    cy = float(meta["cy"]) if cy_fixed else torch.tensor(cy, dtype=torch.float32)[idx_tensor]
+    height = int(meta["h"]) if height_fixed else torch.tensor(height, dtype=torch.int32)[idx_tensor]
+    width = int(meta["w"]) if width_fixed else torch.tensor(width, dtype=torch.int32)[idx_tensor]
+
+    K = np.array([
+            [fx, 0, 0.5*width],
+            [0, fy, 0.5*height],
+            [0, 0, 1]
+        ])
+
+    num_images = len(image_filenames)
+    num_train_images = math.ceil(num_images * 0.9)
+    num_eval_images = num_images - num_train_images
+    i_all = np.arange(num_images)
+    i_train = np.linspace(
+        0, num_images - 1, num_train_images, dtype=int
+    )  # equally spaced training images starting and ending at 0 and num_images-1
+    i_eval = np.setdiff1d(i_all, i_train)
+    # print(i_eval)
+    i_test = i_eval
+    near = 0.2
+    far = 7
+
+    c2w = poses[10]
+
+    ## Get spiral
+    # Get average pose
+    up = normalize(poses[:, :3, 1].sum(0))
+    # Find a reasonable "focus depth" for this dataset
+    close_depth, inf_depth = near*.9, far*5.
+    dt = .75
+    mean_dz = 1./(((1.-dt)/close_depth + dt/inf_depth))
+    focal = mean_dz
+    # Get radii for spiral path
+    shrink_factor = .8
+    zdelta = close_depth * .2
+    tt = poses[:,:3,3] # ptstocam(poses[:3,3,:].T, c2w).T
+    rads = np.percentile(np.abs(tt), 90, 0)
+    c2w_path = c2w
+    N_views = 120
+    N_rots = 2
+
+    # Generate poses for spiral path
+    render_poses = render_path_spiral(c2w_path, up, rads, fx, zdelta, zrate=.5, rots=N_rots, N=N_views)
+    render_poses = np.array(render_poses).astype(np.float32)   
+
+    return images, poses, near, far, K, render_poses, i_test, [height, width, fx], clip_filenames
+
+
+
+    # imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
+    # print(imgfiles[4])
         
 def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
     
@@ -70,7 +285,12 @@ def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
     sh = imageio.imread(img0).shape
     
     sfx = ''
-    
+    print("poses info: ",poses_arr.shape ,poses.shape)
+    print("img0: ", img0)
+    print("pds: ", bds.shape, bds)
+    print("factor: ", factor)
+    print("sh: ", sh)
+
     if factor is not None:
         sfx = '_{}'.format(factor)
         _minify(basedir, factors=[factor])
@@ -112,6 +332,8 @@ def _load_data(basedir, factor=None, width=None, height=None, load_imgs=True):
             return imageio.imread(f)
         
     imgs = imgs = [imread(f)[...,:3]/255. for f in imgfiles]
+    print(imgs[0].shape)
+    print(poses.shape)
     imgs = np.stack(imgs, -1)  
     
     print('Loaded image data', imgs.shape, poses[:,-1,0])
@@ -239,15 +461,19 @@ def spherify_poses(poses, bds):
     
     return poses_reset, new_poses, bds
     
+def load_from_json(filename: Path):
+    """Load a dictionary from a JSON filename.
+
+    Args:
+        filename: The filename to load from.
+    """
+    with open(filename, encoding="UTF-8") as file:
+        return json.load(file)
 
 def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=False, path_zflat=False):
     
-
     poses, bds, imgs = _load_data(basedir, factor=factor) # factor=8 downsamples original imgs by 8x
     print('Loaded', basedir, bds.min(), bds.max())
-    print("poses: ", type(poses), poses.shape)
-    print("bds: ", type(bds), bds)
-    print("imgs: ", type(imgs), imgs.shape)
     
     # Correct rotation matrix ordering and move variable dim to axis 0
     poses = np.concatenate([poses[:, 1:2, :], -poses[:, 0:1, :], poses[:, 2:, :]], 1)
@@ -315,12 +541,15 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
     
     images = images.astype(np.float32)
     poses = poses.astype(np.float32)
+    poses = poses[:,:3,:4]
+    print("bds shape", bds.shape)
+    print("near, far: ", np.ndarray.min(bds) * 0.9, np.ndarray.max(bds) * 1.)
+    print("poses final shapes: ", poses.shape)
 
     return images, poses, bds, render_poses, i_test
 
+
+
 if __name__=='__main__':
-    load_llff_data("./data/nerf_synthetic/lego", 8,
-               recenter=True, bd_factor=.75,
-               spherify=True)
-
-
+    load_llff_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_llff_data/fern")
+    _load_data_replica("/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/")

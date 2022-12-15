@@ -23,6 +23,7 @@ from load_blender import load_blender_data
 from load_LINEMOD import load_LINEMOD_data
 from load_nesf import load_Nesf_data
 from load_nesf_clip import load_Nesf_CLIP_data
+from load_llff import _load_data_replica
 import sys
 from torch.nn.functional import normalize
 
@@ -652,13 +653,13 @@ def config_parser(env, flag):
         parser.add_argument("--data_path", type=str, default= '../data/' + 'toybox-13/0/', 
                             help='input data directory') 
     elif(env == 'linux'):
-        parser.add_argument("--datadir", type=str, default='/gpfs/data/ssrinath/toybox-13/0/', 
+        parser.add_argument("--datadir", type=str, default='/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/', 
                             help='input data directory')
         parser.add_argument("--clip_datadir", type=str, default='/gpfs/data/ssrinath/Nesf0_2D/', 
                             help='input data directory')
         parser.add_argument("--root_path", type=str, default='../', 
                             help='input data directory')
-        parser.add_argument("--data_path", type=str, default= '/gpfs/data/ssrinath/toybox-13/0/', 
+        parser.add_argument("--data_path", type=str, default= '/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/', 
                             help='input data directory')
 
     # training options
@@ -1049,6 +1050,22 @@ def train(env, flag, test_file, i_weights):
     elif args.dataset_type == 'nesf_clip':
         print("_____________importing")
         dataloader_train, dataloader_test, render_poses, hwf, near, far, K = load_Nesf_CLIP_data(args.datadir, args.clip_datadir, args.env, True)
+    
+    elif args.dataset_type == 'replica':
+        images, poses, near, far, K, render_poses, i_test, hwf, clip_filenames = _load_data_replica(args.datadir)
+        
+        print('Loaded replica', images.shape, render_poses.shape, args.datadir)
+        if not isinstance(i_test, list):
+            i_test = [i_test]
+
+        i_val = i_test
+        print(type(i_test), type(i_val))
+        i_train = np.array([i for i in np.arange(int(images.shape[0]))])
+        # i_train = np.array([i for i in np.arange(int(images.shape[0])) if
+        #                 (i not in i_test and i not in i_val)])
+
+        print('NEAR FAR', near, far)
+
     else:
         print('Unknown dataset type', args.dataset_type, 'exiting')
         return
@@ -1057,6 +1074,7 @@ def train(env, flag, test_file, i_weights):
     H, W, focal = hwf
     H, W = int(H), int(W)
     hwf = [H, W, focal]
+
     if K is None:
         K = np.array([
             [focal, 0, 0.5*W],
@@ -1116,12 +1134,12 @@ def train(env, flag, test_file, i_weights):
             rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time = True)
             # rgb_ests0, rgb_disps, queries0, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time =False)
 
-        imageio.mimwrite(args.root_path + "Nesf0_2D/queries.mp4", to8b(queries), fps=30, quality=8)
+        imageio.mimwrite(args.root_path + "replica/queries.mp4", to8b(queries), fps=30, quality=8)
         # imageio.mimwrite(args.root_path + "Nesf0_2D/queries0.mp4", to8b(queries0), fps=30, quality=8)
-        imageio.mimwrite(args.root_path + "Nesf0_2D/queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
+        imageio.mimwrite(args.root_path + "replica/queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
         # imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_ests0.mp4", to8b(rgb_ests0), fps=30, quality=8)
-        imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
-        imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_disps.mp4", to8b(rgb_disps / np.max(rgb_disps)), fps=30, quality=8)
+        imageio.mimwrite(args.root_path + "replica/rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
+        imageio.mimwrite(args.root_path + "replica/rgb_disps.mp4", to8b(rgb_disps / np.max(rgb_disps)), fps=30, quality=8)
         return
     """
     if args.render_compressed_feature_video:
@@ -1290,7 +1308,7 @@ def train(env, flag, test_file, i_weights):
     start = start + 1
     for i in trange(start, N_iters):
         # print(i)
-        if(i < 40000):
+        if(i < 50000):
             train_rgb = True
             train_clip = False
         else:
@@ -1327,31 +1345,41 @@ def train(env, flag, test_file, i_weights):
                 rays_rgb = rays_rgb[rand_idx]
                 i_batch = 0
         else:
-            img_i = np.random.choice(len(dataloader_train))
-            #image_target
-            image = dataloader_train[img_i]["image"]
-            image = np.array(image).astype(np.float32)
-            target = image
-            target = torch.Tensor(target).to(device)
-            #target = normalize(target, p = 2, dim = -1)
-            #pose
-            pose = dataloader_train[img_i]["pose"]
-            pose = np.array(pose).astype(np.float32)
-            pose = pose[:3,:4]
-            pose = torch.Tensor(pose).to(device)
-            if args.with_saliency:
-                saliency = saliencies[img_i]
-                saliency = torch.Tensor(saliency).to(device)
-            #clip
-            if args.with_clip:
-                img_id = dataloader_train[img_i]["img_ids"]
-                # print("img_id: ", img_id)
-                fname = "rgba_" + img_id[-5:] + '_image_clip_feature.npy'
-                fname = os.path.join(args.clip_datadir, fname)
-                clip = np.load(fname)
-                clip = np.array(clip).astype(np.float32)
-                clip = torch.Tensor(clip).to(device)
-                clip = normalize(clip, p = 2, dim = -1)
+            if args.dataset_type == 'replica':
+                img_i = np.random.choice(i_train)
+                target = images[img_i]
+                target = torch.Tensor(target).to(device)
+                pose = poses[img_i, :3,:4]
+                if args.with_clip:
+                    clip_filename = clip_filenames[img_i]
+                    clip = np.load(clip_filename)
+                    clip = np.array(clip).astype(np.float32)
+                    clip = torch.Tensor(clip).to(device)
+                    clip = normalize(clip, p = 2, dim = -1)
+            else:
+                image = dataloader_train[img_i]["image"]
+                image = np.array(image).astype(np.float32)
+                target = image
+                target = torch.Tensor(target).to(device)
+                #target = normalize(target, p = 2, dim = -1)
+                #pose
+                pose = dataloader_train[img_i]["pose"]
+                pose = np.array(pose).astype(np.float32)
+                pose = pose[:3,:4]
+                pose = torch.Tensor(pose).to(device)
+                if args.with_saliency:
+                    saliency = saliencies[img_i]
+                    saliency = torch.Tensor(saliency).to(device)
+                #clip
+                if args.with_clip:
+                    img_id = dataloader_train[img_i]["img_ids"]
+                    # print("img_id: ", img_id)
+                    fname = "rgba_" + img_id[-5:] + '_image_clip_feature.npy'
+                    fname = os.path.join(args.clip_datadir, fname)
+                    clip = np.load(fname)
+                    clip = np.array(clip).astype(np.float32)
+                    clip = torch.Tensor(clip).to(device)
+                    clip = normalize(clip, p = 2, dim = -1)
             """
             test = torch.unsqueeze(torch.tensor([1.0,1.0]),dim = 0)
             normalized_test = normalize(test)
@@ -1405,7 +1433,12 @@ def train(env, flag, test_file, i_weights):
                 #clip_s             
                 if args.with_clip:
                     rgb_s = target[select_coords[:, 0], select_coords[:, 1]]
-                    clip_s = clip[select_coords[:, 0], select_coords[:, 1]]
+                    select_coords_clip = select_coords
+                    #remapping
+                    select_coords_clip[:, 0] = int(select_coords[:, 0]*(clip.shape[0]/target.shape[0]))
+                    select_coords_clip[:, 1] = int(select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
+
+                    clip_s = clip[select_coords_clip[:, 0], select_coords_clip[:, 1]]
 
 
         if args.with_clip:
@@ -1485,12 +1518,12 @@ def train(env, flag, test_file, i_weights):
 
         if i%args.i_video==0 and i > 0:
             with torch.no_grad():
-                rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True)
+                rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = train_clip)
 
-                imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "queries.mp4", to8b(queries), fps=30, quality=8)
-                imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
-                imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
-                imageio.mimwrite(args.root_path + "Nesf0_2D/" + str(i) + "rgb_disps.mp4", to8b(rgb_disps / np.max(rgb_disps)), fps=30, quality=8)
+                imageio.mimwrite(args.root_path + "replica/" + str(i) + "queries.mp4", to8b(queries), fps=30, quality=8)
+                imageio.mimwrite(args.root_path + "replica/" + str(i) + "queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
+                imageio.mimwrite(args.root_path + "replica/" + str(i) + "rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
+                imageio.mimwrite(args.root_path + "replica/" + str(i) + "rgb_disps.mp4", to8b(rgb_disps / np.max(rgb_disps)), fps=30, quality=8)
 
             # Turn on testing mode
             # with torch.no_grad():

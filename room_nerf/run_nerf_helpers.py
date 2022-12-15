@@ -10,7 +10,17 @@ img2mse = lambda x, y : torch.mean((x - y) ** 2)
 mse2psnr = lambda x : -10. * torch.log(x) / torch.log(torch.Tensor([10.]))
 to8b = lambda x : (255*np.clip(x,0,1)).astype(np.uint8)
 
+def dot(x_normalized, y_normalized):
+    dot_product =  torch.sum(x_normalized * y_normalized, dim = -1)
+    return dot_product
 
+
+def clip_loss(x_normalized, y_normalized):
+    #x_normalized = nn_normalize(torch.tensor([[1.0,1.0],[2.0,2.0]]), p = 2, dim = -1)
+    #y_normalized = nn_normalize(torch.tensor([[1.0,1.0],[-2.0,2.0]]), p =2, dim = -1)
+    all_losses = 1.0 - dot(x_normalized, y_normalized)
+    loss = torch.mean(all_losses)
+    return loss
 # Positional encoding (section 5.1)
 class Embedder:
     def __init__(self, **kwargs):
