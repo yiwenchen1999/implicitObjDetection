@@ -641,7 +641,7 @@ def config_parser(env, flag):
                         help='config file path')
     parser.add_argument("--expname", type=str, default="mac0",
                         help='experiment name')
-    parser.add_argument("--basedir", type=str, default='./logs/', 
+    parser.add_argument("--basedir", type=str, default='./replica/', 
                         help='where to store ckpts and logs')
     if(env == 'mac'):
         parser.add_argument("--datadir", type=str, default='/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/', 
@@ -1439,7 +1439,7 @@ def train(env, flag, test_file, i_weights):
                     select_coords_clip = select_coords
                     #remapping
                     print(clip.shape[0]/target.shape[0], clip.shape[1]/target.shape[1])
-                    print((select_coords[0, 0]*(clip.shape[0]/target.shape[0])), select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
+                    print((select_coords[0, 0]*(clip.shape[0]/target.shape[0])), select_coords[0, 1]*(clip.shape[1]/target.shape[1]))
                     select_coords_clip[:, 0] = (select_coords[:, 0]*(clip.shape[0]/target.shape[0]))
                     select_coords_clip[:, 1] = (select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
 
