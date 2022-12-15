@@ -66,6 +66,7 @@ if __name__=='__main__':
             image_clip_feature_normalized = image_clip_feature
             np.save(root_path + filename[:-4], image_clip_feature_normalized)
             print(filename+" saved")
+            query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
             # save_query("arms on a chair", image_clip_feature_normalized, 3)
