@@ -392,7 +392,7 @@ def render_rays(ray_batch,
       z_std: [num_rays]. Standard deviation of distances along ray for each
         sample.
     """
-    print("IS traning clip: ", train_clip)
+    # print("IS traning clip: ", train_clip)
     N_rays = ray_batch.shape[0]
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
@@ -435,10 +435,10 @@ def render_rays(ray_batch,
     clip_map = None
     if train_clip:
         clip_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, outputClip = True)
-        print("clip shape: ", clip_map.shape)
+        # print("clip shape: ", clip_map.shape)
     else:
         rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
-        print("rgb shape: ", rgb_map.shape)
+        # print("rgb shape: ", rgb_map.shape)
 
     if N_importance > 0 and not train_clip:
 
@@ -942,12 +942,15 @@ def train():
                 batch_rays = torch.stack([rays_o, rays_d], 0)
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 if train_clip:
-                    clip_filename = clip_filenames[img_i]
-                    clip_filename = os.path.join(args.datadir, clip_filename)
-                    clip = np.load(clip_filename)
-                    clip = np.array(clip).astype(np.float32)
-                    clip = torch.Tensor(clip).to(device)
-                    clip = normalize(clip, p = 2, dim = -1)
+                    select_coords_clip = select_coords
+                    #remapping
+                    # print(clip.shape[0]/target.shape[0], clip.shape[1]/target.shape[1])
+                    # print(select_coords[:, 0]*(clip.shape[0]/target.shape[0]), select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
+                    select_coords_clip[:, 0] = (select_coords[:, 0]*(clip.shape[0]/target.shape[0]))
+                    select_coords_clip[:, 1] = (select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
+                    # print(select_coords_clip[0])
+                    clip_s = clip[select_coords_clip[:, 0], select_coords_clip[:, 1]]
+
 
         #####  Core optimization loop  #####
         if train_rgb:
@@ -964,25 +967,36 @@ def train():
             trans = extras['raw'][...,-1]
             loss = img_loss
             psnr = mse2psnr(img_loss)
+            if 'rgb0' in extras:
+                img_loss0 = img2mse(extras['rgb0'], target_s)
+                loss = loss + img_loss0
+                psnr0 = mse2psnr(img_loss0)
+
+            loss.backward()
+            optimizer.step()
 
         if train_clip:
-            pass
+            clip_est = clip
+            clip_est = normalize(clip_est, p = 2, dim = -1)
+            optimizer_clip.zero_grad()
+            image_clip_loss = clip_loss(clip_est, clip_s)
+            # print("training clip_loss: ", img_loss)
+            psnr = mse2psnr(image_clip_loss)
 
-        if 'rgb0' in extras:
-            img_loss0 = img2mse(extras['rgb0'], target_s)
-            loss = loss + img_loss0
-            psnr0 = mse2psnr(img_loss0)
-
-        loss.backward()
-        optimizer.step()
+            image_clip_loss.backward()
+            optimizer_clip.step()
 
         # NOTE: IMPORTANT!
         ###   update learning rate   ###
         decay_rate = 0.1
         decay_steps = args.lrate_decay * 1000
         new_lrate = args.lrate * (decay_rate ** (global_step / decay_steps))
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = new_lrate
+        if train_clip:
+            for param_group in optimizer_clip.param_groups:
+                param_group['lr'] = new_lrate
+        else:
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = new_lrate
         ################################
 
         dt = time.time()-time0
@@ -991,14 +1005,24 @@ def train():
 
         # Rest is logging
         if i%args.i_weights==0:
-            path = os.path.join(basedir, expname, '{:06d}.tar'.format(i))
-            torch.save({
-                'global_step': global_step,
-                'network_fn_state_dict': render_kwargs_train['network_fn'].state_dict(),
-                'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-            }, path)
-            print('Saved checkpoints at', path)
+            if not train_rgb:
+                path = os.path.join(basedir, expname, '{:06d}.tar'.format(i))
+                torch.save({
+                    'global_step': global_step,
+                    'network_fn_state_dict': render_kwargs_train['network_fn'].state_dict(),
+                    'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                }, path)
+                print('Saved checkpoints at', path)
+            
+            if train_clip:
+                path_clip = os.path.join(basedir, expname+"_clip", '{:06d}.tar'.format(i))
+                torch.save({
+                    'global_step': global_step,
+                    'network_clip_state_dict': render_kwargs_train['network_clip'].state_dict(),
+                    'optimizer_clip_state_dict': optimizer_clip.state_dict(),
+                }, path)
+                print('Saved clip checkpoints at', path_clip)
 
         if i%args.i_video==0 and i > 0:
             # Turn on testing mode
