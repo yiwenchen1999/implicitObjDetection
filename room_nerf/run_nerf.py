@@ -586,6 +586,8 @@ def config_parser():
                         help='will take every 1/N images as LLFF test set, paper uses 8')
     parser.add_argument("--root_path", type=str, default="log", 
                         help='path we will be saving the file')
+    parser.add_argument("--text", type=str, default="a chair", 
+                        help='path we will be saving the file')
 
 
     # logging/saving options
