@@ -879,72 +879,34 @@ def train():
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 batch_rays = torch.stack([rays_o, rays_d], 0)
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
-                if args.with_clip:
-                    rgb_s = target[select_coords[:, 0], select_coords[:, 1]]
-                    select_coords_clip = select_coords
-                    #remapping
-                    select_coords_clip[:, 0] = int(select_coords[:, 0]*(clip.shape[0]/target.shape[0]))
-                    select_coords_clip[:, 1] = int(select_coords[:, 1]*(clip.shape[1]/target.shape[1]))
-
-                    clip_s = clip[select_coords_clip[:, 0], select_coords_clip[:, 1]]
-        
-        if args.with_clip:
-            ret_rgb_list, ret_clip_list, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
-                                    verbose=i < 10, retraw=True,
-                                    **render_kwargs_train, use_saliency= False, use_CLIP = True, train_clip = train_clip)
 
         #####  Core optimization loop  #####
-        # rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
-        #                                         verbose=i < 10, retraw=True,
-        #                                         **render_kwargs_train)
+        rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
+                                                verbose=i < 10, retraw=True,
+                                                **render_kwargs_train)
 
-        #loss: dot product
-        if train_rgb:
-            rgb_est = ret_rgb_list[0]
-            optimizer.zero_grad()
-            img_loss = img2mse(rgb_est, rgb_s)
-            psnr = mse2psnr(img_loss)
-            # losses.append(img_loss.cpu().detach().numpy())
-        
-            if 'rgb0' in extras:
-                img_loss0 = img2mse(extras['rgb0'], target_s)
-                img_loss = img_loss + img_loss0
-                psnr0 = mse2psnr(img_loss0)
+        optimizer.zero_grad()
+        img_loss = img2mse(rgb, target_s)
+        trans = extras['raw'][...,-1]
+        loss = img_loss
+        psnr = mse2psnr(img_loss)
 
-            # if i%1000 == 0:
-            #     print("training rgb_loss: ", img_loss)
-            #     print("training rgb_psnr: ", psnr)
+        if 'rgb0' in extras:
+            img_loss0 = img2mse(extras['rgb0'], target_s)
+            loss = loss + img_loss0
+            psnr0 = mse2psnr(img_loss0)
 
-        if train_clip:
-            clip_est = ret_clip_list[0]
-            clip_est = normalize(clip_est, p = 2, dim = -1)
-            optimizer_clip.zero_grad()
-            image_clip_loss = clip_loss(clip_est, clip_s)
-            # print("training clip_loss: ", img_loss)
-            psnr = mse2psnr(image_clip_loss)
-            # losses.append(image_clip_loss.cpu().detach().numpy())
-            # print("training clip_psnr: ", psnr)
-        
+        loss.backward()
+        optimizer.step()
 
-        
-        # img_loss.backward()
-        if train_rgb:
-            img_loss.backward()
-            optimizer.step()
-            decay_rate = 0.1
-            decay_steps = args.lrate_decay * 1000
-            new_lrate = args.lrate * (decay_rate ** (global_step / decay_steps))
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = new_lrate
-
-        if train_clip:
-            image_clip_loss.backward()
-            optimizer_clip.step()
-            decay_rate = 0.1
-            decay_steps = args.lrate_decay * 1000
-            new_lrate = args.lrate * (decay_rate ** (global_step/ decay_steps))
-            for param_group in optimizer_clip.param_groups:
-                param_group['lr'] = new_lrate
+        # NOTE: IMPORTANT!
+        ###   update learning rate   ###
+        decay_rate = 0.1
+        decay_steps = args.lrate_decay * 1000
+        new_lrate = args.lrate * (decay_rate ** (global_step / decay_steps))
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = new_lrate
+        ################################
 
         dt = time.time()-time0
         # print(f"Step: {global_step}, Loss: {loss}, Time: {dt}")
@@ -958,8 +920,6 @@ def train():
                 'network_fn_state_dict': render_kwargs_train['network_fn'].state_dict(),
                 'network_fine_state_dict': render_kwargs_train['network_fine'].state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'network_clip_state_dict' : render_kwargs_train['network_clip'].state_dict(),
-                'optimizer_clip_state_dict': optimizer_clip.state_dict(),
             }, path)
             print('Saved checkpoints at', path)
 
@@ -994,17 +954,13 @@ def train():
         """
             print(expname, i, psnr.numpy(), loss.numpy(), global_step.numpy())
             print('iter time {:.05f}'.format(dt))
-
             with tf.contrib.summary.record_summaries_every_n_global_steps(args.i_print):
                 tf.contrib.summary.scalar('loss', loss)
                 tf.contrib.summary.scalar('psnr', psnr)
                 tf.contrib.summary.histogram('tran', trans)
                 if args.N_importance > 0:
                     tf.contrib.summary.scalar('psnr0', psnr0)
-
-
             if i%args.i_img==0:
-
                 # Log a rendered validation view to Tensorboard
                 img_i=np.random.choice(i_val)
                 target = images[img_i]
@@ -1012,21 +968,14 @@ def train():
                 with torch.no_grad():
                     rgb, disp, acc, extras = render(H, W, focal, chunk=args.chunk, c2w=pose,
                                                         **render_kwargs_test)
-
                 psnr = mse2psnr(img2mse(rgb, target))
-
                 with tf.contrib.summary.record_summaries_every_n_global_steps(args.i_img):
-
                     tf.contrib.summary.image('rgb', to8b(rgb)[tf.newaxis])
                     tf.contrib.summary.image('disp', disp[tf.newaxis,...,tf.newaxis])
                     tf.contrib.summary.image('acc', acc[tf.newaxis,...,tf.newaxis])
-
                     tf.contrib.summary.scalar('psnr_holdout', psnr)
                     tf.contrib.summary.image('rgb_holdout', target[tf.newaxis])
-
-
                 if args.N_importance > 0:
-
                     with tf.contrib.summary.record_summaries_every_n_global_steps(args.i_img):
                         tf.contrib.summary.image('rgb0', to8b(extras['rgb0'])[tf.newaxis])
                         tf.contrib.summary.image('disp0', extras['disp0'][tf.newaxis,...,tf.newaxis])
