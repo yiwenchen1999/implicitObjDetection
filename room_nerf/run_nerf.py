@@ -235,7 +235,7 @@ def create_nerf(args):
         ckpts = [args.ft_path]
     else:
         ckpts = [os.path.join(basedir, expname, f) for f in sorted(os.listdir(os.path.join(basedir, expname))) if 'tar' in f]
-        ckpts_clip = [os.path.join(basedir, expname, f) for f in sorted(os.listdir(os.path.join(basedir, expname+"_clip"))) if 'tar' in f]
+        ckpts_clip = [os.path.join(basedir, expname+"_clip", f) for f in sorted(os.listdir(os.path.join(basedir, expname+"_clip"))) if 'tar' in f]
 
     print('Found ckpts', ckpts)
     print('Found clip ckpts', ckpts_clip)
