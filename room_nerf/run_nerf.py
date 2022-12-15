@@ -418,6 +418,72 @@ def render_rays(ray_batch,
 
     return ret
 
+def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0, use_clip = False, train_clip = True, test_time = False):
+    H, W, focal = hwf
+    if render_factor!=0:
+        # Render downsampled for speed
+        H = H//render_factor
+        W = W//render_factor
+        focal = focal/render_factor
+    queries = []
+    clips_disps = []
+    rgb_ests = []
+    rgb_disps = []
+    t = time.time()
+    for i, c2w in enumerate(tqdm(render_poses)):
+        #print(i, time.time() - t)
+        i0 = i
+        t = time.time()
+        ret_rgb_list, ret_clip_list, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], train_clip = train_clip, **render_kwargs, use_CLIP=use_clip, test_time = test_time)
+        rgb_est = ret_rgb_list[0]
+        rgb_disp = ret_rgb_list[1]
+        rgb_ests.append(rgb_est.cpu().float().numpy())
+        rgb_disps.append(rgb_disp.cpu().float().numpy())
+        clips_est = ret_clip_list[0]
+        clips_disp = ret_clip_list[1]
+        clips_est = torch.Tensor(clips_est).to(device)
+        clips_est = normalize(clips_est, p = 2, dim = -1)
+        nerf_img_clip = clips_est
+        image_features_normalized = nerf_img_clip
+        image_features_normalized = image_features_normalized.to(torch.float) #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
+        gt_text_clip = torch.tensor(np.load(text_embedding_address))
+        text_features_normalized = gt_text_clip
+        text_features_normalized = text_features_normalized.to(torch.float)
+        r,c,f = image_features_normalized.size()
+        input = torch.empty(r, c, 1)
+        query_map = torch.zeros_like(input)
+        for i in range(r):
+            for j in range(c):
+                # print(image_features_normalized[i,j,:].shape)
+                # print(text_features_normalized.shape)
+                query_map[i,j,0] = (torch.dot(image_features_normalized[i,j,:], text_features_normalized.reshape(-1)) / (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
+
+        query_map = query_map.cpu().float().numpy()
+        query_map = np.squeeze(query_map)
+        # query_map_remapped = query_map
+        query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
+        r,c = np.shape(query_map_remapped)
+        query_map_3d = np.zeros((r,c,3))
+        query_map_3d[:,:,0] = query_map_remapped
+        query_map_3d[:,:,1] = query_map_remapped
+        query_map_3d[:,:,2] = query_map_remapped
+        np.save("../colormaps/heatmaps"+str(i0),query_map_remapped)
+        query_map_3d_exp = np.exp(query_map_remapped)
+        np.save("../colormaps/heatmapsEXP"+str(i0), query_map_3d_exp)
+        queries.append(query_map_3d)
+        clips_disps.append(clips_disp.cpu().numpy())
+        if savedir is not None:
+            np.save(savedir, '{:03d}_clips_est'.format(i), clips_est.cpu())
+        if gt_imgs is not None:
+            imgs = to8b(gt_imgs[-1])
+            filename = os.path.join(savedir, '{:03d}_gt.png'.format(i))
+            imageio.imwrite(filename, imgs)
+    rgb_ests = np.stack(rgb_ests, 0)
+    rgb_disps = np.stack(rgb_disps, 0)
+    queries = np.stack(queries, 0)
+    clips_disps = np.stack(clips_disps, 0)
+    return rgb_ests, rgb_disps, queries, clips_disps
+
 
 def config_parser():
 
@@ -686,10 +752,25 @@ def train():
             imageio.mimwrite(os.path.join(testsavedir, 'video.mp4'), to8b(rgbs), fps=30, quality=8)
 
             return
+    if args.render_query_video:
+        with torch.no_grad():
+            rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time = True)
+            # rgb_ests0, rgb_disps, queries0, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time =False)
+
+        imageio.mimwrite(args.root_path + "Nesf0_2D/queries.mp4", to8b(queries), fps=30, quality=8)
+        # imageio.mimwrite(args.root_path + "Nesf0_2D/queries0.mp4", to8b(queries0), fps=30, quality=8)
+        imageio.mimwrite(args.root_path + "Nesf0_2D/queries_disps.mp4", to8b(clips_disps / np.max(clips_disps)), fps=30, quality=8)
+        # imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_ests0.mp4", to8b(rgb_ests0), fps=30, quality=8)
+        imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_ests.mp4", to8b(rgb_ests), fps=30, quality=8)
+        imageio.mimwrite(args.root_path + "Nesf0_2D/rgb_disps.mp4", to8b(rgb_disps / np.max(rgb_disps)), fps=30, quality=8)
+        return
+
+
 
     # Prepare raybatch tensor if batching random rays
     N_rand = args.N_rand
     use_batching = not args.no_batching
+    use_batching = False
     print("use batching: ", use_batching)
     if use_batching:
         # For random ray batching
