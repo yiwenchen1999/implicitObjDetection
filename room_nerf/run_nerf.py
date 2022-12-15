@@ -917,7 +917,7 @@ def train():
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 batch_rays = torch.stack([rays_o, rays_d], 0)
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
-                if args.with_clip:
+                if train_clip:
                     clip_filename = clip_filenames[img_i]
                     clip_filename = os.path.join(args.datadir, clip_filename)
                     clip = np.load(clip_filename)
