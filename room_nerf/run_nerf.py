@@ -258,7 +258,7 @@ def create_nerf(args):
         ckpt_clip = torch.load(ckpt_path)
 
         start = ckpt_clip['global_step']
-        optimizer.load_state_dict(ckpt_clip['optimizer_clip_state_dict'])
+        optimizer_clip.load_state_dict(ckpt_clip['optimizer_clip_state_dict'])
 
         # Load model
         model.load_state_dict(ckpt_clip['network_clip_state_dict'])
