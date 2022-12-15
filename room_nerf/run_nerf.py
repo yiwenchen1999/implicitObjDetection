@@ -863,8 +863,9 @@ def train():
             train_rgb = True
             train_clip = False
         else:
-            train_rgb = True
-            train_clip = False
+            if args.use_clip:
+                train_rgb = True
+                train_clip = False
         # Sample random ray batch
         if use_batching:
             # Random over all images
@@ -887,7 +888,7 @@ def train():
             pose = poses[img_i, :3,:4]
             if args.with_clip:
                 clip_filename = clip_filenames[img_i]
-                clip_filename = os.path.join(args.datadir,'images', clip_filename)
+                clip_filename = os.path.join(args.datadir, clip_filename)
                 clip = np.load(clip_filename)
                 clip = np.array(clip).astype(np.float32)
                 clip = torch.Tensor(clip).to(device)
