@@ -659,7 +659,7 @@ def config_parser(env, flag):
                             help='input data directory')
         parser.add_argument("--root_path", type=str, default='../', 
                             help='input data directory')
-        parser.add_argument("--data_path", type=str, default= '/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/', 
+        parser.add_argument("--data_path", type=str, default= '/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/', 
                             help='input data directory')
 
     # training options
