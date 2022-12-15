@@ -653,9 +653,9 @@ def config_parser(env, flag):
         parser.add_argument("--data_path", type=str, default= '../data/' + 'toybox-13/0/', 
                             help='input data directory') 
     elif(env == 'linux'):
-        parser.add_argument("--datadir", type=str, default='/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/', 
+        parser.add_argument("--datadir", type=str, default='/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/', 
                             help='input data directory')
-        parser.add_argument("--clip_datadir", type=str, default='/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/', 
+        parser.add_argument("--clip_datadir", type=str, default='/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/', 
                             help='input data directory')
         parser.add_argument("--root_path", type=str, default='../', 
                             help='input data directory')
