@@ -746,6 +746,7 @@ def train():
     basedir = args.basedir
     expname = args.expname
     os.makedirs(os.path.join(basedir, expname), exist_ok=True)
+    os.makedirs(os.path.join(basedir, expname+"_clip"), exist_ok=True)
     f = os.path.join(basedir, expname, 'args.txt')
     with open(f, 'w') as file:
         for arg in sorted(vars(args)):
