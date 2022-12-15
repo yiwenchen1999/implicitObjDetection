@@ -27,6 +27,7 @@ np.random.seed(0)
 DEBUG = False
 
 train_clip = False#just here for quick results, will be deleted later
+print("train_clip: " ,train_clip)
 
 
 def batchify(fn, chunk):
