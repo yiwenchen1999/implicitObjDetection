@@ -928,12 +928,15 @@ def train():
             clip, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                                 verbose=i < 10, retraw=True,
                                                 **render_kwargs_train)
-
-        optimizer.zero_grad()
-        img_loss = img2mse(rgb, target_s)
-        trans = extras['raw'][...,-1]
-        loss = img_loss
-        psnr = mse2psnr(img_loss)
+        if train_rgb:
+            optimizer.zero_grad()
+            img_loss = img2mse(rgb, target_s)
+            trans = extras['raw'][...,-1]
+            loss = img_loss
+            psnr = mse2psnr(img_loss)
+            
+        if train_clip:
+            pass
 
         if 'rgb0' in extras:
             img_loss0 = img2mse(extras['rgb0'], target_s)
