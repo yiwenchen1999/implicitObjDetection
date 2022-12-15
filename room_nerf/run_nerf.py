@@ -570,6 +570,8 @@ def config_parser():
                         help='set to render synthetic data on a white bkgd (always use for dvoxels)')
     parser.add_argument("--half_res", action='store_true', 
                         help='load blender synthetic data at 400x400 instead of 800x800')
+    parser.add_argument("--render_query_video", action='store_false', 
+                        help='do not use normalized device coordinates (set for non-forward facing scenes)')
 
     ## llff flags
     parser.add_argument("--factor", type=int, default=8, 
