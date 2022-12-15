@@ -207,7 +207,7 @@ def create_nerf(args):
                           input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
         grad_vars += list(model_fine.parameters())
 
-    if train_clip:
+    if args.with_clip:
         model_clip = NeRF(D=args.netdepth, W=args.netwidth,
                  input_ch=input_ch, output_ch=output_ch, skips=skips,
                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, clipNerf = True).to(device)
@@ -220,7 +220,7 @@ def create_nerf(args):
     # Create optimizer
     optimizer = torch.optim.Adam(params=grad_vars, lr=args.lrate, betas=(0.9, 0.999))
     optimizer_clip = None
-    if train_clip:
+    if args.with_clip:
         optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
 
     start = 0
@@ -251,7 +251,7 @@ def create_nerf(args):
         if model_fine is not None:
             model_fine.load_state_dict(ckpt['network_fine_state_dict'])
     
-    if len(ckpts) > 0 and not args.no_reload and train_clip:
+    if len(ckpts) > 0 and not args.no_reload and args.with_clip:
         ckpt_path = ckpts_clip[-1]
         print('Reloading from', ckpt_path)
         ckpt_clip = torch.load(ckpt_path)
@@ -415,7 +415,11 @@ def render_rays(ray_batch,
 
 
 #     raw = run_network(pts)
-    raw = network_query_fn(pts, viewdirs, network_fn)
+    if train_clip:
+        raw = network_query_fn(pts, viewdirs, network_clip)
+    else:
+        raw = network_query_fn(pts, viewdirs, network_fn)
+
     print("raw: ", raw.shape)
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
@@ -934,7 +938,7 @@ def train():
             trans = extras['raw'][...,-1]
             loss = img_loss
             psnr = mse2psnr(img_loss)
-            
+
         if train_clip:
             pass
 
