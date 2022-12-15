@@ -219,6 +219,7 @@ def create_nerf(args):
                                                                 netchunk=args.netchunk)
     # Create optimizer
     optimizer = torch.optim.Adam(params=grad_vars, lr=args.lrate, betas=(0.9, 0.999))
+    optimizer_clip = None
     if train_clip:
         optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
 
