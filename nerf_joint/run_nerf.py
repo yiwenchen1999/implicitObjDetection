@@ -1132,7 +1132,7 @@ def train(env, flag, test_file, i_weights):
 
     if args.render_query_video:
         with torch.no_grad():
-            rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "replica/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time = True)
+            rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "replica/feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time = True)
             # rgb_ests0, rgb_disps, queries0, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time =False)
 
         imageio.mimwrite(args.root_path + "replica/queries.mp4", to8b(queries), fps=30, quality=8)
