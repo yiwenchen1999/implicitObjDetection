@@ -584,6 +584,9 @@ def config_parser():
                         help='set for spherical 360 scenes')
     parser.add_argument("--llffhold", type=int, default=8, 
                         help='will take every 1/N images as LLFF test set, paper uses 8')
+    parser.add_argument("--root_path", type=str, default="log", 
+                        help='path we will be saving the file')
+
 
     # logging/saving options
     parser.add_argument("--i_print",   type=int, default=100, 
