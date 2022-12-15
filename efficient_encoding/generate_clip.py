@@ -31,6 +31,9 @@ if __name__=='__main__':
     #cups schemes/
     data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/"
+
 
     def save_query(text, image_clip_feature_normalized, window_size):
         query_map = model.verify(image_clip_feature_normalized, text, root_path).cpu().float().numpy()
@@ -67,10 +70,10 @@ if __name__=='__main__':
             image_clip_feature_normalized = image_clip_feature
             np.save(root_path + filename[:-4], image_clip_feature_normalized)
             print(filename+" saved")
-            query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
+            # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
-            # save_query("arms on a chair", image_clip_feature_normalized, 3)
+            save_query("pick up with hand", image_clip_feature_normalized, 3)
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
             # save_query("swivel chair", image_clip_feature_normalized, 3)
