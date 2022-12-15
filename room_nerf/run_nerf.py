@@ -205,13 +205,19 @@ def create_nerf(args):
                           input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device)
         grad_vars += list(model_fine.parameters())
 
+    if train_clip:
+        model_clip = NeRF(D=args.netdepth, W=args.netwidth,
+                 input_ch=input_ch, output_ch=output_ch, skips=skips,
+                 input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs, clipNerf = True).to(device)
+        grad_vars_clip = list(model_clip.parameters())
+
     network_query_fn = lambda inputs, viewdirs, network_fn : run_network(inputs, viewdirs, network_fn,
                                                                 embed_fn=embed_fn,
                                                                 embeddirs_fn=embeddirs_fn,
                                                                 netchunk=args.netchunk)
-
     # Create optimizer
     optimizer = torch.optim.Adam(params=grad_vars, lr=args.lrate, betas=(0.9, 0.999))
+    optimizer_clip = torch.optim.Adam(params=grad_vars_clip, lr=args.lrate, betas=(0.9, 0.999))
 
     start = 0
     basedir = args.basedir
@@ -224,8 +230,10 @@ def create_nerf(args):
         ckpts = [args.ft_path]
     else:
         ckpts = [os.path.join(basedir, expname, f) for f in sorted(os.listdir(os.path.join(basedir, expname))) if 'tar' in f]
+        ckpts_clip = [os.path.join(basedir, expname, f) for f in sorted(os.listdir(os.path.join(basedir, expname+"_clip"))) if 'tar' in f]
 
     print('Found ckpts', ckpts)
+    print('Found clip ckpts', ckpts_clip)
     if len(ckpts) > 0 and not args.no_reload:
         ckpt_path = ckpts[-1]
         print('Reloading from', ckpt_path)
@@ -238,6 +246,17 @@ def create_nerf(args):
         model.load_state_dict(ckpt['network_fn_state_dict'])
         if model_fine is not None:
             model_fine.load_state_dict(ckpt['network_fine_state_dict'])
+    
+    if len(ckpts) > 0 and not args.no_reload and train_clip:
+        ckpt_path = ckpts_clip[-1]
+        print('Reloading from', ckpt_path)
+        ckpt_clip = torch.load(ckpt_path)
+
+        start = ckpt_clip['global_step']
+        optimizer.load_state_dict(ckpt_clip['optimizer_clip_state_dict'])
+
+        # Load model
+        model.load_state_dict(ckpt_clip['network_clip_state_dict'])
 
     ##########################
 
@@ -251,6 +270,7 @@ def create_nerf(args):
         'use_viewdirs' : args.use_viewdirs,
         'white_bkgd' : args.white_bkgd,
         'raw_noise_std' : args.raw_noise_std,
+        'network_clip' : model_clip
     }
 
     # NDC only good for LLFF-style forward facing data
@@ -263,7 +283,7 @@ def create_nerf(args):
     render_kwargs_test['perturb'] = False
     render_kwargs_test['raw_noise_std'] = 0.
 
-    return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer
+    return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, optimizer_clip
 
 
 def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False):
@@ -738,7 +758,7 @@ def train():
     # Create nerf model
     # Create nerf model
     print("N_importance is :", args.N_importance)
-    render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer = create_nerf(args)
+    render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, optimizer_clip = create_nerf(args)
     global_step = start
     bds_dict = {
         'near' : near,
