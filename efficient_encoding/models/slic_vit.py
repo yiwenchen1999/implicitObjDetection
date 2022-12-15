@@ -226,7 +226,7 @@ class SLICViT(nn.Module):
             text_tokenized = clip.tokenize([text]).cuda()
             text_features = torch.squeeze(self.model.encode_text(text_tokenized))
             text_features_normalized = text_features
-            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/replica/feature",text_features)
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/replica/feature",text_features.cpu().numpy())
 
             #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
             
