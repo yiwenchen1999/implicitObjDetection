@@ -261,7 +261,7 @@ def create_nerf(args):
         optimizer_clip.load_state_dict(ckpt_clip['optimizer_clip_state_dict'])
 
         # Load model
-        model.load_state_dict(ckpt_clip['network_clip_state_dict'])
+        model_clip.load_state_dict(ckpt_clip['network_clip_state_dict'])
 
     ##########################
 
