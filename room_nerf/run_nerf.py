@@ -380,6 +380,7 @@ def render_rays(ray_batch,
       z_std: [num_rays]. Standard deviation of distances along ray for each
         sample.
     """
+    print("IS traning clip: ", train_clip)
     N_rays = ray_batch.shape[0]
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
@@ -415,6 +416,7 @@ def render_rays(ray_batch,
 
 #     raw = run_network(pts)
     raw = network_query_fn(pts, viewdirs, network_fn)
+    print("raw: ", raw.shape)
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 
     if N_importance > 0:
@@ -909,9 +911,21 @@ def train():
                 rays_d = rays_d[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
                 batch_rays = torch.stack([rays_o, rays_d], 0)
                 target_s = target[select_coords[:, 0], select_coords[:, 1]]  # (N_rand, 3)
+                if args.with_clip:
+                    clip_filename = clip_filenames[img_i]
+                    clip_filename = os.path.join(args.clip_datadir, clip_filename)
+                    clip = np.load(clip_filename)
+                    clip = np.array(clip).astype(np.float32)
+                    clip = torch.Tensor(clip).to(device)
+                    clip = normalize(clip, p = 2, dim = -1)
 
         #####  Core optimization loop  #####
-        rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
+        if train_rgb:
+            rgb, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
+                                                verbose=i < 10, retraw=True,
+                                                **render_kwargs_train)
+        if train_clip:
+            clip, disp, acc, extras = render(H, W, K, chunk=args.chunk, rays=batch_rays,
                                                 verbose=i < 10, retraw=True,
                                                 **render_kwargs_train)
 

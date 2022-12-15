@@ -126,9 +126,12 @@ class NeRF(nn.Module):
             for i, l in enumerate(self.views_linears):
                 h = self.views_linears[i](h)
                 h = F.relu(h)
-
-            rgb = self.rgb_linear(h)
-            outputs = torch.cat([rgb, alpha], -1)
+            if self.clipNerf:
+                clip = self.clip_linear(h)
+                outputs = torch.cat([clip,alpha],-1)
+            else:
+                rgb = self.rgb_linear(h)
+                outputs = torch.cat([rgb, alpha], -1)
         else:
             outputs = self.output_linear(h)
 
