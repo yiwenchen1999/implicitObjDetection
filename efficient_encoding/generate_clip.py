@@ -31,8 +31,8 @@ if __name__=='__main__':
     #cups schemes/
     data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups"
 
 
     def save_query(text, image_clip_feature_normalized, window_size):
