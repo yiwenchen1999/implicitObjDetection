@@ -734,7 +734,7 @@ def train():
     # Create nerf model
     # Create nerf model
     print("N_importance is :", args.N_importance)
-    render_kwargs_train, render_kwargs_test, start, grad_vars, grad_vars_clip, optimizer, optimizer_clip = create_nerf(args, flag, test_file)
+    render_kwargs_train, render_kwargs_test, start, grad_vars, grad_vars_clip, optimizer, optimizer_clip = create_nerf(args)
     global_step = start
     bds_dict = {
         'near' : near,
