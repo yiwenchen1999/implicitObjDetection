@@ -241,7 +241,7 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
     i_eval = np.setdiff1d(i_all, i_train)
     # print(i_eval)
     i_test = i_eval
-    near = 0
+    near = 0.2
     far = 7
 
     c2w = poses[10]
