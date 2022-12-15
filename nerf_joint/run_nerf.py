@@ -1353,6 +1353,7 @@ def train(env, flag, test_file, i_weights):
                 pose = poses[img_i, :3,:4]
                 if args.with_clip:
                     clip_filename = clip_filenames[img_i]
+                    clip_filename = os.path.join(args.clip_datadir, clip_filename)
                     clip = np.load(clip_filename)
                     clip = np.array(clip).astype(np.float32)
                     clip = torch.Tensor(clip).to(device)
