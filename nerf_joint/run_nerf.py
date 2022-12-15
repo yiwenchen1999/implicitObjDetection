@@ -841,7 +841,7 @@ def config_parser(env, flag):
 
 
 
-def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0, use_clip = False, train_clip = True, test_time = False):
+def render_query_video(text_embedding_address, render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=8, use_clip = False, train_clip = True, test_time = False):
     H, W, focal = hwf
     if render_factor!=0:
         # Render downsampled for speed
