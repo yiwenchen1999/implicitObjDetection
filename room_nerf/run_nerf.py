@@ -864,8 +864,10 @@ def train():
             train_rgb = True
         else:
             if args.with_clip:
+                train_rgb = False
+                train_clip = True
+            else:
                 train_rgb = True
-                # train_clip = False
         # Sample random ray batch
         if use_batching:
             # Random over all images
