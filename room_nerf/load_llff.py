@@ -241,7 +241,7 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
     i_eval = np.setdiff1d(i_all, i_train)
     # print(i_eval)
     i_test = i_eval
-    near = 1
+    near = 0
     far = 7
 
     c2w = poses[10]
@@ -267,7 +267,7 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
     render_poses = render_path_spiral(c2w_path, up, rads, fx, zdelta, zrate=.5, rots=N_rots, N=N_views)
     render_poses = np.array(render_poses).astype(np.float32)   
 
-    return images, poses, near, far, K, render_poses, i_test, [height, width, fx]
+    return images, poses, near, far, K, render_poses, i_test, [height, width, fx], clip_filenames
 
 
 

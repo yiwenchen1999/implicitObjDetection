@@ -568,7 +568,7 @@ def train():
         print('NEAR FAR', near, far)
 
     if args.dataset_type == 'replica':
-        images, poses, near, far, K, render_poses, i_test, hwf = _load_data_replica(args.datadir)
+        images, poses, near, far, K, render_poses, i_test, hwf, clip_filenames = _load_data_replica(args.datadir)
         
         print('Loaded replica', images.shape, render_poses.shape, args.datadir)
         if not isinstance(i_test, list):
