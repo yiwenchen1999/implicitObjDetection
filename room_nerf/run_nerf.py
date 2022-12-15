@@ -142,12 +142,14 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
 def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=8):
 
     H, W, focal = hwf
-
+    render_factor = 8
+    
     if render_factor!=0:
         # Render downsampled for speed
         H = H//render_factor
         W = W//render_factor
         focal = focal/render_factor
+        print("down sampled for speed")
 
     rgbs = []
     disps = []
