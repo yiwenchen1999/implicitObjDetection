@@ -351,15 +351,16 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
             noise = np.random.rand(*list(raw[...,-1].shape)) * raw_noise_std
             noise = torch.Tensor(noise)
 
-    if outputClip:
+    
+    if infer:
         alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
-        # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
+        alpha_rgb = raw2alpha_rgb(raw_rgb[...,3] + noise, dists)  # [N_rays, N_samples]
+        alpha_clip = alpha_clip*alpha_rgb
         weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
         clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3]
-    elif infer:
+    elif outputClip:
         alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
-        alpha_rgb = raw2alpha_rgb(raw_rgb[...,-1] + noise, dists)  # [N_rays, N_samples]
-        alpha_clip = alpha_clip*alpha_rgb
+        # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
         weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
         clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3]
 
@@ -462,20 +463,23 @@ def render_rays(ray_batch,
 
 
 #     raw = run_network(pts)
-    if train_clip:
-        raw = network_query_fn(pts, viewdirs, network_clip)
-    elif infer:
+    if infer:
         raw = network_query_fn(pts, viewdirs, network_clip)
         raw_rgb = network_query_fn(pts, viewdirs, network_fn)
+    elif train_clip:
+        raw = network_query_fn(pts, viewdirs, network_clip)
+    
     else:
         raw = network_query_fn(pts, viewdirs, network_fn)
     rgb_map = None
     clip_map = None
-    if train_clip:
+
+    if infer:
+        print("doing dual density inference")
+        clip_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, outputClip = True, infer = True, raw_rgb = raw_rgb)
+    elif train_clip:
         clip_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, outputClip = True)
         # print("clip shape: ", clip_map.shape)
-    elif infer:
-        clip_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, outputClip = True, infer = True, raw_rgb = raw_rgb)
     else:
         rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
         # print("rgb shape: ", rgb_map.shape)
