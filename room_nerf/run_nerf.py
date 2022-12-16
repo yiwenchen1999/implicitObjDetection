@@ -160,27 +160,31 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
     for i, c2w in enumerate(tqdm(render_poses)):
         print(i, time.time() - t)
         t = time.time()
-        if render_kwargs['train_clip']:
-            clip, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
-            # rgbs.append(rgb.cpu().numpy())
-            # disps.append(disp.cpu().numpy())
-            print(i," clips rendering finished:", clip.shape, disp.shape)
-            clip = clip.cpu().numpy()
-            np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
-            if i==0:
-                print(rgb.shape, disp.shape)
-        else:
-            rgb, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
-            rgbs.append(rgb.cpu().numpy())
-            disps.append(disp.cpu().numpy())
-            print(i," rgb rendering finished:", rgb.shape, disp.shape)
-            if i==0:
-                print(rgb.shape, disp.shape)
+        print("doing clip: ", render_kwargs['train_clip'])
+        rgb, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
+        rgbs.append(rgb.cpu().numpy())
+        disps.append(disp.cpu().numpy())
+        print(i," rgb rendering finished:", rgb.shape, disp.shape)
+        if i==0:
+            print(rgb.shape, disp.shape)
 
-            if savedir is not None:
-                rgb8 = to8b(rgbs[-1])
-                filename = os.path.join(savedir, '{:03d}.png'.format(i))
-                imageio.imwrite(filename, rgb8)
+        # if render_kwargs['train_clip']:
+        render_kwargs['train_clip'] = True
+        print("doing clip: ", render_kwargs['train_clip'])
+        clip, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
+        # rgbs.append(rgb.cpu().numpy())
+        # disps.append(disp.cpu().numpy())
+        print(i," clips rendering finished:", clip.shape, disp.shape)
+        clip = clip.cpu().numpy()
+        np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
+        if i==0:
+            print(rgb.shape, disp.shape)
+
+
+        if savedir is not None:
+            rgb8 = to8b(rgbs[-1])
+            filename = os.path.join(savedir, '{:03d}.png'.format(i))
+            imageio.imwrite(filename, rgb8)
 
         """
         if gt_imgs is not None and render_factor==0:
