@@ -270,6 +270,130 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
     return images, poses, near, far, K, render_poses, i_test, [height, width, fx], clip_filenames
 
 
+def _load_data_replica_testing(basedir, factor=None, width=None, height=None, load_imgs=True):
+    meta = load_from_json(basedir + "transforms.json")
+    file_render_list = os.listdir("../images_4")
+    file_render_list = sorted(file_render_list)
+    print(file_render_list[0:10])
+    image_filenames = []
+    # mask_filenames = []
+    poses = []
+    clip_filenames = []
+    fx_fixed = "fl_x" in meta
+    fy_fixed = "fl_y" in meta
+    cx_fixed = "cx" in meta
+    cy_fixed = "cy" in meta
+    height_fixed = "h" in meta
+    width_fixed = "w" in meta
+    distort_fixed = False
+    for distort_key in ["k1", "k2", "k3", "p1", "p2"]:
+        if distort_key in meta:
+            distort_fixed = True
+            break
+    for frame in meta["frames"]:
+        # print(type(frame["file_path"]), frame["file_path"])
+        clip_path = (frame["file_path"][:-4]+".npy")
+        # print(str(clip_path))
+        filepath = (frame["file_path"])
+        fname = (filepath)
+        clipname =(clip_path)
+        image_filenames.append(fname)
+        # print(fname)
+        poses.append(np.array(frame["transform_matrix"]))
+        clip_filenames.append(clipname)
+    imgdir = os.path.join(basedir, 'images')
+    if factor is not None:
+        sfx = '_{}'.format(factor)
+        _minify(basedir, factors=[factor])
+        factor = factor
+        imgdir = os.path.join(basedir, 'images' + sfx)
+    
+    
+    if not os.path.exists(imgdir):
+        print( imgdir, 'does not exist, returning' )
+        return
+
+    def imread(f):
+        if f.endswith('png'):
+            return imageio.imread(f, ignoregamma=True)
+        else:
+            return imageio.imread(f)
+    print(os.path.join(imgdir, image_filenames[0][-15:]))
+    imgs = imgs = [imread(os.path.join(imgdir, f[-15:]))[...,:3]/255. for f in image_filenames]
+    poses = torch.from_numpy(np.array(poses).astype(np.float32))
+    poses = auto_orient_and_center_poses(
+            poses,
+            method="up",
+        )
+    scale_factor = 1.0
+    scale_factor /= torch.max(torch.abs(poses[:, :3, 3]))
+    poses[:, :3, 3] *= scale_factor 
+    imgs = np.stack(imgs, -1)  
+    imgs = np.moveaxis(imgs, -1, 0).astype(np.float32)
+    images = imgs
+    # poses = np.moveaxis(poses, -1, 0).astype(np.float32)
+    poses = poses.numpy()
+
+    print("imgs: ", imgs.shape)
+    print("poses: ", poses.shape)
+
+    images = images.astype(np.float32)
+    
+    poses = poses.astype(np.float32)
+
+    idx_tensor = torch.tensor(1, dtype=torch.long)
+    fx = float(meta["fl_x"]) if fx_fixed else torch.tensor(fx, dtype=torch.float32)[idx_tensor]
+    fy = float(meta["fl_y"]) if fy_fixed else torch.tensor(fy, dtype=torch.float32)[idx_tensor]
+    cx = float(meta["cx"]) if cx_fixed else torch.tensor(cx, dtype=torch.float32)[idx_tensor]
+    cy = float(meta["cy"]) if cy_fixed else torch.tensor(cy, dtype=torch.float32)[idx_tensor]
+    height = int(meta["h"]) if height_fixed else torch.tensor(height, dtype=torch.int32)[idx_tensor]
+    width = int(meta["w"]) if width_fixed else torch.tensor(width, dtype=torch.int32)[idx_tensor]
+
+    K = np.array([
+            [fx, 0, 0.5*width],
+            [0, fy, 0.5*height],
+            [0, 0, 1]
+        ])
+
+    num_images = len(image_filenames)
+    num_train_images = math.ceil(num_images * 0.9)
+    num_eval_images = num_images - num_train_images
+    i_all = np.arange(num_images)
+    i_train = np.linspace(
+        0, num_images - 1, num_train_images, dtype=int
+    )  # equally spaced training images starting and ending at 0 and num_images-1
+    i_eval = np.setdiff1d(i_all, i_train)
+    # print(i_eval)
+    i_test = i_eval
+    near = 0
+    far = 7
+
+    c2w = poses[10]
+
+    ## Get spiral
+    # Get average pose
+    up = normalize(poses[:, :3, 1].sum(0))
+    # Find a reasonable "focus depth" for this dataset
+    close_depth, inf_depth = 0.2*.9, far*5.
+    dt = .75
+    mean_dz = 1./(((1.-dt)/close_depth + dt/inf_depth))
+    focal = mean_dz
+    # Get radii for spiral path
+    shrink_factor = .8
+    zdelta = close_depth * .2
+    tt = poses[:,:3,3] # ptstocam(poses[:3,3,:].T, c2w).T
+    rads = np.percentile(np.abs(tt), 90, 0)
+    c2w_path = c2w
+    N_views = 120
+    N_rots = 2
+
+    # Generate poses for spiral path
+    render_poses = render_path_spiral(c2w_path, up, rads, fx, zdelta, zrate=.5, rots=N_rots, N=N_views)
+    render_poses = np.array(render_poses).astype(np.float32)   
+
+    return images, poses, near, far, K, render_poses, i_test, [height, width, fx], clip_filenames
+
+
 
     # imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
     # print(imgfiles[4])
@@ -552,4 +676,4 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
 
 if __name__=='__main__':
     load_llff_data("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/nerf/data/nerf_llff_data/fern")
-    _load_data_replica("/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/")
+    _load_data_replica_testing("/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio_2/")
