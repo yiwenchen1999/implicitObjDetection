@@ -241,7 +241,7 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
     i_eval = np.setdiff1d(i_all, i_train)
     # print(i_eval)
     i_test = i_eval
-    near = 0.2
+    near = 0
     far = 7
 
     c2w = poses[10]
@@ -250,7 +250,7 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
     # Get average pose
     up = normalize(poses[:, :3, 1].sum(0))
     # Find a reasonable "focus depth" for this dataset
-    close_depth, inf_depth = near*.9, far*5.
+    close_depth, inf_depth = 0.2*.9, far*5.
     dt = .75
     mean_dz = 1./(((1.-dt)/close_depth + dt/inf_depth))
     focal = mean_dz
