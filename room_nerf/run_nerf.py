@@ -186,6 +186,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
         print(i," clips rendering finished:", clip.shape, disp.shape)
         clip = clip.cpu().numpy()
         np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
+        chunk = int(chunk*2)
 
         
 
