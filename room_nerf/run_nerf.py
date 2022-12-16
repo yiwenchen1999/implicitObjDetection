@@ -311,7 +311,7 @@ def create_nerf(args):
     return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, optimizer_clip
 
 
-def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False, outputClip = False):
+def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=False, outputClip = False, infer = False, raw_rgb = None):
     """Transforms model's predictions to semantically meaningful values.
     Args:
         raw: [num_rays, num_samples along ray, 4]. Prediction from model.
@@ -332,6 +332,9 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
     if outputClip:
         clip = torch.tanh(raw[...,:-1])  # [N_rays, N_samples, 3]
+    elif infer:
+        clip = torch.tanh(raw[...,:-1])  # [N_rays, N_samples, 3]
+        
     else:
         rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
     noise = 0.
@@ -340,7 +343,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         # Overwrite randomly sampled data if pytest
         if pytest:
             np.random.seed(0)
-            noise = np.random.rand(*list(raw[...,3].shape)) * raw_noise_std
+            noise = np.random.rand(*list(raw[...,-1].shape)) * raw_noise_std
             noise = torch.Tensor(noise)
 
     if outputClip:
@@ -348,6 +351,13 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
         weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
         clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3]
+    elif infer:
+        alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
+        alpha_rgb = raw2alpha_rgb(raw_rgb[...,-1] + noise, dists)  # [N_rays, N_samples]
+        alpha_clip = alpha_clip*alpha_rgb
+        weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
+        clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3]
+
     else:
         alpha_rgb = raw2alpha_rgb(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
         # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
@@ -360,7 +370,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
 
     if white_bkgd:
         rgb_map = rgb_map + (1.-acc_map[...,None])
-    if outputClip:
+    if outputClip or infer:
         return clip_map, disp_map, acc_map, weights, depth_map
     else:
         return rgb_map, disp_map, acc_map, weights, depth_map
@@ -380,7 +390,8 @@ def render_rays(ray_batch,
                 verbose=False,
                 pytest=False,
                 network_clip = None,
-                train_clip = False):
+                train_clip = False,
+                infer = False):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -448,6 +459,9 @@ def render_rays(ray_batch,
 #     raw = run_network(pts)
     if train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
+    elif infer:
+        raw = network_query_fn(pts, viewdirs, network_clip)
+        raw_rgb = network_query_fn(pts, viewdirs, network_fn)
     else:
         raw = network_query_fn(pts, viewdirs, network_fn)
     rgb_map = None
@@ -455,6 +469,8 @@ def render_rays(ray_batch,
     if train_clip:
         clip_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, outputClip = True)
         # print("clip shape: ", clip_map.shape)
+    elif infer:
+        clip_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, outputClip = True, infer = True, raw_rgb = raw_rgb)
     else:
         rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
         # print("rgb shape: ", rgb_map.shape)

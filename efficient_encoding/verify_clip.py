@@ -37,14 +37,14 @@ if __name__=='__main__':
     root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
 
 
-    def save_query(text, image_clip_feature_normalized, window_size):
+    def save_query(text, image_clip_feature_normalized):
         query_map = model.verify(image_clip_feature_normalized, text, root_path).cpu().float().numpy()
         query_map_scores = np.squeeze(query_map)
         # max = np.max(query_map)
         # min = np.min(query_map)
         # print(filename+" max score: "+str(max) + ", min score: "+str(min))
         query_map_remapped = (query_map_scores - np.min(query_map_scores)) / (np.max(query_map_scores) - np.min(query_map_scores))
-        np.save(root_path + filename[:-4]+ text + str(window_size), query_map_remapped)
+        # np.save(root_path + filename[:-4]+ text, query_map_remapped)
             # r,c = np.shape(query_map_remapped)
             # query_map_3d = np.zeros((r,c,3))
             # query_map_3d[:,:,0] = query_map_remapped
@@ -52,30 +52,29 @@ if __name__=='__main__':
             # query_map_3d[:,:,2] = query_map_remapped
 
             # query_map = query_map.cpu().detach().numpy()
-        query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
+        # query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
         plt.imshow(query_map)
         # plt.imshow(query_map_3d)
-        plt.imsave(root_path + filename[:-4] + text + str(window_size)+ "_heat.png", query_map)
+        plt.imsave(root_path + filename[:-4]+ text + "_heat.png", query_map)
 
 
 
     directories = os.listdir(data_path)
     for filename in directories:
         # if filename[0:4] == 'rgba':
-        if filename[-4:] != '.npy':
+        if filename[-4:] == '.npy':
         # if True:
-            img_path = data_path + filename
-            im = np.array(Image.open(img_path).convert("RGB")) #im shape is (256, 256, 3)
-            o_im = Image.fromarray(im).convert ('RGB')
-            # o_im.save(root_path + filename)
-            image_clip_feature = torch.tensor(model.get_clipmap(im)) #image_clip_feature's size is torch.Size([1, 768, 1])
-            image_clip_feature_normalized = image_clip_feature
-            np.save(root_path + filename[:-4], image_clip_feature_normalized)
-            print(filename+" saved")
+            clip_path = data_path + filename
+            feature_map = np.load(clip_path)
+             #image_clip_feature's size is torch.Size([1, 768, 1])
+            image_clip_feature_normalized = feature_map
+            print(filename+"loaded")
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
-            save_query("pick up with hand", image_clip_feature_normalized, 3)
+            save_query("sofa", image_clip_feature_normalized)
+            save_query("window", image_clip_feature_normalized)
+            save_query("table", image_clip_feature_normalized)
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
             # save_query("swivel chair", image_clip_feature_normalized, 3)
