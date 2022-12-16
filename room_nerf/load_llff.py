@@ -375,7 +375,7 @@ def _load_data_replica_testing(basedir, factor=None, width=None, height=None, lo
         if i%3 == 0:
             # print(path)
             index = image_filenames.index(path)
-            print(index)
+            # print(index)
             pose = poses[index]
             render_poses.append(pose)
         i = i+1

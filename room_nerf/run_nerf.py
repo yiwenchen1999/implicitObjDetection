@@ -760,6 +760,22 @@ def train():
 
         print('NEAR FAR', near, far)
 
+    if args.dataset_type == 'replica_renderonly':
+        images, poses, near, far, K, render_poses, i_test, hwf, clip_filenames = _load_data_replica(args.datadir)
+        
+        print('Loaded replica', images.shape, render_poses.shape, args.datadir)
+        if not isinstance(i_test, list):
+            i_test = [i_test]
+
+        i_val = i_test
+        print(type(i_test), type(i_val))
+        i_train = np.array([i for i in np.arange(int(images.shape[0]))])
+        # i_train = np.array([i for i in np.arange(int(images.shape[0])) if
+        #                 (i not in i_test and i not in i_val)])
+
+        print('NEAR FAR', near, far)
+
+
     elif args.dataset_type == 'blender':
         images, poses, render_poses, hwf, i_split = load_blender_data(args.datadir, args.half_res, args.testskip)
         print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
