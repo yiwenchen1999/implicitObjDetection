@@ -38,7 +38,7 @@ if __name__=='__main__':
 
 
     def save_query(text, image_clip_feature_normalized):
-        query_map = model.verify(image_clip_feature_normalized, text, root_path).cpu().float().numpy()
+        query_map = model.verify(image_clip_feature_normalized, text, root_path)
         query_map_scores = np.squeeze(query_map)
         # max = np.max(query_map)
         # min = np.min(query_map)
