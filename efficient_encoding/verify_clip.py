@@ -68,6 +68,7 @@ if __name__=='__main__':
             feature_map = np.load(clip_path)
              #image_clip_feature's size is torch.Size([1, 768, 1])
             image_clip_feature_normalized = feature_map
+            print(image_clip_feature_normalized.shape, image_clip_feature_normalized.size)
             print(filename+"loaded")
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
