@@ -475,7 +475,7 @@ def render_rays(ray_batch,
     clip_map = None
 
     if infer:
-        print("doing dual density inference")
+        # print("doing dual density inference")
         clip_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, outputClip = True, infer = True, raw_rgb = raw_rgb)
     elif train_clip:
         clip_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest, outputClip = True)
