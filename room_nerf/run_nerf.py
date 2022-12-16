@@ -167,6 +167,11 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
         print(i," rgb rendering finished:", rgb.shape, disp.shape)
         if i==0:
             print(rgb.shape, disp.shape)
+            
+        if savedir is not None:
+            rgb8 = to8b(rgbs[-1])
+            filename = os.path.join(savedir, '{:03d}.png'.format(i))
+            imageio.imwrite(filename, rgb8)
 
         # if render_kwargs['train_clip']:
         render_kwargs['train_clip'] = True
@@ -179,14 +184,8 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
         print(i," clips rendering finished:", clip.shape, disp.shape)
         clip = clip.cpu().numpy()
         np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
-        if i==0:
-            print(rgb.shape, disp.shape)
 
-
-        if savedir is not None:
-            rgb8 = to8b(rgbs[-1])
-            filename = os.path.join(savedir, '{:03d}.png'.format(i))
-            imageio.imwrite(filename, rgb8)
+        
 
         """
         if gt_imgs is not None and render_factor==0:
