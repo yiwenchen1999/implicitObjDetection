@@ -172,7 +172,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
         render_kwargs['train_clip'] = True
         print("doing clip: ", render_kwargs['train_clip'])
         print(chunk)
-        chunk = chunk/2
+        chunk = int(chunk/2)
         clip, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
         # rgbs.append(rgb.cpu().numpy())
         # disps.append(disp.cpu().numpy())
