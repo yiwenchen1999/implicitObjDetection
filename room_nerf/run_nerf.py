@@ -167,9 +167,10 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
         print(i," rgb rendering finished:", rgb.shape, disp.shape)
         if i==0:
             print(rgb.shape, disp.shape)
-            
+
         if savedir is not None:
             rgb8 = to8b(rgbs[-1])
+            print(rgb8.shape)
             filename = os.path.join(savedir, '{:03d}.png'.format(i))
             imageio.imwrite(filename, rgb8)
 
