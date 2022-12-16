@@ -272,7 +272,7 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
 
 def _load_data_replica_testing(basedir, factor=None, width=None, height=None, load_imgs=True):
     meta = load_from_json(basedir + "transforms.json")
-    file_render_list = os.listdir("../images_4")
+    file_render_list = os.listdir("../../images_4")
     file_render_list = sorted(file_render_list)
     print(file_render_list[0:10])
     image_filenames = []
