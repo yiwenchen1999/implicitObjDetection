@@ -18,6 +18,7 @@ from load_deepvoxels import load_dv_data
 from load_blender import load_blender_data
 from load_LINEMOD import load_LINEMOD_data
 from load_llff import _load_data_replica
+from load_llff import _load_data_replica_testing
 import sys
 from torch.nn.functional import normalize
 
@@ -761,7 +762,7 @@ def train():
         print('NEAR FAR', near, far)
 
     if args.dataset_type == 'replica_renderonly':
-        images, poses, near, far, K, render_poses, i_test, hwf, clip_filenames = _load_data_replica(args.datadir)
+        images, poses, near, far, K, render_poses, i_test, hwf, clip_filenames = _load_data_replica_testing(args.datadir)
         
         print('Loaded replica', images.shape, render_poses.shape, args.datadir)
         if not isinstance(i_test, list):
