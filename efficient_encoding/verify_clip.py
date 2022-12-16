@@ -55,7 +55,7 @@ if __name__=='__main__':
         query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
         plt.imshow(query_map)
         # plt.imshow(query_map_3d)
-        plt.imsave(root_path + filename[:-4]+ text + "_heat.png", query_map)
+        plt.imsave(root_path + filename[:-4]+ text + "_heat_infer.png", query_map)
 
 
 
