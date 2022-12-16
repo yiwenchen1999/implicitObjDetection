@@ -378,6 +378,7 @@ def _load_data_replica_testing(basedir, factor=None, width=None, height=None, lo
             # print(index)
             pose = poses[index]
             render_poses.append(pose)
+            print(i)
         i = i+1
         
 
