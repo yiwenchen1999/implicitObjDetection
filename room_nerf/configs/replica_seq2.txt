@@ -1,5 +1,5 @@
 expname = replica
-basedir = ./test
+basedir = ./logs
 datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/room_studio_2/
 dataset_type = replica_renderonly
 
