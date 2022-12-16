@@ -238,5 +238,6 @@ class SLICViT(nn.Module):
             #print(text_features_normalized)
             text_features_normalized = text_features_normalized.to(torch.float).cuda()
             image_features_normalized = image_features_normalized.to(torch.float).cuda()
-            sem_img = torch.tensordot(image_features_normalized.float(), text_features_normalized.cpu(), dims=([3],[1])).detach().numpy()
+            print(text_features_normalized.shape)
+            sem_img = torch.tensordot(image_features_normalized.float(), text_features_normalized.cpu(), dims=([2],[1])).detach().numpy()
             return sem_img
