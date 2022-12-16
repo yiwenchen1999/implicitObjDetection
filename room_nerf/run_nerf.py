@@ -865,10 +865,6 @@ def train():
             print('Done rendering', testsavedir)
             imageio.mimwrite(os.path.join(testsavedir, 'video.mp4'), to8b(rgbs), fps=30, quality=8)
             
-            render_kwargs_test['train_clip'] = True
-            print("rendering clip: ", render_kwargs_test['train_clip'])
-            rgbs, _ = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
-
             return
     # if args.render_query_video:
     #     with torch.no_grad():
