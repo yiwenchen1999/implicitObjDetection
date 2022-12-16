@@ -10,6 +10,8 @@ import clip
 from spatial_clip import CLIPMaskedSpatialViT
 from spatial_clip import CLIPSpatialResNet
 import matplotlib.pyplot as plt
+from torch.nn.functional import normalize
+
 
 
 
@@ -238,6 +240,8 @@ class SLICViT(nn.Module):
             #print(text_features_normalized)
             text_features_normalized = text_features_normalized.to(torch.float)
             image_features_normalized = image_features_normalized.to(torch.float)
+            text_features_normalized = normalize(text_features_normalized, p=2.0, dim = -1)
+            image_features_normalized = normalize(image_features_normalized, p=2.0, dim = -1)
             print(text_features_normalized.shape)
             sem_img = torch.tensordot(image_features_normalized.float(), text_features_normalized.cpu(), dims=([2],[0])).detach().numpy()
             return sem_img
