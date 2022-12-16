@@ -368,27 +368,14 @@ def _load_data_replica_testing(basedir, factor=None, width=None, height=None, lo
     near = 0
     far = 7
 
-    c2w = poses[10]
+    render_poses = []
+    i = 0
+    for name in file_render_list:
+        if i%3 == 0:
+            print(image_filenames)
+        i = i+1
+        
 
-    ## Get spiral
-    # Get average pose
-    up = normalize(poses[:, :3, 1].sum(0))
-    # Find a reasonable "focus depth" for this dataset
-    close_depth, inf_depth = 0.2*.9, far*5.
-    dt = .75
-    mean_dz = 1./(((1.-dt)/close_depth + dt/inf_depth))
-    focal = mean_dz
-    # Get radii for spiral path
-    shrink_factor = .8
-    zdelta = close_depth * .2
-    tt = poses[:,:3,3] # ptstocam(poses[:3,3,:].T, c2w).T
-    rads = np.percentile(np.abs(tt), 90, 0)
-    c2w_path = c2w
-    N_views = 120
-    N_rots = 2
-
-    # Generate poses for spiral path
-    render_poses = render_path_spiral(c2w_path, up, rads, fx, zdelta, zrate=.5, rots=N_rots, N=N_views)
     render_poses = np.array(render_poses).astype(np.float32)   
 
     return images, poses, near, far, K, render_poses, i_test, [height, width, fx], clip_filenames
