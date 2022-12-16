@@ -161,7 +161,9 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
         print(i, time.time() - t)
         t = time.time()
         render_kwargs['train_clip'] = False
+        render_kwargs['infer'] = False
         print("doing clip: ", render_kwargs['train_clip'])
+        print("doing infer: ", render_kwargs['infer'])
         rgb, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
         rgbs.append(rgb.cpu().numpy())
         disps.append(disp.cpu().numpy())
@@ -178,6 +180,8 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
         # if render_kwargs['train_clip']:
         render_kwargs['train_clip'] = True
         print("doing clip: ", render_kwargs['train_clip'])
+        render_kwargs['infer'] = True
+        print("doing infer: ", render_kwargs['infer'])
         print(chunk)
         chunk = int(chunk/2)
         clip, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
@@ -295,7 +299,8 @@ def create_nerf(args):
         'white_bkgd' : args.white_bkgd,
         'raw_noise_std' : args.raw_noise_std,
         'network_clip' : model_clip,
-        'train_clip': False
+        'train_clip': False,
+        'infer' : False
     }
 
     # NDC only good for LLFF-style forward facing data
