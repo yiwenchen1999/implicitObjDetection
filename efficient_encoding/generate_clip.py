@@ -31,10 +31,10 @@ if __name__=='__main__':
     #cups schemes/
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups/"
-    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups/"
+    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
+    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
 
 
     def save_query(text, image_clip_feature_normalized, window_size):
