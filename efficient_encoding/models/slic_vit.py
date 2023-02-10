@@ -10,6 +10,8 @@ import clip
 from spatial_clip import CLIPMaskedSpatialViT
 from spatial_clip import CLIPSpatialResNet
 import matplotlib.pyplot as plt
+from torch.nn.functional import normalize
+
 
 
 
@@ -220,12 +222,16 @@ class SLICViT(nn.Module):
 
     def verify(self, image_features_normalized, text, root_path):
         with torch.no_grad():
-            r,c,f = image_features_normalized.size()
+            r = image_features_normalized.shape[0]
+            c = image_features_normalized.shape[1]
+            f = image_features_normalized.shape[2]
             input = torch.empty(r, c, 1)
             query_map = torch.zeros_like(input)
             text_tokenized = clip.tokenize([text]).cuda()
             text_features = torch.squeeze(self.model.encode_text(text_tokenized))
             text_features_normalized = text_features
+            # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/replica/feature",text_features.cpu().numpy())
+
             #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
             
             # np.save(root_path + "Nesf0_2D/" + text + "_clip_feature", text_features_normalized.cpu().detach().numpy())
@@ -234,7 +240,8 @@ class SLICViT(nn.Module):
             #print(text_features_normalized)
             text_features_normalized = text_features_normalized.to(torch.float)
             image_features_normalized = image_features_normalized.to(torch.float)
-            for i in range(r):
-                for j in range(c):
-                    query_map[i,j,0] = (torch.dot(image_features_normalized.cpu()[i,j,:], text_features_normalized.cpu())/ (np.linalg.norm(image_features_normalized[i,j,:].cpu().detach().numpy()) * np.linalg.norm(text_features_normalized.cpu().detach().numpy())))
-        return query_map
+            text_features_normalized = normalize(text_features_normalized, p=2.0, dim = -1)
+            image_features_normalized = normalize(image_features_normalized, p=2.0, dim = -1)
+            print(text_features_normalized.shape)
+            sem_img = torch.tensordot(image_features_normalized.float(), text_features_normalized.cpu(), dims=([2],[0])).detach().numpy()
+            return sem_img
