@@ -87,8 +87,8 @@ if __name__=='__main__':
 
 
             save_query("pick up with hand", image_clip_feature_normalized, 3)
-            save_query("handle of the cup", image_clip_feature_normalized, 3)
-            save_query("the cup with a handle", image_clip_feature_normalized, 3)
+            save_query("handle of the bag", image_clip_feature_normalized, 3)
+            save_query("the bag with a handle", image_clip_feature_normalized, 3)
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
             # save_query("swivel chair", image_clip_feature_normalized, 3)
