@@ -48,6 +48,8 @@ if __name__=='__main__':
 
             # query_map = query_map.cpu().detach().numpy()
         query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
+        indices = np.where(query_map >= np.max(query_map_scores)-0.1)
+        print(text + " has max score at: " + indices)
         plt.imshow(query_map)
         # plt.imshow(query_map_3d)
         plt.imsave(root_path + filename[:-4] + text + str(window_size)+ "_heat.png", query_map)
