@@ -54,11 +54,19 @@ if __name__=='__main__':
 
             # query_map = query_map.cpu().detach().numpy()
         query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
-        indices = np.where(query_map >= np.max(query_map_scores)-0.1)
-        print(text + " has max score at: ", indices)
+        indices = np.where(query_map >= np.max(query_map_scores)-0.2)
+        # print(indices)
+        x_y_coords =list(zip(indices[0], indices[1]))
+        # print(x_y_coords)
+        MAXMAP = np.zeros(query_map.shape)
+        for index in x_y_coords:
+            MAXMAP[index]=1
         plt.imshow(query_map)
         # plt.imshow(query_map_3d)
         plt.imsave(root_path + filename[:-4] + text + str(window_size)+ "_heat.png", query_map)
+        plt.imshow(MAXMAP)
+        # plt.imshow(query_map_3d)
+        plt.imsave(root_path + filename[:-4] + text + str(window_size)+ "_MAX.png", MAXMAP)
 
 
 
