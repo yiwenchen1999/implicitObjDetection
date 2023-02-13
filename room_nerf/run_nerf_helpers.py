@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
+from hash_encoding import HashEmbedder, SHEncoder
+
 
 # Misc
 img2mse = lambda x, y : torch.mean((x - y) ** 2)
@@ -16,12 +18,10 @@ def dot(x_normalized, y_normalized):
 
 
 def clip_loss(x_normalized, y_normalized):
-    #x_normalized = nn_normalize(torch.tensor([[1.0,1.0],[2.0,2.0]]), p = 2, dim = -1)
-    #y_normalized = nn_normalize(torch.tensor([[1.0,1.0],[-2.0,2.0]]), p =2, dim = -1)
     all_losses = 1.0 - dot(x_normalized, y_normalized)
     loss = torch.mean(all_losses)
     return loss
-# Positional encoding (section 5.1)
+
 class Embedder:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
@@ -55,25 +55,34 @@ class Embedder:
         return torch.cat([fn(inputs) for fn in self.embed_fns], -1)
 
 
-def get_embedder(multires, i=0):
+def get_embedder(multires, args, i=0):
     if i == -1:
         return nn.Identity(), 3
-    
-    embed_kwargs = {
-                'include_input' : True,
-                'input_dims' : 3,
-                'max_freq_log2' : multires-1,
-                'num_freqs' : multires,
-                'log_sampling' : True,
-                'periodic_fns' : [torch.sin, torch.cos],
-    }
-    
-    embedder_obj = Embedder(**embed_kwargs)
-    embed = lambda x, eo=embedder_obj : eo.embed(x)
-    return embed, embedder_obj.out_dim
+    elif i==0:
+        embed_kwargs = {
+                    'include_input' : True,
+                    'input_dims' : 3,
+                    'max_freq_log2' : multires-1,
+                    'num_freqs' : multires,
+                    'log_sampling' : True,
+                    'periodic_fns' : [torch.sin, torch.cos],
+        }
+        
+        embedder_obj = Embedder(**embed_kwargs)
+        embed = lambda x, eo=embedder_obj : eo.embed(x)
+        out_dim = embedder_obj.out_dim
+    elif i==1:
+        embed = HashEmbedder(bounding_box=args.bounding_box, \
+                            log2_hashmap_size=args.log2_hashmap_size, \
+                            finest_resolution=args.finest_res)
+        out_dim = embed.out_dim
+    elif i==2:
+        embed = SHEncoder()
+        out_dim = embed.out_dim
+    return embed, out_dim
 
 
-# Model
+# Model Instant-NGP pytorch implimentation
 class NeRF(nn.Module):
     def __init__(self, D=8, W=256, input_ch=3, input_ch_views=3, output_ch=4, skips=[4], clip_dim=768, use_viewdirs=False, clipNerf = False):
         """ 
@@ -85,8 +94,10 @@ class NeRF(nn.Module):
         self.input_ch_views = input_ch_views
         self.skips = skips
         self.use_viewdirs = use_viewdirs
+        # clip
         self.clipNerf = clipNerf
         self.clipDim = clip_dim
+        
         
         self.pts_linears = nn.ModuleList(
             [nn.Linear(input_ch, W)] + [nn.Linear(W, W) if i not in self.skips else nn.Linear(W + input_ch, W) for i in range(D-1)])
@@ -108,7 +119,7 @@ class NeRF(nn.Module):
             
         else:
             self.output_linear = nn.Linear(W, output_ch)
-
+    
     def forward(self, x):
         input_pts, input_views = torch.split(x, [self.input_ch, self.input_ch_views], dim=-1)
         h = input_pts
@@ -126,6 +137,7 @@ class NeRF(nn.Module):
             for i, l in enumerate(self.views_linears):
                 h = self.views_linears[i](h)
                 h = F.relu(h)
+
             if self.clipNerf:
                 clip = self.clip_linear(h)
                 outputs = torch.cat([clip,alpha],-1)
@@ -135,7 +147,7 @@ class NeRF(nn.Module):
         else:
             outputs = self.output_linear(h)
 
-        return outputs    
+        return outputs 
 
     def load_weights_from_keras(self, weights):
         assert self.use_viewdirs, "Not implemented if use_viewdirs=False"
@@ -165,7 +177,6 @@ class NeRF(nn.Module):
         idx_alpha_linear = 2 * self.D + 6
         self.alpha_linear.weight.data = torch.from_numpy(np.transpose(weights[idx_alpha_linear]))
         self.alpha_linear.bias.data = torch.from_numpy(np.transpose(weights[idx_alpha_linear+1]))
-
 
 
 # Ray helpers
