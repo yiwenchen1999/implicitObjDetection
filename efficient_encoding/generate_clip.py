@@ -94,7 +94,7 @@ if __name__=='__main__':
 
 
             save_query("handle of the cup", image_clip_feature_normalized, 3)
-            save_query("handle of the mug", image_clip_feature_normalized, 3)
+            save_query("handle", image_clip_feature_normalized, 3)
             save_query("the dark handle of the cup", image_clip_feature_normalized, 3)
             save_query("the curved handle of the cup", image_clip_feature_normalized, 3)
 
