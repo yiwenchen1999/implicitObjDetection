@@ -30,11 +30,19 @@ if __name__=='__main__':
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/results/replica/room0/frames/"
     #cups schemes/
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/bags/"
+    # # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1_result/"
+    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
+    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/bags/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
+
+
+    def save_map(map, name):
+        plt.imshow(map)
+        # plt.imshow(query_map_3d)
+        plt.imsave(root_path + name + ".png", map)
 
 
     def save_query(text, image_clip_feature_normalized, window_size):
@@ -64,9 +72,8 @@ if __name__=='__main__':
         plt.imshow(query_map)
         # plt.imshow(query_map_3d)
         plt.imsave(root_path + filename[:-4] + text + str(window_size)+ "_heat.png", query_map)
-        plt.imshow(MAXMAP)
-        # plt.imshow(query_map_3d)
-        plt.imsave(root_path + filename[:-4] + text + str(window_size)+ "_MAX.png", MAXMAP)
+        save_map(MAXMAP, root_path + filename[:-4] + text + str(window_size)+ "_MAX.png")
+        
 
 
 
@@ -86,9 +93,11 @@ if __name__=='__main__':
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
-            save_query("pick up with hand", image_clip_feature_normalized, 3)
-            save_query("handle of the bag", image_clip_feature_normalized, 3)
-            save_query("the bag with a handle", image_clip_feature_normalized, 3)
+            save_query("handle of the cup", image_clip_feature_normalized, 3)
+            save_query("handle of the mug", image_clip_feature_normalized, 3)
+            save_query("the dark handle of the cup", image_clip_feature_normalized, 3)
+            save_query("the curved handle of the cup", image_clip_feature_normalized, 3)
+
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
             # save_query("swivel chair", image_clip_feature_normalized, 3)

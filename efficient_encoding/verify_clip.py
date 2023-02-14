@@ -29,12 +29,12 @@ if __name__=='__main__':
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/results/replica/room0/frames/"
     #cups schemes/
-    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
+    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
+    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
 
 
     def save_query(text, image_clip_feature_normalized):
@@ -44,11 +44,11 @@ if __name__=='__main__':
         # min = np.min(query_map)
         # print(filename+" max score: "+str(max) + ", min score: "+str(min))
         query_map_remapped = (query_map_scores - np.min(query_map_scores)) / (np.max(query_map_scores) - np.min(query_map_scores))
-        # np.save(root_path + filename[:-4]+ text, query_map_remapped)
+        np.save(root_path + filename[:-4]+ text, query_map_remapped)
         query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
         plt.imshow(query_map)
         # plt.imshow(query_map_3d)
-        plt.imsave(root_path + filename[:-4]+ text + "_heat_infer.png", query_map)
+        plt.imsave(root_path + filename[:-4]+ text + "_heat.png", query_map)
 
 
 
