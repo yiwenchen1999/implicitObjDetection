@@ -42,7 +42,7 @@ if __name__=='__main__':
     def save_map(map, name):
         plt.imshow(map)
         # plt.imshow(query_map_3d)
-        plt.imsave(root_path + name + ".png", map)
+        plt.imsave(root_path + name, map)
 
 
     def save_query(text, image_clip_feature_normalized, window_size):
@@ -72,7 +72,7 @@ if __name__=='__main__':
         plt.imshow(query_map)
         # plt.imshow(query_map_3d)
         plt.imsave(root_path + filename[:-4] + text + str(window_size)+ "_heat.png", query_map)
-        save_map(MAXMAP, root_path + filename[:-4] + text + str(window_size)+ "_MAX.png")
+        save_map(MAXMAP, filename[:-4] + text + str(window_size)+ "_MAX.png")
         
 
 
