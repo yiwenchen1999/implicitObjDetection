@@ -62,7 +62,7 @@ if __name__=='__main__':
 
             # query_map = query_map.cpu().detach().numpy()
         query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
-        indices = np.where(query_map >= np.max(query_map_scores)-0.2)
+        indices = np.where(query_map_remapped >= 1-0.2)
         # print(indices)
         x_y_coords =list(zip(indices[0], indices[1]))
         # print(x_y_coords)
