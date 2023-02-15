@@ -85,7 +85,7 @@ if __name__=='__main__':
             img_path = data_path + filename
             im = np.array(Image.open(img_path).convert("RGB")) #im shape is (256, 256, 3)
             o_im = Image.fromarray(im).convert ('RGB')
-            # o_im.save(root_path + filename)
+            o_im.save(root_path + filename)
             image_clip_feature = torch.tensor(model.get_clipmap(im)) #image_clip_feature's size is torch.Size([1, 768, 1])
             image_clip_feature_normalized = image_clip_feature
             np.save(root_path + filename[:-4], image_clip_feature_normalized)
