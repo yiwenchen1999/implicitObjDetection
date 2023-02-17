@@ -51,8 +51,7 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
         input_dirs = viewdirs[:,None].expand(inputs.shape)
         input_dirs_flat = torch.reshape(input_dirs, [-1, input_dirs.shape[-1]])
         embedded_dirs = embeddirs_fn(input_dirs_flat)
-        print(embedded_dirs)
-        embedded = torch.cat([embedded, embedded_dirs], -1)
+        embedded = torch.cat([embedded, embedded_dirs[0]], -1)
 
     outputs_flat = batchify(fn, netchunk)(embedded)
     outputs_flat[~keep_mask, -1] = 0 # set sigma to 0 for invalid points
