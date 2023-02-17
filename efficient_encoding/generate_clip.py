@@ -31,8 +31,8 @@ if __name__=='__main__':
     #cups schemes/
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     # # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/nerf_synthetic/chair/train/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/chair_result/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/nerf_synthetic/mic/train/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/mic_result/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/bags/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
