@@ -44,6 +44,8 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
     # print("embed_fn ****", embed_fn(inputs_flat))
     embedded, keep_mask = embed_fn(inputs_flat)
+    print("embedded")
+    print(embedded)
 
     if viewdirs is not None:
         input_dirs = viewdirs[:,None].expand(inputs.shape)
