@@ -746,7 +746,7 @@ def train():
             far = 1.
         print('NEAR FAR', near, far)
 
-    if args.dataset_type == 'replica':
+    elif args.dataset_type == 'replica':
         images, poses, near, far, K, render_poses, i_test, hwf, clip_filenames = _load_data_replica(args.datadir)
         
         print('Loaded replica', images.shape, render_poses.shape, args.datadir)
@@ -761,7 +761,7 @@ def train():
 
         print('NEAR FAR', near, far)
 
-    if args.dataset_type == 'replica_renderonly':
+    elif args.dataset_type == 'replica_renderonly':
         images, poses, near, far, K, render_poses, i_test, hwf, clip_filenames = _load_data_replica_testing(args.datadir)
         
         print('Loaded replica', images.shape, render_poses.shape, args.datadir)
