@@ -31,8 +31,8 @@ if __name__=='__main__':
     #cups schemes/
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     # # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/nerf_synthetic/ficus/train/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/ficus_result/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/nerf_synthetic/chair/train/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/chair_result/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/bags/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
@@ -93,12 +93,15 @@ if __name__=='__main__':
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
-            save_query("The vase", image_clip_feature_normalized, 3)
-            save_query("The vase is dark", image_clip_feature_normalized, 3)
-            save_query("The plant", image_clip_feature_normalized, 3)
-            save_query("The leaves", image_clip_feature_normalized, 3)
-            save_query("Leaves are green", image_clip_feature_normalized, 3)
-            save_query("stems are straight", image_clip_feature_normalized, 3)
+            save_query("the legs of the chair", image_clip_feature_normalized, 3)
+            save_query("four legs of the chair", image_clip_feature_normalized, 3)
+            save_query("legs", image_clip_feature_normalized, 3)
+            save_query("legs at the button", image_clip_feature_normalized, 3)
+            save_query("armrests", image_clip_feature_normalized, 3)
+            save_query("chair has armrests", image_clip_feature_normalized, 3)
+            save_query("armrests are white", image_clip_feature_normalized, 3)
+            save_query("square back", image_clip_feature_normalized, 3)
+            save_query("chair with a comfortable back", image_clip_feature_normalized, 3)
 
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
