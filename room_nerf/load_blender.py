@@ -43,11 +43,13 @@ def load_blender_data(basedir, half_res=False, testskip=1):
 
     all_imgs = []
     all_poses = []
+    all_clipfiles = []
     counts = [0]
     for s in splits:
         meta = metas[s]
         imgs = []
         poses = []
+        clipfiles = []
         if s=='train' or testskip==0:
             skip = 1
         else:
@@ -57,16 +59,19 @@ def load_blender_data(basedir, half_res=False, testskip=1):
             fname = os.path.join(basedir, frame['file_path'] + '.png')
             imgs.append(imageio.imread(fname))
             poses.append(np.array(frame['transform_matrix']))
+            clipfiles.append(os.path.join(basedir, frame['file_path'] + '.npy'))
         imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
         poses = np.array(poses).astype(np.float32)
         counts.append(counts[-1] + imgs.shape[0])
         all_imgs.append(imgs)
         all_poses.append(poses)
+        all_clipfiles.append(clipfiles)
     
     i_split = [np.arange(counts[i], counts[i+1]) for i in range(3)]
     
     imgs = np.concatenate(all_imgs, 0)
     poses = np.concatenate(all_poses, 0)
+    clipfiles = np.concatenate(all_clipfiles, 0)
     
     H, W = imgs[0].shape[:2]
     camera_angle_x = float(meta['camera_angle_x'])
@@ -86,6 +91,6 @@ def load_blender_data(basedir, half_res=False, testskip=1):
         # imgs = tf.image.resize_area(imgs, [400, 400]).numpy()
 
         
-    return imgs, poses, render_poses, [H, W, focal], i_split
+    return imgs, poses, render_poses, [H, W, focal], i_split, clipfiles
 
 
