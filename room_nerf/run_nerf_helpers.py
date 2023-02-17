@@ -73,6 +73,9 @@ def get_embedder(multires, args, i=1):
         out_dim = embedder_obj.out_dim
     elif i==1:
         print("here")
+        min_bound = [100, 100, 100]
+        max_bound = [-100, -100, -100]
+        bounding_box = (torch.tensor(min_bound)-torch.tensor([0.1,0.1,0.0001]), torch.tensor(max_bound)+torch.tensor([0.1,0.1,0.0001]))
         embed = HashEmbedder(bounding_box=args.bounding_box, \
                             log2_hashmap_size=args.log2_hashmap_size, \
                             finest_resolution=args.finest_res)

@@ -757,9 +757,7 @@ def train():
         i_val = i_test
         print(type(i_test), type(i_val))
         i_train = np.array([i for i in np.arange(int(images.shape[0]))])
-        min_bound = [100, 100, 100]
-        max_bound = [-100, -100, -100]
-        args.bounding_box = (torch.tensor(min_bound)-torch.tensor([0.1,0.1,0.0001]), torch.tensor(max_bound)+torch.tensor([0.1,0.1,0.0001]))
+
         # i_train = np.array([i for i in np.arange(int(images.shape[0])) if
         #                 (i not in i_test and i not in i_val)])
 
