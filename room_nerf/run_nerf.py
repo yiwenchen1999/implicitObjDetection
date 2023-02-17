@@ -707,6 +707,11 @@ def config_parser():
     parser.add_argument("--flag", type=str, default="train" )
     parser.add_argument("--test_file", type=str, default=None)
     parser.add_argument("--with_clip", type=bool, default=False)
+    parser.add_argument("--log2_hashmap_size",   type=int, default=19,
+                        help='log2 of hashmap size')
+    parser.add_argument("--finest_res",   type=int, default=512,
+                        help='finest resolultion for hashed embedding')
+    
 
 
     return parser
