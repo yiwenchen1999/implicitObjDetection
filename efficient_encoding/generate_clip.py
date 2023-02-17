@@ -31,8 +31,8 @@ if __name__=='__main__':
     #cups schemes/
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     # # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/coffeecup/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/coffeecup_result/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/nerf_synthetic/ficus/train/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/ficus_result/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/bags/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
@@ -88,17 +88,17 @@ if __name__=='__main__':
             o_im.save(root_path + filename)
             image_clip_feature = torch.tensor(model.get_clipmap(im)) #image_clip_feature's size is torch.Size([1, 768, 1])
             image_clip_feature_normalized = image_clip_feature
-            np.save(root_path + filename[:-4], image_clip_feature_normalized)
+            np.save(data_path + filename[:-4], image_clip_feature_normalized)
             print(filename+" saved")
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
-            save_query("handle of the cup", image_clip_feature_normalized, 3)
-            save_query("handle", image_clip_feature_normalized, 3)
-            save_query("the curved handle of the cup", image_clip_feature_normalized, 3)
-            save_query("The handle is curved", image_clip_feature_normalized, 3)
-            save_query("the curved handle is on the right", image_clip_feature_normalized, 3)
-            save_query("the curved handle is on the left", image_clip_feature_normalized, 3)
+            save_query("The vase", image_clip_feature_normalized, 3)
+            save_query("The vase is dark", image_clip_feature_normalized, 3)
+            save_query("The plant", image_clip_feature_normalized, 3)
+            save_query("The leaves", image_clip_feature_normalized, 3)
+            save_query("Leaves are green", image_clip_feature_normalized, 3)
+            save_query("stems are straight", image_clip_feature_normalized, 3)
 
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
