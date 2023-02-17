@@ -42,7 +42,7 @@ def run_network(inputs, viewdirs, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
     """Prepares inputs and applies network 'fn'.
     """
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
-    print("embed_fn ****": embed_fn(inputs_flat))
+    print("embed_fn ****", embed_fn(inputs_flat))
     embedded, keep_mask = embed_fn(inputs_flat)
 
     if viewdirs is not None:
