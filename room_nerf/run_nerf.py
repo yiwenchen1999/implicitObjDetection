@@ -370,13 +370,18 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
         weights = alpha_rgb * torch.cumprod(torch.cat([torch.ones((alpha_rgb.shape[0], 1)), 1.-alpha_rgb + 1e-10], -1), -1)[:, :-1]
         rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
+        if white_bkgd:
+            depth_map = torch.sum(weights * z_vals, -1)
+            disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
+            acc_map = torch.sum(weights, -1)
+
+            rgb_map = rgb_map + (1.-acc_map[...,None])
+
 
     depth_map = torch.sum(weights * z_vals, -1)
     disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
     acc_map = torch.sum(weights, -1)
 
-    if white_bkgd:
-        rgb_map = rgb_map + (1.-acc_map[...,None])
     if outputClip or infer:
         return clip_map, disp_map, acc_map, weights, depth_map
     else:
@@ -778,7 +783,7 @@ def train():
 
 
     elif args.dataset_type == 'blender':
-        images, poses, render_poses, hwf, i_split = load_blender_data(args.datadir, args.half_res, args.testskip)
+        images, poses, render_poses, hwf, i_split, clip_filenames = load_blender_data(args.datadir, args.half_res, args.testskip)
         print('Loaded blender', images.shape, render_poses.shape, hwf, args.datadir)
         i_train, i_val, i_test = i_split
 

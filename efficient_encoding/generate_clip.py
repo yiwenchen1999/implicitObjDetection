@@ -31,8 +31,8 @@ if __name__=='__main__':
     #cups schemes/
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     # # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1_result/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/nerf_synthetic/mic/train/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/mic_result/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/bags/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
@@ -62,7 +62,7 @@ if __name__=='__main__':
 
             # query_map = query_map.cpu().detach().numpy()
         query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
-        indices = np.where(query_map >= np.max(query_map_scores)-0.2)
+        indices = np.where(query_map_remapped >= 1-0.2)
         # print(indices)
         x_y_coords =list(zip(indices[0], indices[1]))
         # print(x_y_coords)
@@ -85,18 +85,26 @@ if __name__=='__main__':
             img_path = data_path + filename
             im = np.array(Image.open(img_path).convert("RGB")) #im shape is (256, 256, 3)
             o_im = Image.fromarray(im).convert ('RGB')
-            # o_im.save(root_path + filename)
+            o_im.save(root_path + filename)
             image_clip_feature = torch.tensor(model.get_clipmap(im)) #image_clip_feature's size is torch.Size([1, 768, 1])
             image_clip_feature_normalized = image_clip_feature
-            np.save(root_path + filename[:-4], image_clip_feature_normalized)
+            np.save(data_path + filename[:-4], image_clip_feature_normalized)
             print(filename+" saved")
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
+<<<<<<< HEAD
             save_query("The handle of the cup is highlighted", image_clip_feature_normalized, 3)
             save_query("handle", image_clip_feature_normalized, 3)
             save_query("the handle of the cup is dark", image_clip_feature_normalized, 3)
             save_query("the curved handle of the cup", image_clip_feature_normalized, 3)
+=======
+            save_query("the stand", image_clip_feature_normalized, 3)
+            save_query("the mic", image_clip_feature_normalized, 3)
+            save_query("head of the mic", image_clip_feature_normalized, 3)
+            save_query("mic", image_clip_feature_normalized, 3)
+            save_query("wires", image_clip_feature_normalized, 3)
+>>>>>>> 4f863ba7aa0418f6a53e64761f6dd0a090c71518
 
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
