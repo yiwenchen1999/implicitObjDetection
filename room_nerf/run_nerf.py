@@ -702,7 +702,7 @@ def config_parser():
                         help='frequency of console printout and metric loggin')
     parser.add_argument("--i_img",     type=int, default=500, 
                         help='frequency of tensorboard image logging')
-    parser.add_argument("--i_weights", type=int, default=10000, 
+    parser.add_argument("--i_weights", type=int, default=1000, 
                         help='frequency of weight ckpt saving')
     parser.add_argument("--i_testset", type=int, default=50000, 
                         help='frequency of testset saving')
@@ -906,7 +906,7 @@ def train():
     # Prepare raybatch tensor if batching random rays
     N_rand = args.N_rand
     use_batching = not args.no_batching
-    use_batching = False
+    # use_batching = False
     print("use batching: ", use_batching)
     if use_batching:
         # For random ray batching
@@ -937,6 +937,7 @@ def train():
     print('TRAIN views are', i_train)
     print('TEST views are', i_test)
     print('VAL views are', i_val)
+    print("save every: ", args.i_weights)
 
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
@@ -1071,6 +1072,7 @@ def train():
 
         # Rest is logging
         if i%args.i_weights==0:
+            print("saving weight at", os.path.join(basedir, expname))
             if not train_rgb:
                 path = os.path.join(basedir, expname, '{:06d}.tar'.format(i))
                 torch.save({

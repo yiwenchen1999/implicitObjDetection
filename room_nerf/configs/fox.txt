@@ -1,4 +1,4 @@
-expname = replica
+expname = fox
 basedir = ./logs
 datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/fox/
 dataset_type = replica
