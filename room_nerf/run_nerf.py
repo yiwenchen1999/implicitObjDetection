@@ -1073,7 +1073,8 @@ def train():
         # Rest is logging
         if i%args.i_weights==0:
             print("saving weight at", os.path.join(basedir, expname))
-            if not train_rgb:
+            print("train_rgb", train_rgb)
+            if train_rgb:
                 path = os.path.join(basedir, expname, '{:06d}.tar'.format(i))
                 torch.save({
                     'global_step': global_step,
