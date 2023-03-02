@@ -5,6 +5,8 @@ from PIL import Image
 import os
 import torch
 import matplotlib.pyplot as plt
+import configargparse
+
 
 
 if __name__=='__main__':
@@ -20,6 +22,9 @@ if __name__=='__main__':
         'sigma': 0,
     }
     model = SLICViT(**args).cuda()
+    parser = configargparse.ArgumentParser()
+    parser.add_argument("--data", type=str, 
+                        help='datapath')
 
     #root_path = '/users/aren10/data/'
     #data_path = root_path + '0/'
@@ -33,6 +38,9 @@ if __name__=='__main__':
     # # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/nerf_synthetic/mic/train/"
     root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/mic_result/"
+    data_path = os.path.join(args.data, "images")
+    root_path = os.path.join(args.data, "images")
+    print(data_path)
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/bags/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
@@ -93,11 +101,10 @@ if __name__=='__main__':
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
-            save_query("the stand", image_clip_feature_normalized, 3)
-            save_query("the mic", image_clip_feature_normalized, 3)
-            save_query("head of the mic", image_clip_feature_normalized, 3)
-            save_query("mic", image_clip_feature_normalized, 3)
-            save_query("wires", image_clip_feature_normalized, 3)
+            # save_query("The handle of the cup is highlighted", image_clip_feature_normalized, 3)
+            # save_query("handle", image_clip_feature_normalized, 3)
+            # save_query("the handle of the cup is dark", image_clip_feature_normalized, 3)
+            # save_query("the curved handle of the cup", image_clip_feature_normalized, 3)
 
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)

@@ -143,7 +143,7 @@ def render(H, W, K, chunk=1024*32, rays=None, c2w=None, ndc=True,
     return ret_list + [ret_dict]
 
 
-def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=8):
+def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0):
 
     H, W, focal = hwf
     # render_factor = 8
@@ -180,20 +180,20 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             filename = os.path.join(savedir, '{:03d}.png'.format(i))
             imageio.imwrite(filename, rgb8)
 
-        # if render_kwargs['train_clip']:
-        render_kwargs['train_clip'] = True
-        print("doing clip: ", render_kwargs['train_clip'])
-        render_kwargs['infer'] = True
-        print("doing infer: ", render_kwargs['infer'])
-        print(chunk)
-        chunk = int(chunk/2)
-        clip, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
-        # rgbs.append(rgb.cpu().numpy())
-        # disps.append(disp.cpu().numpy())
-        print(i," clips rendering finished:", clip.shape, disp.shape)
-        clip = clip.cpu().numpy()
-        np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
-        chunk = int(chunk*2)
+        if render_kwargs['train_clip']:
+            render_kwargs['train_clip'] = True
+            print("doing clip: ", render_kwargs['train_clip'])
+            render_kwargs['infer'] = True
+            print("doing infer: ", render_kwargs['infer'])
+            print(chunk)
+            chunk = int(chunk/2)
+            clip, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
+            # rgbs.append(rgb.cpu().numpy())
+            # disps.append(disp.cpu().numpy())
+            print(i," clips rendering finished:", clip.shape, disp.shape)
+            clip = clip.cpu().numpy()
+            np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
+            chunk = int(chunk*2)
 
         
 
@@ -704,7 +704,7 @@ def config_parser():
                         help='frequency of console printout and metric loggin')
     parser.add_argument("--i_img",     type=int, default=500, 
                         help='frequency of tensorboard image logging')
-    parser.add_argument("--i_weights", type=int, default=10000, 
+    parser.add_argument("--i_weights", type=int, default=1000, 
                         help='frequency of weight ckpt saving')
     parser.add_argument("--i_testset", type=int, default=50000, 
                         help='frequency of testset saving')
@@ -768,7 +768,7 @@ def train():
 
         print('NEAR FAR', near, far)
 
-    if args.dataset_type == 'replica_renderonly':
+    elif args.dataset_type == 'replica_renderonly':
         images, poses, near, far, K, render_poses, i_test, hwf, clip_filenames = _load_data_replica_testing(args.datadir)
         
         print('Loaded replica', images.shape, render_poses.shape, args.datadir)
@@ -939,6 +939,7 @@ def train():
     print('TRAIN views are', i_train)
     print('TEST views are', i_test)
     print('VAL views are', i_val)
+    print("save every: ", args.i_weights)
 
     # Summary writers
     # writer = SummaryWriter(os.path.join(basedir, 'summaries', expname))
@@ -947,7 +948,7 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if(i < 50000):
+        if(i < 50001):
             train_rgb = True
             train_clip = False
         else:
@@ -1073,7 +1074,9 @@ def train():
 
         # Rest is logging
         if i%args.i_weights==0:
-            if not train_rgb:
+            print("saving weight at", os.path.join(basedir, expname))
+            print("train_rgb", train_rgb)
+            if train_rgb:
                 path = os.path.join(basedir, expname, '{:06d}.tar'.format(i))
                 torch.save({
                     'global_step': global_step,
