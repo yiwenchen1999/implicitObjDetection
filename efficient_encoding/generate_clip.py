@@ -40,6 +40,7 @@ if __name__=='__main__':
     root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/mic_result/"
     data_path = os.path.join(args.data, "images")
     root_path = os.path.join(args.data, "images")
+    print(data_path)
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/bags/"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_129999/"
