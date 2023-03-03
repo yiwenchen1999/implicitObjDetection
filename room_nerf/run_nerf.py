@@ -178,21 +178,21 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             filename = os.path.join(savedir, '{:03d}.png'.format(i))
             imageio.imwrite(filename, rgb8)
 
-        # # if render_kwargs['train_clip']:
-        # if True:
-        #     render_kwargs['train_clip'] = True
-        #     print("doing clip: ", render_kwargs['train_clip'])
-        #     render_kwargs['infer'] = True
-        #     print("doing infer: ", render_kwargs['infer'])
-        #     print(chunk)
-        #     chunk = int(chunk/2)
-        #     clip, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
-        #     # rgbs.append(rgb.cpu().numpy())
-        #     # disps.append(disp.cpu().numpy())
-        #     print(i," clips rendering finished:", clip.shape, disp.shape)
-        #     clip = clip.cpu().numpy()
-        #     np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
-        #     chunk = int(chunk*2)
+        # if render_kwargs['train_clip']:
+        if True:
+            render_kwargs['train_clip'] = True
+            print("doing clip: ", render_kwargs['train_clip'])
+            render_kwargs['infer'] = True
+            print("doing infer: ", render_kwargs['infer'])
+            print(chunk)
+            chunk = int(chunk/2)
+            clip, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
+            # rgbs.append(rgb.cpu().numpy())
+            # disps.append(disp.cpu().numpy())
+            print(i," clips rendering finished:", clip.shape, disp.shape)
+            clip = clip.cpu().numpy()
+            np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
+            chunk = int(chunk*2)
 
         
 
