@@ -55,7 +55,7 @@ if __name__=='__main__':
     directories = os.listdir(data_path)
     for filename in directories:
         # if filename[0:4] == 'rgba':
-        if filename[-4:] == '.npy'and filename[-8:] != 'heat.npy':
+        if filename[-4:] == '.npy'and filename[3] == '.':
         # if True:
             clip_path = data_path + filename
             feature_map = np.load(clip_path)
