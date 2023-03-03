@@ -208,12 +208,11 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
     return rgbs, disps
 
 def sample_clip(range):
-    x = np.linspace(-10, 10, 4)
-    y = np.linspace(-10, 10, 4)
-    z = np.linspace(-10, 10, 4)
+    x = np.linspace(-10, 10, 40)
+    y = np.linspace(-10, 10, 40)
+    z = np.linspace(-10, 10, 40)
     X,Y,Z = np.meshgrid(x, y, z)
     XYZ=np.array([X.flatten(),Y.flatten(), Z.flatten()]).T
-    print (XYZ)
     print(XYZ.shape)
 
 
