@@ -208,8 +208,13 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
     return rgbs, disps
 
 def sample_clip(range):
-    pts = np.mgrid[-range:0.5:range, -range:0.5:range, -range:0.5:range]
-    print(pts.shape)
+    x = np.linspace(-10, 10, 3)
+    y = np.linspace(-10, 10, 3)
+    z = np.linspace(-10, 10, 3)
+    X,Y,Z = np.meshgrid(x, y)
+    XYZ=np.array([X.flatten(),Y.flatten(), Z.flatten()]).T
+    print (XYZ)
+
 
 
 
@@ -903,6 +908,7 @@ def train():
             return
     if args.sample_clips:
         sample_clip(10)
+        return
     # if args.render_query_video:
     #     with torch.no_grad():
     #         rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time = True)
