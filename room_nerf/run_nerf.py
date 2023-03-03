@@ -207,6 +207,11 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
     return rgbs, disps
 
+def sample_clip(range):
+    pts = np.mgrid[-range:0.5:range, -range:0.5:range, -range:0.5:range]
+    print(pts.shape)
+
+
 
 def create_nerf(args):
     """Instantiate NeRF's MLP model.
@@ -471,6 +476,7 @@ def render_rays(ray_batch,
     print(pts[1,0], pts[0,-1])
     print(pts[2,0], pts[0,-1])
     print(pts[3,0], pts[0,-1])
+    print(pts.shape)
 
 
 #     raw = run_network(pts)
@@ -656,6 +662,8 @@ def config_parser():
 
     parser.add_argument("--render_only", action='store_true', 
                         help='do not optimize, reload weights and render out render_poses path')
+    parser.add_argument("--sample_clips", action='store_true', 
+                        help='do not optimize, reload weights and sample for clip embeddings across space')
     parser.add_argument("--render_test", action='store_true', 
                         help='render the test set instead of render_poses path')
     parser.add_argument("--render_factor", type=int, default=0, 
@@ -893,6 +901,8 @@ def train():
             imageio.mimwrite(os.path.join(testsavedir, 'video.mp4'), to8b(rgbs), fps=30, quality=8)
             
             return
+    if args.sample_clips:
+        sample_clip(10)
     # if args.render_query_video:
     #     with torch.no_grad():
     #         rgb_ests, rgb_disps, queries, clips_disps = render_query_video(args.root_path + "Nesf0_2D/" + args.text + "_clip_feature.npy", render_poses, hwf, K, args.chunk, render_kwargs_test, use_clip = True, train_clip = True, test_time = True)
