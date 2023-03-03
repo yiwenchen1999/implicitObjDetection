@@ -211,7 +211,7 @@ def sample_clip(range):
     x = np.linspace(-10, 10, 3)
     y = np.linspace(-10, 10, 3)
     z = np.linspace(-10, 10, 3)
-    X,Y,Z = np.meshgrid(x, y)
+    X,Y,Z = np.meshgrid(x, y, z)
     XYZ=np.array([X.flatten(),Y.flatten(), Z.flatten()]).T
     print (XYZ)
 
