@@ -194,8 +194,8 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
             return imageio.imread(f, ignoregamma=True)
         else:
             return imageio.imread(f)
-    print(os.path.join(imgdir, image_filenames[0][-15:]))
-    imgs = imgs = [imread(os.path.join(imgdir, f[-15:]))[...,:3]/255. for f in image_filenames]
+    print(os.path.join(imgdir, image_filenames[0]))
+    imgs = imgs = [imread(os.path.join(imgdir, f))[...,:3]/255. for f in image_filenames]
     poses = torch.from_numpy(np.array(poses).astype(np.float32))
     poses = auto_orient_and_center_poses(
             poses,
