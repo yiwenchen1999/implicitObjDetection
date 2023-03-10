@@ -4,7 +4,23 @@ import json
 from pathlib import Path
 import torch
 import math
+trans_t = lambda t : torch.Tensor([
+    [1,0,0,0],
+    [0,1,0,0],
+    [0,0,1,t],
+    [0,0,0,1]]).float()
 
+rot_phi = lambda phi : torch.Tensor([
+    [1,0,0,0],
+    [0,np.cos(phi),-np.sin(phi),0],
+    [0,np.sin(phi), np.cos(phi),0],
+    [0,0,0,1]]).float()
+
+rot_theta = lambda th : torch.Tensor([
+    [np.cos(th),0,-np.sin(th),0],
+    [0,1,0,0],
+    [np.sin(th),0, np.cos(th),0],
+    [0,0,0,1]]).float()
 
 def rotation_matrix(a, b):
     """Compute the rotation matrix that rotates vector a to vector b.
@@ -148,6 +164,13 @@ def _minify(basedir, factors=[], resolutions=[]):
             check_output('rm {}/*.{}'.format(imgdir, ext), shell=True)
             print('Removed duplicates')
         print('Done')
+
+def pose_spherical(theta, phi, radius):
+    c2w = trans_t(radius)
+    c2w = rot_phi(phi/180.*np.pi) @ c2w
+    c2w = rot_theta(theta/180.*np.pi) @ c2w
+    c2w = torch.Tensor(np.array([[-1,0,0,0],[0,0,1,0],[0,1,0,0],[0,0,0,1]])) @ c2w
+    return c2w
             
 def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=True):
     meta = load_from_json(basedir + "transforms.json")
@@ -266,6 +289,8 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
     # Generate poses for spiral path
     render_poses = render_path_spiral(c2w_path, up, rads, fx, zdelta, zrate=.5, rots=N_rots, N=N_views)
     render_poses = np.array(render_poses).astype(np.float32)   
+    render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
+
 
     return images, poses, near, far, K, render_poses, i_test, [height, width, fx], clip_filenames
 

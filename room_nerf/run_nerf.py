@@ -957,7 +957,7 @@ def train():
     # Prepare raybatch tensor if batching random rays
     N_rand = args.N_rand
     use_batching = not args.no_batching
-    use_batching = False
+    # use_batching = False
     print("use batching: ", use_batching)
     if use_batching:
         # For random ray batching
@@ -997,7 +997,7 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if(i < 50001):
+        if(i < 100001):
             train_rgb = True
             train_clip = False
         else:
