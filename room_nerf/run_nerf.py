@@ -207,13 +207,34 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
     return rgbs, disps
 
-def sample_clip(range):
+def sample_clip(range,
+                network_fn,
+                network_query_fn,
+                N_samples,
+                retraw=False,
+                lindisp=False,
+                perturb=0.,
+                N_importance=0,
+                network_fine=None,
+                white_bkgd=False,
+                raw_noise_std=0.,
+                verbose=False,
+                pytest=False,
+                network_clip = None,
+                train_clip = False,
+                infer = False):
     x = np.linspace(-10, 10, 40)
     y = np.linspace(-10, 10, 40)
     z = np.linspace(-10, 10, 40)
     X,Y,Z = np.meshgrid(x, y, z)
-    XYZ=np.array([X.flatten(),Y.flatten(), Z.flatten()]).T
-    print(XYZ.shape)
+    pts=np.array([X.flatten(),Y.flatten(), Z.flatten()]).T
+    chunk = 1024
+    pass
+    # for i in range(0, pts.shape[0], chunk):
+    #     raw = network_query_fn(pts, viewdirs, network_clip)
+    #     raw_rgb = network_query_fn(pts, viewdirs, network_fn)
+    #     pass
+
 
 
 
@@ -312,7 +333,8 @@ def create_nerf(args):
         'raw_noise_std' : args.raw_noise_std,
         'network_clip' : model_clip,
         'train_clip': False,
-        'infer' : False
+        'infer' : False,
+        'record_points' : False
     }
 
     # NDC only good for LLFF-style forward facing data
@@ -414,7 +436,8 @@ def render_rays(ray_batch,
                 pytest=False,
                 network_clip = None,
                 train_clip = False,
-                infer = False):
+                infer = False,
+                record_points = False):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -446,6 +469,8 @@ def render_rays(ray_batch,
         sample.
     """
     # print("IS traning clip: ", train_clip)
+    if (record_points):
+        print("recording the points")
     N_rays = ray_batch.shape[0]
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
@@ -481,13 +506,18 @@ def render_rays(ray_batch,
     # print(pts[1,0], pts[0,-1])
     # print(pts[2,0], pts[0,-1])
     # print(pts[3,0], pts[0,-1])
-    # print(pts.shape)
+    if (record_points):
+        print("points shape:")
+        print(pts.shape)
 
 
 #     raw = run_network(pts)
     if infer:
         raw = network_query_fn(pts, viewdirs, network_clip)
         raw_rgb = network_query_fn(pts, viewdirs, network_fn)
+        if (record_points):
+            print("raw_rgb shape:")
+            print(raw_rgb.shape)
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
     
@@ -907,7 +937,7 @@ def train():
             
             return
     if args.sample_clips:
-        sample_clip(10)
+        sample_clip(10, **render_kwargs_test)
         return
     # if args.render_query_video:
     #     with torch.no_grad():
