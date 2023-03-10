@@ -260,7 +260,7 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
     tt = poses[:,:3,3] # ptstocam(poses[:3,3,:].T, c2w).T
     rads = np.percentile(np.abs(tt), 90, 0)
     c2w_path = c2w
-    N_views = 120
+    N_views = 30
     N_rots = 2
 
     # Generate poses for spiral path
