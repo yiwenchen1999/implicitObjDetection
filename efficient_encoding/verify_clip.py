@@ -33,8 +33,8 @@ if __name__=='__main__':
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_116999/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/replica/renderonly_path_116999/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/brics_car/testset_110000/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/brics_car/testset_110000/"
 
 
     def save_query(text, image_clip_feature_normalized):
@@ -66,9 +66,9 @@ if __name__=='__main__':
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
-            save_query("chair", image_clip_feature_normalized)
-            save_query("armrest on the chair", image_clip_feature_normalized)
-            save_query("pillows", image_clip_feature_normalized)
+            save_query("a char", image_clip_feature_normalized)
+            save_query("wheels", image_clip_feature_normalized)
+            save_query("car windows", image_clip_feature_normalized)
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
             # save_query("swivel chair", image_clip_feature_normalized, 3)
