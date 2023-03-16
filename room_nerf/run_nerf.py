@@ -334,7 +334,8 @@ def create_nerf(args):
         'network_clip' : model_clip,
         'train_clip': False,
         'infer' : False,
-        'record_points' : False
+        'record_points' : False,
+        'point_records' : None
     }
 
     # NDC only good for LLFF-style forward facing data
@@ -437,7 +438,8 @@ def render_rays(ray_batch,
                 network_clip = None,
                 train_clip = False,
                 infer = False,
-                record_points = False):
+                record_points = False,
+                point_records = None):
     """Volumetric rendering.
     Args:
       ray_batch: array of shape [batch_size, ...]. All information necessary
@@ -510,6 +512,10 @@ def render_rays(ray_batch,
     if (record_points and infer):
         print("points shape:")
         print(pts.shape)
+        record = np.zeros((N_rays*N_samples,6))
+        pts_streched = pts.reshape((N_rays*N_samples,3))
+        print(pts_streched.shape, pts.shape)
+        record[:,0:3] = pts_streched
 
 
 #     raw = run_network(pts)
@@ -935,6 +941,8 @@ def train():
             print('test poses shape', render_poses.shape)
             print("rendering clip: ", render_kwargs_test['train_clip'])
             render_kwargs_test['record_points'] = True
+            point_records = []
+            render_kwargs_test['point_records'] = point_records
             rgbs, _ = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
             print('Done rendering', testsavedir)
             imageio.mimwrite(os.path.join(testsavedir, 'video.mp4'), to8b(rgbs), fps=30, quality=8)
