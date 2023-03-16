@@ -469,7 +469,7 @@ def render_rays(ray_batch,
         sample.
     """
     # print("IS traning clip: ", train_clip)
-    if (record_points):
+    if (record_points and infer):
         print("recording the points")
         print(N_samples)
     N_rays = ray_batch.shape[0]
@@ -507,7 +507,7 @@ def render_rays(ray_batch,
     # print(pts[1,0], pts[0,-1])
     # print(pts[2,0], pts[0,-1])
     # print(pts[3,0], pts[0,-1])
-    if (record_points):
+    if (record_points and infer):
         print("points shape:")
         print(pts.shape)
 
@@ -519,6 +519,8 @@ def render_rays(ray_batch,
         if (record_points):
             print("raw_rgb shape:")
             print(raw_rgb.shape)
+            print("raw clip shape:")
+            print(raw.shape)
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
     
