@@ -513,7 +513,7 @@ def render_rays(ray_batch,
         print("points shape:")
         print(pts.shape)
         record = np.zeros((N_rays*N_samples,6))
-        pts_streched = pts.reshape((N_rays*N_samples,3))
+        pts_streched = pts.reshape((N_rays*N_samples,3)).cpu().numpy
         print(pts_streched.shape, pts.shape)
         record[:,0:3] = pts_streched
 
