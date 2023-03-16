@@ -471,6 +471,7 @@ def render_rays(ray_batch,
     # print("IS traning clip: ", train_clip)
     if (record_points):
         print("recording the points")
+        print(ray_batch.shape)
     N_rays = ray_batch.shape[0]
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
