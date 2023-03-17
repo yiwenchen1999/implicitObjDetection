@@ -321,7 +321,7 @@ def create_nerf(args):
 
     ##########################
 
-    render_kwargs_train = {record_points
+    render_kwargs_train = {
         'network_query_fn' : network_query_fn,
         'perturb' : args.perturb,
         'N_importance' : args.N_importance,
