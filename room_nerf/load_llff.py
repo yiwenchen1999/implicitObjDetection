@@ -200,8 +200,8 @@ def _load_data_replica(basedir, factor=None, width=None, height=None, load_imgs=
         # print(fname)
         poses.append(np.array(frame["transform_matrix"]))
         clip_filenames.append(clipname)
-    # imgdir = os.path.join(basedir, 'images')
-    imgdir = os.path.join(basedir)
+    imgdir = os.path.join(basedir, 'images')
+    # imgdir = os.path.join(basedir)
     if factor is not None:
         sfx = '_{}'.format(factor)
         _minify(basedir, factors=[factor])
