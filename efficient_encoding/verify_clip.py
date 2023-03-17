@@ -33,8 +33,8 @@ if __name__=='__main__':
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/brics_car/testset_110000/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/brics_car/testset_110000/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/HashNeRF-pytorch/logs/brics_car_hashXYZ_sphereVIEW_fine512_log2T19_lr0.01_decay10_RAdam_sparse1e-10_TV1e-06/testset_001000/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/HashNeRF-pytorch/logs/brics_car_hashXYZ_sphereVIEW_fine512_log2T19_lr0.01_decay10_RAdam_sparse1e-10_TV1e-06/testset_001000/"
 
 
     def save_query(text, image_clip_feature_normalized):
