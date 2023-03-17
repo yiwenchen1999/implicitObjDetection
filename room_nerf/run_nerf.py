@@ -321,7 +321,7 @@ def create_nerf(args):
 
     ##########################
 
-    render_kwargs_train = {
+    render_kwargs_train = {record_points
         'network_query_fn' : network_query_fn,
         'perturb' : args.perturb,
         'N_importance' : args.N_importance,
@@ -708,6 +708,8 @@ def config_parser():
 
     parser.add_argument("--render_only", action='store_true', 
                         help='do not optimize, reload weights and render out render_poses path')
+    parser.add_argument("--record_points", action='store_true', 
+                        help='take note on the points when doing rendering')
     parser.add_argument("--sample_clips", action='store_true', 
                         help='do not optimize, reload weights and sample for clip embeddings across space')
     parser.add_argument("--render_test", action='store_true', 
@@ -942,7 +944,7 @@ def train():
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', render_poses.shape)
             print("rendering clip: ", render_kwargs_test['train_clip'])
-            render_kwargs_test['record_points'] = True
+            render_kwargs_test['record_points'] = args.record_points
             point_records = []
             render_kwargs_test['point_records'] = point_records
             rgbs, _ = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
