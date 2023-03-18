@@ -537,8 +537,8 @@ def render_rays(ray_batch,
             record[:,7:] = raw_streched
             # print(record[:, 7])
             mask = (record[:, 7]>= 0.2)
-            print(mask.shape)
-            point_records.append(mask)
+            print(record[mask, :].shape)
+            point_records.append(record[mask, :])
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
     
