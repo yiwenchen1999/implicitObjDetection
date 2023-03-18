@@ -472,8 +472,8 @@ def render_rays(ray_batch,
     """
     # print("IS traning clip: ", train_clip)
     if (record_points and infer):
-        if point_records != None:
-            point_records = point_records+1
+        # if point_records != None:
+            # point_records = point_records+1
         print("recording the points")
         print(N_samples)
     N_rays = ray_batch.shape[0]
