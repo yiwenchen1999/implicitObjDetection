@@ -512,7 +512,7 @@ def render_rays(ray_batch,
     # print(pts[2,0], pts[0,-1])
     # print(pts[3,0], pts[0,-1])
     if (record_points and infer):
-        print("points shape:")
+        # print("points shape:")
         print(pts.shape)
         record = np.zeros((N_rays*N_samples,7+769))
         pts_streched = pts.reshape((N_rays*N_samples,3)).cpu().numpy()
@@ -525,10 +525,12 @@ def render_rays(ray_batch,
         raw = network_query_fn(pts, viewdirs, network_clip)
         raw_rgb = network_query_fn(pts, viewdirs, network_fn)
         if (record_points):
-            print("raw_rgb shape:")
-            print(raw_rgb.shape)
-            print("raw clip shape:")
-            print(raw.shape)
+            # print("raw_rgb shape:")
+            # print(raw_rgb.shape)
+            # print("raw clip shape:")
+            # print(raw.shape)
+            print("saving points at idx")
+            print(point_records)
             raw_rgb_streched = raw_rgb.reshape((N_rays*N_samples,4)).cpu().numpy()
             record[:,3:7] = raw_rgb_streched
             raw_streched = raw.reshape((N_rays*N_samples,769)).cpu().numpy()
