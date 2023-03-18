@@ -472,6 +472,8 @@ def render_rays(ray_batch,
     """
     # print("IS traning clip: ", train_clip)
     if (record_points and infer):
+        if point_records != None:
+            point_records = point_records+1
         print("recording the points")
         print(N_samples)
     N_rays = ray_batch.shape[0]
@@ -531,7 +533,7 @@ def render_rays(ray_batch,
             record[:,3:7] = raw_rgb_streched
             raw_streched = raw.reshape((N_rays*N_samples,769)).cpu().numpy()
             record[:,7:] = raw_streched
-            point_records.append(record)
+            np.save("point_info/point_records" + str(point_records),record)
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
     
@@ -948,7 +950,7 @@ def train():
             print('test poses shape', render_poses.shape)
             print("rendering clip: ", render_kwargs_test['train_clip'])
             render_kwargs_test['record_points'] = args.record_points
-            point_records = []
+            point_records = 0
             render_kwargs_test['point_records'] = point_records
             rgbs, _ = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
             print('Done rendering', testsavedir)
