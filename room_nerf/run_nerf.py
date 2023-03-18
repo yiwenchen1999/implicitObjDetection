@@ -535,9 +535,9 @@ def render_rays(ray_batch,
             record[:,3:7] = raw_rgb_streched
             raw_streched = raw.reshape((N_rays*N_samples,769)).cpu().numpy()
             record[:,7:] = raw_streched
-            print(record[:, 7])
+            # print(record[:, 7])
             mask = (record[:, 7]>= 0.2)
-            # print(mask.shape)
+            print(mask.shape)
             point_records.append(mask)
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
