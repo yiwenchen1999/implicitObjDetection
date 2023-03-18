@@ -535,6 +535,7 @@ def render_rays(ray_batch,
             record[:,3:7] = raw_rgb_streched
             raw_streched = raw.reshape((N_rays*N_samples,769)).cpu().numpy()
             record[:,7:] = raw_streched
+            print(record[:, 7])
             mask = (record[:, 7]>= 0.4)
             print(mask.shape)
             point_records.append(record)
