@@ -475,7 +475,7 @@ def render_rays(ray_batch,
         # if point_records != None:
             # point_records = point_records+1
         print("recording the points")
-        print(N_samples)
+        # print(N_samples)
     N_rays = ray_batch.shape[0]
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
@@ -513,10 +513,10 @@ def render_rays(ray_batch,
     # print(pts[3,0], pts[0,-1])
     if (record_points and infer):
         # print("points shape:")
-        print(pts.shape)
+        # print(pts.shape)
         record = np.zeros((N_rays*N_samples,7+769))
         pts_streched = pts.reshape((N_rays*N_samples,3)).cpu().numpy()
-        print(pts_streched.shape, pts.shape)
+        # print(pts_streched.shape, pts.shape)
         record[:,0:3] = pts_streched
 
 
@@ -535,7 +535,7 @@ def render_rays(ray_batch,
             record[:,3:7] = raw_rgb_streched
             raw_streched = raw.reshape((N_rays*N_samples,769)).cpu().numpy()
             record[:,7:] = raw_streched
-            # print(record[:, 7])
+            print(record[:, 7])
             mask = (record[:, 7]>= 0.2)
             # print(mask.shape)
             point_records.append(mask)
