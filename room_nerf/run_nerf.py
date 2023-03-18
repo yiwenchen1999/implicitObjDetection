@@ -535,7 +535,9 @@ def render_rays(ray_batch,
             record[:,3:7] = raw_rgb_streched
             raw_streched = raw.reshape((N_rays*N_samples,769)).cpu().numpy()
             record[:,7:] = raw_streched
-            np.save("point_info/point_records" + str(point_records),record)
+            mask = (record[:, 7]>= 0.2)
+            print(mask.shape)
+            point_records.append(record)
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
     
@@ -952,7 +954,7 @@ def train():
             print('test poses shape', render_poses.shape)
             print("rendering clip: ", render_kwargs_test['train_clip'])
             render_kwargs_test['record_points'] = args.record_points
-            point_records = 0
+            point_records = []
             render_kwargs_test['point_records'] = point_records
             rgbs, _ = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
             print('Done rendering', testsavedir)
