@@ -973,7 +973,7 @@ def train():
     # Prepare raybatch tensor if batching random rays
     N_rand = args.N_rand
     use_batching = not args.no_batching
-    use_batching = False
+    # use_batching = False
     print("use batching: ", use_batching)
     if use_batching:
         # For random ray batching
