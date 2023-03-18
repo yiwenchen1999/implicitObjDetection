@@ -192,6 +192,13 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             print(i," clips rendering finished:", clip.shape, disp.shape)
             clip = clip.cpu().numpy()
             np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
+            point_info = render_kwargs['point_records']
+            new_info = []
+            render_kwargs['point_records'] = new_info
+            info = np.concatenate(point_info, 0)
+            print(info.shape)
+            np.save("/gpfs/data/ssrinath/datasets/implicitObjPointRecords/{:03d}".format(i), info)
+
             chunk = int(chunk*2)
 
         
@@ -537,7 +544,7 @@ def render_rays(ray_batch,
             record[:,7:] = raw_streched
             # print(record[:, 7])
             mask = (record[:, 7]>= 0.2)
-            print(record[mask, :].shape)
+            # print(record[mask, :].shape)
             point_records.append(record[mask, :])
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
