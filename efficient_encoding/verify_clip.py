@@ -66,9 +66,9 @@ if __name__=='__main__':
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
-            save_query("a char", image_clip_feature_normalized)
-            save_query("wheels", image_clip_feature_normalized)
-            save_query("car windows", image_clip_feature_normalized)
+            save_query("the mic", image_clip_feature_normalized)
+            save_query("the stand", image_clip_feature_normalized)
+            save_query("the wire", image_clip_feature_normalized)
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
             # save_query("swivel chair", image_clip_feature_normalized, 3)
