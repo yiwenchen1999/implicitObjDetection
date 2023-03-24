@@ -36,8 +36,8 @@ if __name__=='__main__':
     #cups schemes/
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     # # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/2023-02-25_session_black-dodge-canonical/images/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/2023-02-25_session_black-dodge-canonical/images/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/brics-tools/assets/objects/dog_seg/undist/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/brics-tools/assets/objects/dog_seg/undist/"
     # data_path = os.path.join(args.data, "images")
     # root_path = os.path.join(args.data, "images")
     print(data_path)
@@ -90,6 +90,7 @@ if __name__=='__main__':
         # if filename[0:4] == 'rgba':
         if filename[-4:] != '.npy':
         # if True:
+            print("reading", filename)
             img_path = data_path + filename
             im = np.array(Image.open(img_path).convert("RGB")) #im shape is (256, 256, 3)
             o_im = Image.fromarray(im).convert ('RGB')
