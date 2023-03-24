@@ -85,9 +85,13 @@ if __name__=='__main__':
 
 
     directories = os.listdir(data_path)
+    print(directories)
     for filename in directories:
         # if filename[0:4] == 'rgba':
-        if filename[-4:] != '.npy' and filename[-4:] == '.png':
+        if filename[-4:] != '.npy':
+            if filename[-4] != '.':
+                filename_n = os.listdir(data_path+filename)[0]
+                filename = filename+'/'+filename_n
         # if True:
             print("reading", filename)
             img_path = data_path + filename
