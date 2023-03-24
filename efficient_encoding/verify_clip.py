@@ -46,7 +46,7 @@ if __name__=='__main__':
         query_map_remapped = (query_map_scores - np.min(query_map_scores)) / (np.max(query_map_scores) - np.min(query_map_scores))
         np.save(root_path + filename[:-4]+ text, query_map_remapped)
         query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
-        plt.imshow(query_map)
+        plt.imshow(query_map, cmap = 'plasma')
         # plt.imshow(query_map_3d)
         plt.imsave(root_path + filename[:-4]+ text + "_heat.png", query_map)
 
