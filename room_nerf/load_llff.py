@@ -412,7 +412,7 @@ def _load_data_replica_testing(basedir, factor=None, width=None, height=None, lo
 
     return images, poses, near, far, K, render_poses, i_test, [height, width, fx], clip_filenames
 
-def load_data_brics(basedir, factor=None, width=None, height=None, load_imgs=True):
+def _load_data_brics(basedir, factor=None, width=None, height=None, load_imgs=True):
     print("loading data from brics")
     meta = load_from_json(basedir + "transforms.json")
     image_filenames = []
