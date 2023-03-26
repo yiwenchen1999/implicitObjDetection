@@ -529,7 +529,7 @@ def _load_data_brics(basedir, factor=None, width=None, height=None, load_imgs=Tr
 
     # bounding_box = get_bbox3d_for_llff(poses[:,:3,:4], poses[0,:3,-1], near=near, far=far)
 
-    return images, poses, near, far, K, render_poses, [height, width, fx], clip_filenames
+    return images, poses, near, far, K, render_poses, i_test, [height, width, fx], clip_filenames
 
 
 
