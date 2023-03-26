@@ -179,7 +179,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             imageio.imwrite(filename, rgb8)
 
         # if render_kwargs['train_clip']:
-        if True:
+        if False:
             render_kwargs['train_clip'] = True
             print("doing clip: ", render_kwargs['train_clip'])
             render_kwargs['infer'] = True
@@ -1030,7 +1030,7 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if(i < 50001):
+        if(i < 100001):
             train_rgb = True
             train_clip = False
         else:
