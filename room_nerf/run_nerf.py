@@ -17,7 +17,7 @@ from load_llff import load_llff_data
 from load_deepvoxels import load_dv_data
 from load_blender import load_blender_data
 from load_LINEMOD import load_LINEMOD_data
-from load_llff import _load_data_replica
+from load_llff import _load_data_replica, _load_data_brics
 from load_llff import _load_data_replica_testing
 import sys
 from torch.nn.functional import normalize
@@ -801,6 +801,7 @@ def train():
 
     # Load data
     K = None
+    K_all = None
     if args.dataset_type == 'llff':
         images, poses, bds, render_poses, i_test = load_llff_data(args.datadir, args.factor,
                                                                   recenter=True, bd_factor=.75,
@@ -833,6 +834,22 @@ def train():
         images, poses, near, far, K, render_poses, i_test, hwf, clip_filenames = _load_data_replica(args.datadir)
         
         print('Loaded replica', images.shape, render_poses.shape, args.datadir)
+        if not isinstance(i_test, list):
+            i_test = [i_test]
+
+        i_val = i_test
+        print(type(i_test), type(i_val))
+        i_train = np.array([i for i in np.arange(int(images.shape[0]))])
+        # i_train = np.array([i for i in np.arange(int(images.shape[0])) if
+        #                 (i not in i_test and i not in i_val)])
+
+        print('NEAR FAR', near, far)
+
+    if args.dataset_type == 'brics':
+        images, poses, near, far, K_all, render_poses, i_test, hwf, clip_filenames = _load_data_brics(args.datadir)
+        K = None
+        
+        print('Loaded brics', images.shape, render_poses.shape, args.datadir)
         if not isinstance(i_test, list):
             i_test = [i_test]
 
@@ -1058,6 +1075,8 @@ def train():
         else:
             # Random from one image
             img_i = np.random.choice(i_train)
+            if K_all is not None:
+                K = K_all[img_i]
             target = images[img_i]
             target = torch.Tensor(target).to(device)
             pose = poses[img_i, :3,:4]

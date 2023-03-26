@@ -412,6 +412,126 @@ def _load_data_replica_testing(basedir, factor=None, width=None, height=None, lo
 
     return images, poses, near, far, K, render_poses, i_test, [height, width, fx], clip_filenames
 
+def load_data_brics(basedir, factor=None, width=None, height=None, load_imgs=True):
+    print("loading data from brics")
+    meta = load_from_json(basedir + "transforms.json")
+    image_filenames = []
+    # mask_filenames = []
+    poses = []
+    clip_filenames = []
+    K = []
+    print(meta.keys())
+    
+    for frame in meta["frames"]:
+        fx = frame['fl_x']
+        fy = frame['fl_y']
+        cx = frame['cx']
+        cy = frame['cy']
+        height = frame['h']
+        width= frame['w']
+        K_indiv = np.array([
+            [fx, 0, 0.5*width],
+            [0, fy, 0.5*height],
+            [0, 0, 1]
+        ])
+        print('frame["file_path"])', frame["file_path"])
+        clip_path = (frame["file_path"][:-4]+".npy")
+        # print(str(clip_path))
+        filepath = (frame["file_path"])
+        fname = (filepath)
+        clipname =(clip_path)
+        image_filenames.append(fname)
+        # print(fname)
+        poses.append(np.array(frame["transform_matrix"]))
+        clip_filenames.append(clipname)
+        K.append(K_indiv)
+        # print(filepath)
+        # print(K_indiv.shape)
+    imgdir = os.path.join(basedir)
+    if factor is not None:
+        sfx = '_{}'.format(factor)
+        _minify(basedir, factors=[factor])
+        factor = factor
+        imgdir = os.path.join(basedir, 'images' + sfx)
+    
+    
+    if not os.path.exists(imgdir):
+        print( imgdir, 'does not exist, returning' )
+        return
+
+    def imread(f):
+        if f.endswith('png'):
+            return imageio.imread(f, ignoregamma=True)
+        else:
+            return imageio.imread(f)
+    print(os.path.join(imgdir, image_filenames[0]))
+    imgs = imgs = [imread(os.path.join(imgdir, f))[...,:3]/255. for f in image_filenames]
+    poses = torch.from_numpy(np.array(poses).astype(np.float32))
+    poses = auto_orient_and_center_poses(
+            poses,
+            method="up",
+        )
+    scale_factor = 1.0
+    scale_factor /= torch.max(torch.abs(poses[:, :3, 3]))
+    poses[:, :3, 3] *= scale_factor 
+    imgs = np.stack(imgs, -1)  
+    imgs = np.moveaxis(imgs, -1, 0).astype(np.float32)
+    images = imgs
+    # poses = np.moveaxis(poses, -1, 0).astype(np.float32)
+    poses = poses.numpy()
+
+    print("imgs: ", imgs.shape)
+    print("poses: ", poses.shape)
+
+    images = images.astype(np.float32)
+    
+    poses = poses.astype(np.float32)
+
+
+    num_images = len(image_filenames)
+    num_train_images = math.ceil(num_images * 0.9)
+    num_eval_images = num_images - num_train_images
+    i_all = np.arange(num_images)
+    i_train = np.linspace(
+        0, num_images - 1, num_train_images, dtype=int
+    )  # equally spaced training images starting and ending at 0 and num_images-1
+    i_eval = np.setdiff1d(i_all, i_train)
+    # print(i_eval)
+    i_test = i_eval
+    near = 2
+    far = 6
+    c2w = poses_avg(poses)
+
+    ## Get spiral
+    # Get average pose
+    up = normalize(poses[:, :3, 1].sum(0))
+    # Find a reasonable "focus depth" for this dataset
+    close_depth, inf_depth = 0.2*.9, far*5.
+    dt = .75
+    mean_dz = 1./(((1.-dt)/close_depth + dt/inf_depth))
+    focal = mean_dz
+    # Get radii for spiral path
+    shrink_factor = .8
+    zdelta = close_depth * .2
+    tt = poses[:,:3,3] # ptstocam(poses[:3,3,:].T, c2w).T
+    rads = np.percentile(np.abs(tt), 90, 0)
+    c2w_path = c2w
+    N_views = 30
+    N_rots = 2
+
+    # Generate poses for spiral path
+    render_poses = render_path_spiral(c2w_path, up, rads, fx, zdelta, zrate=.5, rots=N_rots, N=N_views)
+    render_poses = np.array(render_poses).astype(np.float32)   
+    # render_poses = torch.stack([pose_spherical(angle, -30.0, 4.0) for angle in np.linspace(-180,180,40+1)[:-1]], 0)
+    print(render_poses.shape)
+
+    # bounding_box = get_bbox3d_for_llff(poses[:,:3,:4], poses[0,:3,-1], near=near, far=far)
+
+    # bounding_box = get_bbox3d_for_llff(poses[:,:3,:4], poses[0,:3,-1], near=near, far=far)
+
+    return images, poses, near, far, K, render_poses, [height, width, fx], clip_filenames
+
+
 
 
     # imgfiles = [os.path.join(imgdir, f) for f in sorted(os.listdir(imgdir)) if f.endswith('JPG') or f.endswith('jpg') or f.endswith('png')]
