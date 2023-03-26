@@ -1,7 +1,7 @@
 expname = brics_dog
 basedir = ./logs
 datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/brics-tools/assets/objects/dog_seg/
-dataset_type = replica
+dataset_type = brics
 
 no_batching = True
 

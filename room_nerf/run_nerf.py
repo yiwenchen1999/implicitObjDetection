@@ -845,7 +845,7 @@ def train():
 
         print('NEAR FAR', near, far)
 
-    if args.dataset_type == 'brics':
+    elif args.dataset_type == 'brics':
         images, poses, near, far, K_all, render_poses, i_test, hwf, clip_filenames = _load_data_brics(args.datadir)
         K = None
         
