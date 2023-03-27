@@ -174,7 +174,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
         if savedir is not None:
             rgb8 = to8b(rgbs[-1])
-            disp8 = to8b(disp / np.max(disp))
+            disp8 = to8b(disps[-1] / np.max(disps[-1]))
             print(rgb8.shape)
             filename = os.path.join(savedir, '{:03d}.png'.format(i))
             filename_disp = os.path.join(savedir, '{:03d}_disp.png'.format(i))
