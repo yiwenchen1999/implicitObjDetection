@@ -197,8 +197,8 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             render_kwargs['point_records'] = new_info
             if point_info is not None and len(point_info) > 0 :
                 info = np.concatenate(point_info, 0)
-            print(info.shape)
-            np.save("/gpfs/data/ssrinath/datasets/implicitObjPointRecords/{:03d}".format(i), info)
+                print(info.shape)
+                np.save("/gpfs/data/ssrinath/datasets/implicitObjPointRecords/{:03d}".format(i), info)
 
             chunk = int(chunk*2)
 
