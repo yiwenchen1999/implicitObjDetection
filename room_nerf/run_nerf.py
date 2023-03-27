@@ -179,7 +179,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             imageio.imwrite(filename, rgb8)
 
         # if render_kwargs['train_clip']:
-        if False:
+        if True:
             render_kwargs['train_clip'] = True
             print("doing clip: ", render_kwargs['train_clip'])
             render_kwargs['infer'] = True
