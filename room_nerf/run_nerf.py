@@ -194,14 +194,15 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             # disps.append(disp.cpu().numpy())
             print(i," clips rendering finished:", clip.shape, disp.shape)
             clip = clip.cpu().numpy()
-            np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
-            point_info = render_kwargs['point_records']
-            new_info = []
-            render_kwargs['point_records'] = new_info
-            if point_info is not None and len(point_info) > 0 :
-                info = np.concatenate(point_info, 0)
-                print(info.shape)
-                np.save("/gpfs/data/ssrinath/datasets/implicitObjPointRecords/{:03d}".format(i), info)
+            if savedir is not None:
+                np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
+                point_info = render_kwargs['point_records']
+                new_info = []
+                render_kwargs['point_records'] = new_info
+                if point_info is not None and len(point_info) > 0 :
+                    info = np.concatenate(point_info, 0)
+                    print(info.shape)
+                    np.save("/gpfs/data/ssrinath/datasets/implicitObjPointRecords/{:03d}".format(i), info)
 
             chunk = int(chunk*2)
 
