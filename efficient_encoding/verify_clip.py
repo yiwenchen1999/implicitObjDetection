@@ -33,8 +33,8 @@ if __name__=='__main__':
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/hashNerfTest/logs/mic_custom_hashXYZ_sphereVIEW_fine512_log2T19_lr0.01_decay10_RAdam_sparse1e-10_TV1e-06/renderonly_path_009999/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/hashNerfTest/logs/mic_custom_hashXYZ_sphereVIEW_fine512_log2T19_lr0.01_decay10_RAdam_sparse1e-10_TV1e-06/renderonly_path_009999/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/brics_dog/testset_161000/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/brics_dog/testset_161000/"
 
 
     def save_query(text, image_clip_feature_normalized):
@@ -66,10 +66,14 @@ if __name__=='__main__':
             # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
 
-            save_query("the mic", image_clip_feature_normalized)
-            save_query("stand", image_clip_feature_normalized)
-            save_query("wires", image_clip_feature_normalized)
-            save_query("head", image_clip_feature_normalized)
+            # save_query("the mic", image_clip_feature_normalized)
+            # save_query("stand", image_clip_feature_normalized)
+            # save_query("wires", image_clip_feature_normalized)
+            # save_query("head", image_clip_feature_normalized)
+            save_query("the dog", image_clip_feature_normalized)
+            save_query("the ears", image_clip_feature_normalized)
+            save_query("the head", image_clip_feature_normalized)
+            save_query("legs", image_clip_feature_normalized)
             # save_query("legs of a chair", image_clip_feature_normalized, 3)
             # save_query("back of a chair", image_clip_feature_normalized, 3)
             # save_query("swivel chair", image_clip_feature_normalized, 3)
