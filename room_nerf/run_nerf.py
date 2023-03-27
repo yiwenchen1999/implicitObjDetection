@@ -195,7 +195,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             point_info = render_kwargs['point_records']
             new_info = []
             render_kwargs['point_records'] = new_info
-            if len(point_info) > 0:
+            if point_info is not None and len(point_info) > 0 :
                 info = np.concatenate(point_info, 0)
             print(info.shape)
             np.save("/gpfs/data/ssrinath/datasets/implicitObjPointRecords/{:03d}".format(i), info)
