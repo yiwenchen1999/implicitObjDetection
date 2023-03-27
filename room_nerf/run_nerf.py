@@ -174,9 +174,12 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
         if savedir is not None:
             rgb8 = to8b(rgbs[-1])
+            disp8 = to8b(disps / np.max(disps))
             print(rgb8.shape)
             filename = os.path.join(savedir, '{:03d}.png'.format(i))
+            filename_disp = os.path.join(savedir, '{:03d}_disp.png'.format(i))
             imageio.imwrite(filename, rgb8)
+            imageio.imwrite(filename_disp, disp8)
 
         # if render_kwargs['train_clip']:
         if True:
@@ -982,9 +985,10 @@ def train():
             render_kwargs_test['record_points'] = args.record_points
             point_records = []
             render_kwargs_test['point_records'] = point_records
-            rgbs, _ = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
+            rgbs, disps = render_path(render_poses, hwf, K, args.chunk, render_kwargs_test, gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
             print('Done rendering', testsavedir)
             imageio.mimwrite(os.path.join(testsavedir, 'video.mp4'), to8b(rgbs), fps=30, quality=8)
+            imageio.mimwrite(os.path.join(testsavedir, 'disp.mp4'), to8b(disps / np.max(disps)), fps=30, quality=8)
             
             return
     if args.sample_clips:
