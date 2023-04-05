@@ -402,9 +402,9 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     if infer:
         alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
         alpha_rgb = raw2alpha_rgb(raw_rgb[...,3] + noise, dists)  # [N_rays, N_samples]
-        # alpha_rgb = alpha_clip*alpha_rgb
-        # result = (alpha_rgb > 0.5) * alpha_rgb #attempt to threshold alpha
-        # alpha_rgb = result #attempt to threshold alpha
+        alpha_rgb = alpha_clip*alpha_rgb
+        result = (alpha_rgb > 0.3) * alpha_rgb #attempt to threshold alpha
+        alpha_rgb = result #attempt to threshold alpha
         weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
         clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3]
     elif outputClip:
@@ -417,7 +417,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         alpha_rgb = raw2alpha_rgb(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
         # print(alpha_rgb.shape)
         # print(alpha_rgb)
-        # alpha_rgb = (alpha_rgb > 0.3)*alpha_rgb
+        alpha_rgb = (alpha_rgb > 0.3)*alpha_rgb
         # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
         weights = alpha_rgb * torch.cumprod(torch.cat([torch.ones((alpha_rgb.shape[0], 1)), 1.-alpha_rgb + 1e-10], -1), -1)[:, :-1]
         rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
