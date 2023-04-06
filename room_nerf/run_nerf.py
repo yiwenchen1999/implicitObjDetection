@@ -405,7 +405,8 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
         alpha_rgb = raw2alpha_rgb(raw_rgb[...,3] + noise, dists)  # [N_rays, N_samples]
         # alpha_rgb = (alpha_rgb > 0.95)*alpha_rgb
-        alpha_clip = alpha_clip*alpha_rgb
+        # alpha_clip = alpha_clip*alpha_rgb
+        alpha_clip = alpha_rgb
         weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
         clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3]
     elif outputClip:
@@ -431,7 +432,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
 
 
     depth_map = torch.sum(weights * z_vals, -1)
-    disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
+    disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / (torch.sum(weights, -1)))
     acc_map = torch.sum(weights, -1)
 
     if outputClip or infer:
@@ -576,10 +577,10 @@ def render_rays(ray_batch,
     else:
         rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
         # print("rgb shape: ", rgb_map.shape)
-    print("disp:")
-    print(disp_map)
-    print("depth_map:")
-    print(depth_map)
+    # print("disp:")
+    # print(disp_map)
+    # print("depth_map:")
+    # print(depth_map)
 
     if N_importance > 0 and not train_clip:
 
