@@ -495,7 +495,9 @@ def render_rays(ray_batch,
     N_rays = ray_batch.shape[0]
     rays_o, rays_d = ray_batch[:,0:3], ray_batch[:,3:6] # [N_rays, 3] each
     viewdirs = ray_batch[:,-3:] if ray_batch.shape[-1] > 8 else None
+    print(("bounds are"))
     bounds = torch.reshape(ray_batch[...,6:8], [-1,1,2])
+    print(bounds)
     near, far = bounds[...,0], bounds[...,1] # [-1,1]
 
     t_vals = torch.linspace(0., 1., steps=N_samples)
@@ -572,6 +574,10 @@ def render_rays(ray_batch,
     else:
         rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
         # print("rgb shape: ", rgb_map.shape)
+    print("disp:")
+    print(disp_map)
+    print("depth_map:")
+    print(depth_map)
 
     if N_importance > 0 and not train_clip:
 
