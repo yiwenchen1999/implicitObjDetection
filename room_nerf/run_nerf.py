@@ -173,6 +173,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             print(rgb.shape, disp.shape)
 
         if savedir is not None:
+            print("save w disp")
             rgb8 = to8b(rgbs[-1])
             disp8 = to8b(disps[-1] / np.max(disps[-1]))
             np.save(os.path.join(savedir, 'disp_{:03d}'.format(i)),disps[-1])
