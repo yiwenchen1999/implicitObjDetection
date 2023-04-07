@@ -156,6 +156,7 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
 
     rgbs = []
     disps = []
+    disps_clip = []
 
     t = time.time()
     for i, c2w in enumerate(tqdm(render_poses)):
@@ -192,12 +193,15 @@ def render_path(render_poses, hwf, K, chunk, render_kwargs, gt_imgs=None, savedi
             print(chunk)
             chunk = int(chunk/2)
             clip, disp, acc, _ = render(H, W, K, chunk=chunk, c2w=c2w[:3,:4], **render_kwargs)
+            disps_clip.append(disp.cpu().numpy())
+
             # rgbs.append(rgb.cpu().numpy())
             # disps.append(disp.cpu().numpy())
             print(i," clips rendering finished:", clip.shape, disp.shape)
             clip = clip.cpu().numpy()
             if savedir is not None:
                 np.save(os.path.join(savedir, '{:03d}'.format(i)), clip)
+                np.save(os.path.join(savedir, 'disp_clip_{:03d}'.format(i)),disps_clip[-1])
                 point_info = render_kwargs['point_records']
                 new_info = []
                 render_kwargs['point_records'] = new_info
@@ -403,7 +407,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     
     if infer:
         alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
-        alpha_rgb = raw2alpha_rgb(raw_rgb[...,3] + noise, dists)  # [N_rays, N_samples]
+        alpha_rgb = raw2alpha_rgb(raw_rgb[...,-1] + noise, dists)  # [N_rays, N_samples]
         # alpha_rgb = (alpha_rgb > 0.95)*alpha_rgb
         alpha_clip = alpha_clip*alpha_rgb
         # alpha_clip = alpha_rgb
@@ -901,7 +905,7 @@ def train():
         i_train, i_val, i_test = i_split
 
         near = 2.
-        far = 4.
+        far = 6.
 
         if args.white_bkgd:
             images = images[...,:3]*images[...,-1:] + (1.-images[...,-1:])
