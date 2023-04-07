@@ -550,6 +550,22 @@ def render_rays(ray_batch,
         raw = network_query_fn(pts, viewdirs, network_clip)
         raw_rgb = network_query_fn(pts, viewdirs, network_fn)
         if (record_points):
+            raw2alpha_rgb = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
+            dists = z_vals[...,1:] - z_vals[...,:-1]
+            dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
+            dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
+            noise = 0.
+            if raw_noise_std > 0.:
+                noise = torch.randn(raw[...,-1].shape) * raw_noise_std
+                # Overwrite randomly sampled data if pytest
+                if pytest:
+                    np.random.seed(0)
+                    noise = np.random.rand(*list(raw[...,-1].shape)) * raw_noise_std
+                    noise = torch.Tensor(noise)
+
+            alpha_rgb = raw2alpha_rgb(raw_rgb[...,-1] + noise, dists).cpu().numpy()
+            clip = torch.tanh(raw[...,:-1]).cpu().numpy()  # [N_rays, N_samples, 3]
+            rgb = torch.sigmoid(raw[...,:3]).cpu().numpy()  # [N_rays, N_samples, 3]
             # print("raw_rgb shape:")
             # print(raw_rgb.shape)
             # print("raw clip shape:")
@@ -602,7 +618,7 @@ def render_rays(ray_batch,
 #         raw = run_network(pts, fn=run_fn)
         raw = network_query_fn(pts, viewdirs, run_fn)
 
-        rgb_map_0, disp_map_0, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
+        rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
     if train_clip:
         ret = {'clip_map' : clip_map, 'disp_map' : disp_map, 'acc_map' : acc_map}
     else:
