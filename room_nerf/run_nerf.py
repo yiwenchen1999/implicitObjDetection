@@ -408,7 +408,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     if infer:
         alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
         alpha_rgb = raw2alpha_rgb(raw_rgb[...,-1] + noise, dists)  # [N_rays, N_samples]
-        # alpha_rgb = (alpha_rgb > 0.95)*alpha_rgb
+        alpha_rgb = (alpha_rgb > 0.95)*alpha_rgb
         alpha_clip = alpha_clip*alpha_rgb
         # alpha_clip = alpha_rgb
         weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
@@ -494,6 +494,8 @@ def render_rays(ray_batch,
         sample.
     """
     # print("IS traning clip: ", train_clip)
+    print("perturb")
+    print(perturb)
     if (record_points and infer):
         # if point_records != None:
             # point_records = point_records+1
