@@ -586,7 +586,8 @@ def render_rays(ray_batch,
     # print("depth_map:")
     # print(depth_map)
 
-    if N_importance > 0 and not train_clip:
+    # if N_importance > 0 and not train_clip:
+    if False:
 
         rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
 
