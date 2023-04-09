@@ -578,6 +578,8 @@ def render_rays(ray_batch,
             # print("saving points at idx")
             # print(point_records)
             print("alpha rgb in render_ray is of shape:", alpha_rgb[(alpha_rgb > 0.95)].shape)
+            mask = (alpha_rgb > 0.95)
+            print(mask.shape)
             record[:,[7]] = alpha_rgb.reshape((N_rays*N_samples,1))
             rgb_streched = rgb.reshape((N_rays*N_samples,3))
             record[:,3:6] = rgb_streched
