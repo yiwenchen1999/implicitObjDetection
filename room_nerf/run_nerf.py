@@ -494,8 +494,8 @@ def render_rays(ray_batch,
         sample.
     """
     # print("IS traning clip: ", train_clip)
-    print("perturb")
-    print(perturb)
+    # print("perturb")
+    # print(perturb)
     if (record_points and infer):
         # if point_records != None:
             # point_records = point_records+1
@@ -553,6 +553,7 @@ def render_rays(ray_batch,
         raw_rgb = network_query_fn(pts, viewdirs, network_fn)
         if (record_points):
             raw2alpha_rgb = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
+            raw2alpha_clip = lambda raw, dists, act_fn=torch.sigmoid: (1.-torch.exp(-act_fn(raw)*dists))
             dists = z_vals[...,1:] - z_vals[...,:-1]
             dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
             dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
@@ -566,6 +567,7 @@ def render_rays(ray_batch,
                     noise = torch.Tensor(noise)
 
             alpha_rgb = raw2alpha_rgb(raw_rgb[...,-1] + noise, dists).cpu().numpy()
+            alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)
             clip = torch.tanh(raw[...,:-1]).cpu().numpy()  # [N_rays, N_samples, 3]
             rgb = torch.sigmoid(raw[...,:3]).cpu().numpy()  # [N_rays, N_samples, 3]
             # print("raw_rgb shape:")
@@ -574,13 +576,15 @@ def render_rays(ray_batch,
             # print(raw.shape)
             # print("saving points at idx")
             # print(point_records)
-            raw_rgb_streched = raw_rgb.reshape((N_rays*N_samples,4)).cpu().numpy()
-            record[:,3:7] = raw_rgb_streched
-            raw_streched = raw.reshape((N_rays*N_samples,769)).cpu().numpy()
-            record[:,7:] = raw_streched
+            record[:,7] = alpha_rgb.reshape((N_rays*N_samples,3)).cpu().numpy()
+            rgb_streched = rgb.reshape((N_rays*N_samples,4)).cpu().numpy()
+            record[:,3:6] = rgb_streched
+            clip_streched = clip.reshape((N_rays*N_samples,768)).cpu().numpy()
+            record[:,7:-1] = clip_streched
+            record[:,-1] = alpha_clip
             # print(record[:, 7])
-            mask = (record[:, 7]>= 0.2)
-            # print(record[mask, :].shape)
+            mask = (record[:, 7]>= 0.90)
+            print(record[mask, :].shape)
             point_records.append(record[mask, :])
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
