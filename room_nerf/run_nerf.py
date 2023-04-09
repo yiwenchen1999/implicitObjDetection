@@ -581,7 +581,7 @@ def render_rays(ray_batch,
             record[:,3:6] = rgb_streched
             clip_streched = clip.reshape((N_rays*N_samples,768))
             record[:,7:-1] = clip_streched
-            record[:,-1] = alpha_clip.reshape((N_rays*N_samples,1))
+            record[:,[-1]] = alpha_clip.reshape((N_rays*N_samples,1))
             # print(record[:, 7])
             mask = (record[:, 7]>= 0.90)
             print(record[mask, :].shape)
