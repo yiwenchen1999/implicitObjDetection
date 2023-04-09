@@ -577,11 +577,11 @@ def render_rays(ray_batch,
             # print("saving points at idx")
             # print(point_records)
             record[:,[7]] = alpha_rgb.reshape((N_rays*N_samples,1))
-            rgb_streched = rgb.reshape((N_rays*N_samples,3)).cpu().numpy()
+            rgb_streched = rgb.reshape((N_rays*N_samples,3))
             record[:,3:6] = rgb_streched
-            clip_streched = clip.reshape((N_rays*N_samples,768)).cpu().numpy()
+            clip_streched = clip.reshape((N_rays*N_samples,768))
             record[:,7:-1] = clip_streched
-            record[:,-1] = alpha_clip.reshape((N_rays*N_samples,1)).cpu().numpy()
+            record[:,-1] = alpha_clip.reshape((N_rays*N_samples,1))
             # print(record[:, 7])
             mask = (record[:, 7]>= 0.90)
             print(record[mask, :].shape)
