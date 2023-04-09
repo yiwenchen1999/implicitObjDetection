@@ -570,7 +570,7 @@ def render_rays(ray_batch,
             alpha_rgb = raw2alpha_rgb(raw_rgb[...,-1] + noise, dists).cpu().numpy()
             alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists).cpu().numpy()
             clip = torch.tanh(raw[...,:-1]).cpu().numpy()  # [N_rays, N_samples, 3]
-            rgb = torch.sigmoid(raw[...,:-1]).cpu().numpy()  # [N_rays, N_samples, 3]
+            rgb = torch.sigmoid(raw[...,:3]).cpu().numpy()  # [N_rays, N_samples, 3]
             # print("raw_rgb shape:")
             # print(raw_rgb.shape)
             # print("raw clip shape:")
