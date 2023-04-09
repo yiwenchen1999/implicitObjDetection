@@ -587,9 +587,9 @@ def render_rays(ray_batch,
             record[:,7:-1] = clip_streched
             record[:,[-1]] = alpha_clip.reshape((N_rays*N_samples,1))
             # print(record[:, 7])
-            mask = (record[:, [7]]>= 0.90)
-            print(record[mask].shape)
-            point_records.append(record[mask])
+            mask = (record[:, 7]>= 0.90)
+            print(record[mask,:].shape)
+            point_records.append(record[mask,:])
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
     
