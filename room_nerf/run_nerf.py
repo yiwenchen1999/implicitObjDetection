@@ -553,7 +553,7 @@ def render_rays(ray_batch,
         raw = network_query_fn(pts, viewdirs, network_clip)
         raw_rgb = network_query_fn(pts, viewdirs, network_fn)
         if (record_points):
-            print("point shape:", pt.shape)
+            print("point shape:", pts.shape)
             raw2alpha_rgb = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
             raw2alpha_clip = lambda raw, dists, act_fn=torch.sigmoid: (1.-torch.exp(-act_fn(raw)*dists))
             dists = z_vals[...,1:] - z_vals[...,:-1]
