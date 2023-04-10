@@ -585,8 +585,13 @@ def render_rays(ray_batch,
             selected_rgb_alpha = alpha_rgb[mask]
             selected_clip = clip[mask]
             selected_clip_alpha = alpha_clip[mask]
-            record = np.concatenate((selected_pts, selected_rgb), axis=1)
+            pt_rgb = np.concatenate((selected_pts, selected_rgb), axis=1)
+            pt_rgb_alpha = np.concatenate((pt_rgb, selected_rgb_alpha), axis=1)
+            pt_rgb_alpha_clip = np.concatenate((pt_rgb_alpha, selected_clip), axis=1)
+            pt_rgb_alpha_clip_alpha = np.concatenate((pt_rgb_alpha_clip, selected_clip_alpha), axis=1)
+            record = pt_rgb_alpha_clip_alpha
             print("concatenated result has shape:", record.shape)
+
             # print("refined points has shape:", selected_pts.shape)
             # print(mask.shape)
             # record[:,[7]] = alpha_rgb.reshape((N_rays*N_samples,1))
@@ -599,7 +604,7 @@ def render_rays(ray_batch,
             # mask = (record[:, 7]>= 0.90)
             # print(mask.shape)
             # print(record[mask,:].shape)
-            point_records.append(record[mask,:])
+            point_records.append(record)
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
     
