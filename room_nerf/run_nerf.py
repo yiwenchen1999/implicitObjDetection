@@ -553,7 +553,7 @@ def render_rays(ray_batch,
         raw = network_query_fn(pts, viewdirs, network_clip)
         raw_rgb = network_query_fn(pts, viewdirs, network_fn)
         if (record_points):
-            print("point shape:", pts.shape)
+            # print("point shape:", pts.shape)
             raw2alpha_rgb = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
             raw2alpha_clip = lambda raw, dists, act_fn=torch.sigmoid: (1.-torch.exp(-act_fn(raw)*dists))
             dists = z_vals[...,1:] - z_vals[...,:-1]
@@ -578,21 +578,27 @@ def render_rays(ray_batch,
             # print(raw.shape)
             # print("saving points at idx")
             # print(point_records)
-            print("alpha rgb in render_ray is of shape:", alpha_rgb[(alpha_rgb > 0.95)].shape)
+            # print("alpha rgb in render_ray is of shape:", alpha_rgb[(alpha_rgb > 0.95)].shape)
             mask = (alpha_rgb > 0.95)
-            selected_pts = pts[mask]
-            print("refined points has shape:", selected_pts.shape)
-            print(mask.shape)
-            record[:,[7]] = alpha_rgb.reshape((N_rays*N_samples,1))
-            rgb_streched = rgb.reshape((N_rays*N_samples,3))
-            record[:,3:6] = rgb_streched
-            clip_streched = clip.reshape((N_rays*N_samples,768))
-            record[:,7:-1] = clip_streched
-            record[:,[-1]] = alpha_clip.reshape((N_rays*N_samples,1))
-            # print(record[:, 7])
-            mask = (record[:, 7]>= 0.90)
-            print(mask.shape)
-            print(record[mask,:].shape)
+            selected_pts = pts[mask].cpu().numpy()
+            selected_rgb = rgb[mask]
+            selected_rgb_alpha = alpha_rgb[mask]
+            selected_clip = clip[mask]
+            selected_clip_alpha = alpha_clip[mask]
+            record = np.concatenate((selected_pts, selected_rgb), axis=1)
+            print("concatenated result has shape:", record.shape)
+            # print("refined points has shape:", selected_pts.shape)
+            # print(mask.shape)
+            # record[:,[7]] = alpha_rgb.reshape((N_rays*N_samples,1))
+            # rgb_streched = rgb.reshape((N_rays*N_samples,3))
+            # record[:,3:6] = rgb_streched
+            # clip_streched = clip.reshape((N_rays*N_samples,768))
+            # record[:,7:-1] = clip_streched
+            # record[:,[-1]] = alpha_clip.reshape((N_rays*N_samples,1))
+            # # print(record[:, 7])
+            # mask = (record[:, 7]>= 0.90)
+            # print(mask.shape)
+            # print(record[mask,:].shape)
             point_records.append(record[mask,:])
     elif train_clip:
         raw = network_query_fn(pts, viewdirs, network_clip)
