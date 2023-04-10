@@ -582,9 +582,9 @@ def render_rays(ray_batch,
             mask = (alpha_rgb > 0.95)
             selected_pts = pts[mask].cpu().numpy()
             selected_rgb = rgb[mask]
-            selected_rgb_alpha = alpha_rgb[mask].reshape((mask.shape[0],1))
+            selected_rgb_alpha = alpha_rgb[mask].reshape((selected_pts.shape[0],1))
             selected_clip = clip[mask]
-            selected_clip_alpha = alpha_clip[mask].reshape((mask.shape[0],1))
+            selected_clip_alpha = alpha_clip[mask].reshape((selected_pts.shape[0],1))
             pt_rgb = np.concatenate((selected_pts, selected_rgb), axis=1)
             pt_rgb_alpha = np.concatenate((pt_rgb, selected_rgb_alpha), axis=1)
             pt_rgb_alpha_clip = np.concatenate((pt_rgb_alpha, selected_clip), axis=1)
