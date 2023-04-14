@@ -1112,7 +1112,7 @@ def train():
     for i in trange(start, N_iters):
         time0 = time.time()
 
-        if(i < -1):
+        if(i < 100000):
             train_rgb = True
             train_clip = False
         else:
