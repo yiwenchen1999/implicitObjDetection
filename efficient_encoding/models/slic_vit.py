@@ -12,8 +12,8 @@ from spatial_clip import CLIPSpatialResNet
 import matplotlib.pyplot as plt
 from torch.nn.functional import normalize
 
-
-
+device = "cuda" if torch.cuda.is_available() else "cpu"
+pretrained_clip_model, preprocess_img = clip.load("ViT-B/32", device=device)
 
 class SLICViT(nn.Module):
     def __init__(self, model='vit32', alpha=0.8, n_segments=[10, 50, 100, 200],
@@ -227,7 +227,7 @@ class SLICViT(nn.Module):
             f = image_features_normalized.shape[2]
             input = torch.empty(r, c, 1)
             query_map = torch.zeros_like(input)
-            text_tokenized = clip.tokenize([text]).cuda()
+            text_tokenized = pretrained_clip_model.tokenize([text]).cuda()
             text_features = torch.squeeze(self.model.encode_text(text_tokenized))
             text_features_normalized = text_features
             # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/replica/feature",text_features.cpu().numpy())
