@@ -12,7 +12,7 @@ from spatial_clip import CLIPSpatialResNet
 
 
 class SLICViT(nn.Module):
-    def __init__(self, model='vit14', alpha=0.8, n_segments=[10, 50, 100, 200],
+    def __init__(self, model='vit32', alpha=0.8, n_segments=[10, 50, 100, 200],
                  aggregation='mean', temperature=1., compactness=50,
                  sigma=0, **args):
         super().__init__()
