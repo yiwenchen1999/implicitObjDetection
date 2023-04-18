@@ -1,249 +1,107 @@
 import numpy as np
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from models.image_clip import Image_CLIP
+from models.slic_vit import SLICViT
 from PIL import Image
-from skimage.segmentation import slic
-from helper import seg
-from utils.box_search import BruteForceBoxSearch, FractionAreaObjective
-import clip
-from spatial_clip import CLIPMaskedSpatialViT
-from spatial_clip import CLIPSpatialResNet
+import os
+import torch
 import matplotlib.pyplot as plt
-from torch.nn.functional import normalize
+
+
+if __name__=='__main__':
+    args = {
+        'model': 'vit14',
+        'alpha': 0.75,
+        'aggregation': 'mean',
+        'n_segments': [5],
+        'temperature': 0.02,
+        'upsample': 2,
+        'start_block': 0,
+        'compactness': 50,
+        'sigma': 0,
+    }
+    model = SLICViT(**args).cuda()
+
+    #root_path = '/users/aren10/data/'
+    #data_path = root_path + '0/'
+    # root_path = '/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/'
+    # # data_path = "/gpfs/data/ssrinath/ychen485/toybox-13/0/"
+    #replica dataset
+    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_0/Sequence_2/rgb/"
+    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/results/replica/room0/frames/"
+    #cups schemes/
+    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1/"
+    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1"
+    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups/"
+    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/seg_all_clip/renderonly_path_143999/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/seg_all_clip/renderonly_path_143999/"
+
+
+    def save_query(text, image_clip_feature_normalized):
+        query_map = model.verify(image_clip_feature_normalized, text, root_path)
+        query_map_scores = np.squeeze(query_map)
+        # max = np.max(query_map)
+        # min = np.min(query_map)
+        # print(filename+" max score: "+str(max) + ", min score: "+str(min))
+        query_map_remapped = (query_map_scores - np.min(query_map_scores)) / (np.max(query_map_scores) - np.min(query_map_scores))
+        np.save(root_path + filename[:-4]+ text, query_map_remapped)
+        query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
+        plt.imshow(query_map, cmap = 'plasma')
+        # plt.imshow(query_map_3d)
+        plt.imsave(root_path + filename[:-4]+ text + "_heat.png", query_map)
 
 
 
-class SLICViT(nn.Module):
-    def __init__(self, model='vit14', alpha=0.8, n_segments=[10, 50, 100, 200],
-                 aggregation='mean', temperature=1., compactness=50,
-                 sigma=0, **args):
-        super().__init__()
-        if model == 'vit14':
-            args['patch_size'] = 14
-            self.model = CLIPMaskedSpatialViT(**args)
-        elif model == 'vit16':
-            args['patch_size'] = 16
-            self.model = CLIPMaskedSpatialViT(**args)
-        elif model == 'vit32':
-            args['patch_size'] = 32
-            self.model = CLIPMaskedSpatialViT(**args)
-        elif model == 'RN50':
-            self.model = CLIPSpatialResNet(**args)
-        elif model == 'RN50x4':
-            self.model = CLIPSpatialResNet(**args)
-        else:
-            raise Exception('Invalid model name: {}'.format(model))
-        self.alpha = alpha
-        self.n_segments = n_segments
-        self.aggregation = aggregation
-        self.temperature = temperature
-        self.compactness = compactness
-        self.sigma = sigma
-        self.window_size = 3
+    directories = os.listdir(data_path)
+    for filename in directories:
+        # if filename[0:4] == 'rgba':
+        if filename[-4:] == '.npy'and filename[3] == '.':
+        # if True:
+            clip_path = data_path + filename
+            feature_map = np.load(clip_path)
+             #image_clip_feature's size is torch.Size([1, 768, 1])
+            image_clip_feature_normalized = torch.from_numpy(feature_map)
+            print(image_clip_feature_normalized.shape, image_clip_feature_normalized.size)
+            print(filename+"loaded")
+            # query_map = model.verify(image_clip_feature_normalized, "a chair", root_path).cpu().float().numpy()
 
-    def get_masks(self, im):
-        masks = []
-        detection_areas = []
-        # Do SLIC with different number of segments so that it has a hierarchical scale structure
-        # This can average out spurious activations that happens sometimes when the segments are too small
-        for n in self.n_segments:
-            # segments_slic = slic(im.astype(
-            #     np.float32)/255., n_segments=n, compactness=self.compactness, sigma=self.sigma)
-            # print("n:", n)
-            # print("segments:",type(segments_slic))
-            oct_seg, areas = seg(im.astype(np.float32)/255., n_segments=n, window_size= self.window_size)
-            for i in np.unique(oct_seg):
-                mask = oct_seg == i
-                b_mask = areas[int(i)] == i
-                # print(mask)
-                masks.append(mask)
-                detection_areas.append(b_mask)
-        masks = np.stack(masks, 0)
-        detection_areas = np.stack(detection_areas, 0)
-        return masks, detection_areas
 
-    def get_mask_features(self,im):
-        with torch.no_grad():
-            # im is uint8 numpy
-            h, w = im.shape[:2]
-            im = Image.fromarray(im).convert('RGB')
-            im = im.resize((224, 224))
-            masks, detection_areas = self.get_masks(np.array(im))
-            masks = torch.from_numpy(masks.astype(np.bool)).cuda()
-            detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
-            im = self.model.preprocess(im).unsqueeze(0).cuda()
+            save_query("the mic", image_clip_feature_normalized)
+            save_query("stand", image_clip_feature_normalized)
+            save_query("wires", image_clip_feature_normalized)
+            save_query("head", image_clip_feature_normalized)
+            # save_query("the dog", image_clip_feature_normalized)
+            # save_query("the ears", image_clip_feature_normalized)
+            # save_query("the head", image_clip_feature_normalized)
+            # save_query("legs", image_clip_feature_normalized)
+            # save_query("legs of a chair", image_clip_feature_normalized, 3)
+            # save_query("back of a chair", image_clip_feature_normalized, 3)
+            # save_query("swivel chair", image_clip_feature_normalized, 3)
+            # save_query("a chair", image_clip_feature_normalized, 3)
+            # # image_id = "00080"
+            # # image_clip_feature_normalized = torch.tensor(np.load(root_path + image_id + "_image_clip_feature.npy")).cuda() #[256, 256, 768]
+            # #print(image_clip_feature_normalized)
+            # #image_clip_feature_normalized = (image_clip_feature_normalized - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1)) / (torch.unsqueeze(torch.max(image_clip_feature_normalized, dim = -1)[0], dim = -1) - torch.unsqueeze(torch.min(image_clip_feature_normalized, dim = -1)[0], dim = -1))
+            # query_map = model.verify(image_clip_feature_normalized, "the handle", root_path).cpu().float().numpy()
+            # # #plt.imshow(query_map)
+            # # #plt.show()
+            # query_map_scores = np.squeeze(query_map)
+            # max = np.max(query_map)
+            # min = np.min(query_map)
+            # print(filename+" max score: "+str(max) + ", min score: "+str(min))
+            # # query_map_remapped = (query_map - np.min(query_map)) / (np.max(query_map) - np.min(query_map))
+            # # r,c = np.shape(query_map_remapped)
+            # # query_map_3d = np.zeros((r,c,3))
+            # # query_map_3d[:,:,0] = query_map_remapped
+            # # query_map_3d[:,:,1] = query_map_remapped
+            # # query_map_3d[:,:,2] = query_map_remapped
 
-            image_features = self.model(im, detection_areas)
-            image_features = torch.reshape(image_features, (image_features.shape[1], image_features.shape[2]))
+            # # query_map = query_map.cpu().detach().numpy()
+            # query_map = query_map.reshape(query_map.shape[0], query_map.shape[1])
+            # plt.imshow(query_map)
+            # # plt.imshow(query_map_3d)
+            # plt.imsave(root_path + filename[:-4]+"_heat.png", query_map)
+            # exit(0)
             
-            print("image_features in clipmap:" , image_features.shape)
-            # image_features = torch.permute(image_features,(1, 0))
-
-            image_features = image_features.cpu().float().numpy()
-            print("image feature converted to numpy" , image_features.shape)
-
-            return masks.cpu().numpy(), image_features
-
-    def get_mask_scores(self, im, text):
-        with torch.no_grad():
-            # im is uint8 numpy
-            h, w = im.shape[:2]
-            im = Image.fromarray(im).convert('RGB')
-            im = im.resize((224, 224))
-            masks, detection_areas = self.get_masks(np.array(im))
-            masks = torch.from_numpy(masks.astype(np.bool)).cuda()
-            # masks = torch.from_numpy(masks.astype(np.bool))
-
-            detection_areas = torch.from_numpy(detection_areas.astype(np.bool)).cuda()
-            # detection_areas = torch.from_numpy(detection_areas.astype(np.bool))
-            im = self.model.preprocess(im).unsqueeze(0).cuda()
-            # im = self.model.preprocess(im).unsqueeze(0)
-            # print("preprocessed image:", im.shape)
-
-            image_features = self.model(im, detection_areas)
             
-            image_features = image_features.permute(0, 2, 1)
-            print("features in get heatmap:", image_features.shape)
-
-            text = clip.tokenize([text]).cuda()
-            # text = clip.tokenize([text])
-            text_features = self.model.encode_text(text)
-
-            image_features = image_features / \
-                image_features.norm(dim=1, keepdim=True)
-            text_features = text_features / \
-                text_features.norm(dim=1, keepdim=True)
-
-            logits = (image_features * text_features.unsqueeze(-1)).sum(1)
-            print("logits shape", logits.shape)
-            assert logits.size(0) == 1
-            logits = logits.cpu().float().numpy()[0]
-
-        return masks.cpu().numpy(), logits
-
-    def get_heatmap(self, im, text):
-        masks, logits = self.get_mask_scores(im, text)
-        print("masks and logits:", masks.shape, logits.shape)
-        heatmap = list(np.nan + np.zeros(masks.shape, dtype=np.float32))
-        for i in range(len(masks)):
-            mask = masks[i]
-            # print("mask:",mask.shape)
-            score = logits[i]
-            heatmap[i][mask] = score
-        heatmap = np.stack(heatmap, 0)
-        print("heatmap:", heatmap.shape)
-
-        heatmap = np.exp(heatmap / self.temperature)
-
-        if self.aggregation == 'mean':
-            heatmap = np.nanmean(heatmap, 0)
-        elif self.aggregation == 'median':
-            heatmap = np.nanmedian(heatmap, 0)
-        elif self.aggregation == 'max':
-            heatmap = np.nanmax(heatmap, 0)
-        elif self.aggregation == 'min':
-            heatmap = -np.nanmin(heatmap, 0)
-        else:
-            assert False
-
-        mask_valid = np.logical_not(np.isnan(heatmap))
-        _min = heatmap[mask_valid].min()
-        _max = heatmap[mask_valid].max()
-        heatmap[mask_valid] = (heatmap[mask_valid] -
-                               _min) / (_max - _min + 1e-8)
-        heatmap[np.logical_not(mask_valid)] = 0.
-        return heatmap
-
-    def get_clipmap(self, im, **args):
-        _args = {key: getattr(self, key) for key in args}
-        for key in args:
-            setattr(self, key, args[key])
-            print("keys:", key)
-        masks, clip_features = self.get_mask_features(im)
-        print("mask shape, feature shape:" , masks.shape, clip_features.shape)
-        featuremap = (np.nan + np.zeros((masks.shape[1], masks.shape[2],clip_features.shape[1] ), dtype=np.float32))
-        # print("featuremap shape", featuremap.shape)
-        print("i goes up to:", len(masks))
-        for i in range(len(masks)):
-            mask = masks[i]
-            # print("mask:",mask.shape)
-            features = clip_features[i]
-            # print("clip features: ", features.shape)
-            # print(featuremap.shape)
-            featuremap[mask] = features
-        featuremap = np.stack(featuremap, 0)
-        # print("heatmap:", featuremap.shape)
-        return featuremap
-
-    def box_from_heatmap(self, heatmap):
-        alpha = self.alpha
-        # get accumulated sum map for the objective
-        sum_map = heatmap.copy()
-        sum_map /= sum_map.sum() + 1e-8
-        sum_map -= alpha / sum_map.shape[0] / sum_map.shape[1]
-        bf = BruteForceBoxSearch()
-        objective = FractionAreaObjective(alpha=alpha)
-        box = bf(heatmap, objective)
-        box = box.astype(np.float32)[None]
-        return box
-
-    def forward(self, im, text, **args):
-        # temporary override paramters in init
-        _args = {key: getattr(self, key) for key in args}
-        for key in args:
-            setattr(self, key, args[key])
-            print("keys:", key)
-        # forward
-        h, w = im.shape[:2]
-        # im.resize(224,224)
-        print("image: ", im.shape)
-        heatmap = self.get_heatmap(im, text)
-        # print("heatmap is ", type(heatmap), heatmap.shape, heatmap)
-        # heatimg = heatmap*800
-        # # print(heatimg)
-        # o_im = Image.fromarray(im).convert ('RGB')
-        # h_im = Image.fromarray(heatimg).convert ('RGB')
-        # o_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+text+".png")
-        # h_im.save("/gpfs/data/ssrinath/ychen485/implicitSearch/adaptingCLIPtesting/output0/"+text+"_heat.png")
-        # print(text+" saved")
-        bbox = self.box_from_heatmap(heatmap)
-        bbox[:, ::2] = bbox[:, ::2] * w / 224
-        bbox[:, 1::2] = bbox[:, 1::2] * h / 224
-        # bbox[:, ::2] = bbox[:, ::2] * w / w
-        # bbox[:, 1::2] = bbox[:, 1::2] * h / h
-        # restore paramters
-        for key in args:
-            setattr(self, key, _args[key])
-        return bbox, heatmap
-
-
-
-    def verify(self, image_features_normalized, text, root_path):
-        with torch.no_grad():
-            r = image_features_normalized.shape[0]
-            c = image_features_normalized.shape[1]
-            f = image_features_normalized.shape[2]
-            input = torch.empty(r, c, 1)
-            query_map = torch.zeros_like(input)
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-            clip_model, preprocess_img = clip.load("ViT-B/32", device=device)
-            text_tokenized = clip.tokenize([text]).cuda()
-            text_features = torch.squeeze(clip_model.encode_text(text_tokenized))
-            text_features_normalized = text_features
             
-            # np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/replica/feature",text_features.cpu().numpy())
-
-            #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
-            
-            # np.save(root_path + "Nesf0_2D/" + text + "_clip_feature", text_features_normalized.cpu().detach().numpy())
-            
-            #text_features_normalized = torch.tensor(np.load(root_path + "Nesf0_2D/" + text + "_clip_feature.npy"))
-            #print(text_features_normalized)
-            text_features_normalized = text_features_normalized.to(torch.float)
-            image_features_normalized = image_features_normalized.to(torch.float)
-            text_features_normalized = normalize(text_features_normalized, p=2.0, dim = -1)
-            image_features_normalized = normalize(image_features_normalized, p=2.0, dim = -1)
-            print(text_features_normalized.shape)
-            sem_img = torch.tensordot(image_features_normalized.float(), text_features_normalized.cpu(), dims=([2],[0])).detach().numpy()
-            return sem_img

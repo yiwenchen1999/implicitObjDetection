@@ -411,6 +411,16 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         alpha_rgb = (alpha_rgb > 0.95)*alpha_rgb
         alpha_clip = alpha_clip*alpha_rgb
         print("alpha rgb shape:", alpha_rgb[(alpha_rgb > 0.95)].shape)
+        feature_mic = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature_mic.npy")
+        feature_wires = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature_wires.npy")
+        feature_stand = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature_stand.npy")
+
+        heat = torch.tensordot(clip, feature_mic, dims=([2],[0]))
+        render_mask = heat>17
+        alpha_clip = render_mask*alpha_clip
+        print(alpha_clip.shape)
+        print("alpha clip shape:", alpha_clip[(alpha_clip > 0)].shape)
+
         # alpha_clip = alpha_rgb
         weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
         clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3]
@@ -572,6 +582,9 @@ def render_rays(ray_batch,
             alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists).cpu().numpy()
             clip = torch.tanh(raw[...,:-1]).cpu().numpy()  # [N_rays, N_samples, 3]
             rgb = torch.sigmoid(raw[...,:3]).cpu().numpy()  # [N_rays, N_samples, 3]
+
+            # heat = np.tensordot(clip, feature_mic, axes=([1],[0]))
+            # render_mast = heat>17
             # print("raw_rgb shape:")
             # print(raw_rgb.shape)
             # print("raw clip shape:")
