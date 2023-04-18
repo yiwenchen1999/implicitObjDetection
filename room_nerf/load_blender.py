@@ -59,8 +59,11 @@ def load_blender_data(basedir, half_res=False, testskip=1):
             fname = os.path.join(basedir, frame['file_path'] + '.png')
             imgs.append(imageio.imread(fname))
             poses.append(np.array(frame['transform_matrix']))
+            #standard names
+            clipfiles.append(os.path.join(basedir, frame['file_path'] + '.npy'))
+
             #changed to adapt to segall
-            clipfiles.append(os.path.join(basedir, frame['file_path'] + '_clip2d_gt.npy'))
+            # clipfiles.append(os.path.join(basedir, frame['file_path'] + '_clip2d_gt.npy'))
         imgs = (np.array(imgs) / 255.).astype(np.float32) # keep all 4 channels (RGBA)
         poses = np.array(poses).astype(np.float32)
         counts.append(counts[-1] + imgs.shape[0])
