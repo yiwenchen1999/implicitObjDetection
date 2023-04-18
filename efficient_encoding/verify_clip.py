@@ -67,9 +67,9 @@ if __name__=='__main__':
 
 
             save_query("the mic", image_clip_feature_normalized)
-            save_query("stand", image_clip_feature_normalized)
-            save_query("wires", image_clip_feature_normalized)
-            save_query("head", image_clip_feature_normalized)
+            # save_query("stand", image_clip_feature_normalized)
+            # save_query("wires", image_clip_feature_normalized)
+            # save_query("head", image_clip_feature_normalized)
             # save_query("the dog", image_clip_feature_normalized)
             # save_query("the ears", image_clip_feature_normalized)
             # save_query("the head", image_clip_feature_normalized)
