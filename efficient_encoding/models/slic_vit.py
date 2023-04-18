@@ -230,6 +230,8 @@ class SLICViT(nn.Module):
             clip_model, preprocess_img = clip.load("ViT-B/32", device=device)
             text_tokenized = clip.tokenize([text]).cuda()
             text_features = torch.squeeze(self.model.encode_text(text_tokenized))
+            text_features = torch.squeeze(clip_model.encode_text(text_tokenized))
+
             text_features_normalized = text_features
             
             np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature512_" + text,text_features.cpu().numpy())
