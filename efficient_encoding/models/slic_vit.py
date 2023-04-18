@@ -226,13 +226,13 @@ class SLICViT(nn.Module):
             f = image_features_normalized.shape[2]
             input = torch.empty(r, c, 1)
             query_map = torch.zeros_like(input)
-            # device = "cuda" if torch.cuda.is_available() else "cpu"
-            # clip_model, preprocess_img = clip.load("ViT-B/32", device=device)
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            clip_model, preprocess_img = clip.load("ViT-B/32", device=device)
             text_tokenized = clip.tokenize([text]).cuda()
             text_features = torch.squeeze(self.model.encode_text(text_tokenized))
             text_features_normalized = text_features
             
-            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature_" + text,text_features.cpu().numpy())
+            np.save("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature512_" + text,text_features.cpu().numpy())
 
             #text_features_normalized = (text_features - torch.min(text_features)) / (torch.max(text_features) - torch.min(text_features))
             
