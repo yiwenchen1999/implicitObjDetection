@@ -33,8 +33,10 @@ if __name__=='__main__':
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/mug1"
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/cups/"
     # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_results/cups/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/blender_paper_mic/renderonly_path_152999/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/blender_paper_mic/renderonly_path_152999/"
+    # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/blender_paper_mic/renderonly_path_152999/"
+    # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/blender_paper_mic/renderonly_path_152999/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/seg_all_clip/renderonly_path_143999/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/room_nerf/logs/seg_all_clip/renderonly_path_143999/"
 
 
     def save_query(text, image_clip_feature_normalized):
