@@ -416,7 +416,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         feature_stand = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature_stand.npy")
 
         heat = torch.tensordot(clip, torch.tensor(feature_wires).to(torch.float32), dims=([2],[0]))
-        render_mask = heat>17
+        render_mask = heat>12
         alpha_clip = render_mask*alpha_clip
         print(alpha_clip.shape)
         print("alpha clip shape:", alpha_clip[(alpha_clip > 0)].shape)
