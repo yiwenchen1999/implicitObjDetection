@@ -411,11 +411,12 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         alpha_rgb = (alpha_rgb > 0.5)*alpha_rgb
         alpha_clip = alpha_clip*alpha_rgb
         print("alpha rgb shape:", alpha_rgb[(alpha_rgb > 0.95)].shape)
-        feature_mic = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature_mic.npy")
-        feature_wires = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature_wires.npy")
-        feature_stand = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature_stand.npy")
+        feature_mic = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature512_mic.npy")
+        feature_wires = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature512_wires.npy")
+        feature_stand = np.load("/gpfs/data/ssrinath/ychen485/implicitSearch/implicitObjDetection/feature512_stand.npy")
 
-        heat = torch.tensordot(clip, torch.tensor(feature_stand).to(torch.float32), dims=([2],[0]))
+        heat = torch.tensordot(clip, torch.tensor(feature_mic).to(torch.float32), dims=([2],[0]))
+        print(heat.max())
         render_mask = heat>0
         alpha_clip = render_mask*alpha_clip
         print(alpha_clip.shape)
