@@ -36,8 +36,8 @@ if __name__=='__main__':
     #cups schemes/
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
     # # root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/room_studio/images/"
-    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/nerf_synthetic/mic/val/"
-    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/nerf_synthetic/mic/val/"
+    data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/brics-ngp/brics-tools/assets/objects/yellow_camero/camero/"
+    root_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/brics-ngp/brics-tools/assets/objects/yellow_camero/camero/"
     # data_path = os.path.join(args.data, "images")
     # root_path = os.path.join(args.data, "images")
     # data_path = "/gpfs/data/ssrinath/ychen485/implicitSearch/test_clip/bags/"
