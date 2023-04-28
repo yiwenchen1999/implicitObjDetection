@@ -498,8 +498,8 @@ def _load_data_brics(basedir, factor=None, width=None, height=None, load_imgs=Tr
     i_eval = np.setdiff1d(i_all, i_train)
     # print(i_eval)
     i_test = i_eval
-    near = 2
-    far = 6
+    near = 0.1
+    far = 15
     c2w = poses_avg(poses)
 
     ## Get spiral

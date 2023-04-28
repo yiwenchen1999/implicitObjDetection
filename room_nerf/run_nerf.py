@@ -424,7 +424,7 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
 
         # alpha_clip = alpha_rgb
         weights = alpha_clip * torch.cumprod(torch.cat([torch.ones((alpha_clip.shape[0], 1)), 1.-alpha_clip + 1e-10], -1), -1)[:, :-1]
-        clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3]
+        clip_map = torch.sum(weights[...,None] * clip, -2)  # [N_rays, 3] #[512 W,512 H,768]
     elif outputClip:
         alpha_clip = raw2alpha_clip(raw[...,-1] + noise, dists)  # [N_rays, N_samples]
         # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
@@ -936,6 +936,8 @@ def train():
         i_train = np.array([i for i in np.arange(int(images.shape[0]))])
         # i_train = np.array([i for i in np.arange(int(images.shape[0])) if
         #                 (i not in i_test and i not in i_val)])
+        near = 0.1
+        far = 15
 
         print('NEAR FAR', near, far)
 
