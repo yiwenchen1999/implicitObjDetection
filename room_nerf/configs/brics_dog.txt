@@ -1,12 +1,12 @@
-expname = brics_dog
+expname = dog
 basedir = ./logs
-datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/brics-tools/assets/objects/dog_seg/
+datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/brics-ngp/brics-tools/assets/objects/dog_native/
 dataset_type = brics
 
 no_batching = True
 
 use_viewdirs = True
-white_bkgd = True
+white_bkgd = False
 lrate_decay = 500
 
 N_samples = 64
