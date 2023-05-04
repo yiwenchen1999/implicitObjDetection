@@ -933,9 +933,11 @@ def train():
 
         i_val = i_test
         print(type(i_test), type(i_val))
-        i_train = np.array([i for i in np.arange(int(images.shape[0]))])
+        i_train_all = np.array([i for i in np.arange(int(images.shape[0]))])
         # i_train = np.array([i for i in np.arange(int(images.shape[0])) if
         #                 (i not in i_test and i not in i_val)])
+        i_train = i_train_all[0:-5]
+        i_test = i_train_all[-10:]
         near = 0.1
         far = 15
 
