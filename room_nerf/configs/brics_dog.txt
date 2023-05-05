@@ -1,6 +1,6 @@
-expname = dog
+expname = bluedog
 basedir = ./logs
-datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/brics-ngp/brics-tools/assets/objects/dog_native/
+datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/brics-ngp/instant-ngp/assets/objects/blue_dog/
 dataset_type = brics
 
 no_batching = True
