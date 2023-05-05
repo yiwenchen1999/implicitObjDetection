@@ -938,8 +938,8 @@ def train():
         #                 (i not in i_test and i not in i_val)])
         i_train = i_train_all[0:-5]
         i_test = i_train_all[-10:]
-        near = 1
-        far = 6
+        near = 0.1
+        far = 5
 
         print('NEAR FAR', near, far)
 
