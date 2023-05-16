@@ -1,7 +1,7 @@
 expname = blue_car
 basedir = ./logs
 datadir = /users/ychen485/data/ychen485/implicitSearch/brics-ngp/instant-ngp/assets/objects/blue_car/
-dataset_type = bircs
+dataset_type = brics
 
 no_batching = True
 
