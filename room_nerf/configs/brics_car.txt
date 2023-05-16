@@ -1,7 +1,7 @@
-expname = brics_car
+expname = blue_car
 basedir = ./logs
-datadir = /gpfs/data/ssrinath/ychen485/implicitSearch/images/
-dataset_type = replica
+datadir = /users/ychen485/data/ychen485/implicitSearch/brics-ngp/instant-ngp/assets/objects/blue_car/
+dataset_type = bircs
 
 N_rand = 1024
 N_samples = 64
